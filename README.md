@@ -56,7 +56,13 @@ EXPO_PUBLIC_BAZAAR_PROXY_URL=http://YOUR_COMPUTER_LAN_IP:8787
 EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB=http://127.0.0.1:8787
 ```
 
-Use your Mac LAN IP for Expo Go on a phone, for example `http://192.168.x.x:8787`. Use `http://127.0.0.1:8787` for Expo Web on the same Mac. The phone and Mac must be on the same Wi-Fi. For production, deploy the same proxy idea to Render, Railway, Fly.io, Vercel, or your own server and use that HTTPS URL.
+Use your Mac LAN IP for Expo Go on a phone, for example `http://192.168.x.x:8787`. Use `http://127.0.0.1:8787` for Expo Web on the same Mac. The phone and Mac must be on the same Wi-Fi. For production, use the deployed HTTPS proxy.
+
+Current Railway production proxy:
+
+```bash
+EXPO_PUBLIC_BAZAAR_PROXY_URL=https://api-production-2e6d.up.railway.app
+```
 
 ## Environment
 
