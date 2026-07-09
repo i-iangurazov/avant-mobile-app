@@ -12,7 +12,7 @@ import { createPool, ensureSchema } from "./server/db";
 import { loadEnv } from "./server/env";
 
 const env = loadEnv();
-const port = Number(env.BAZAAR_PROXY_PORT || 8787);
+const port = Number(env.PORT || env.BAZAAR_PROXY_PORT || 8787);
 const host = env.BAZAAR_PROXY_HOST || "0.0.0.0";
 const bazaarBaseUrl = (env.BAZAAR_API_BASE_URL || "https://www.bazaar.kg/api/bazaar/v1").replace(/\/+$/, "");
 const bazaarToken = env.BAZAAR_API_TOKEN || "";
