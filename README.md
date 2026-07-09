@@ -98,7 +98,14 @@ Current endpoint assumptions:
 - Login: `POST /auth/login`, app backend/Postgres
 - Registration: `POST /auth/register`, app backend/Postgres
 - Profile: `GET/PATCH /profile`, app backend/Postgres
-- Orders: `GET/POST /orders`, must be confirmed by Bazaar
+- Orders: `GET/POST /orders`, Bazaar API. Order creation uses the official `POST /orders` schema:
+  - `externalId`
+  - `customerName`
+  - `customerPhone`
+  - `customerAddress`
+  - `comment`
+  - `lines[].productId`
+  - `lines[].qty`
 
 If an order endpoint is not found, the app reports that explicitly instead of faking success.
 

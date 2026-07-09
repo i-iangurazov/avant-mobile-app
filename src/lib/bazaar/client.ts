@@ -441,20 +441,31 @@ export async function getOrderById(orderId: string): Promise<OrderDetail> {
 }
 
 export async function createOrder(payload: BazaarCreateOrderPayload): Promise<OrderListItem> {
+  const lines = payload.items
+    .filter((item) => item.product_id)
+    .map((item) => ({
+      productId: item.product_id,
+      qty: Math.max(1, Math.floor(Number(item.quantity) || 1))
+    }));
+
+  if (!lines.length) {
+    throw new Error("Корзина пуста.");
+  }
+
   const orderPayload = {
-    customer_name: payload.customerName,
-    customer_phone: payload.customerPhone,
-    delivery_method: payload.deliveryMethod,
-    store_id: payload.storeId ?? null,
-    delivery_address: payload.deliveryAddress ?? null,
-    comment: payload.comment ?? null,
-    items: payload.items.map((item) => ({
-      product_id: item.product_id,
-      quantity: item.quantity,
-      name: item.product?.name,
-      sku: item.product?.sku,
-      price: item.product?.price
-    }))
+    externalId: `AVANTEHNIK-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+    customerName: payload.customerName,
+    customerPhone: payload.customerPhone,
+    customerAddress: payload.deliveryMethod === "delivery"
+      ? payload.deliveryAddress ?? undefined
+      : undefined,
+    comment: [
+      payload.deliveryMethod === "pickup" ? "Самовывоз" : "Доставка",
+      payload.storeId ? `Магазин: ${payload.storeId}` : null,
+      payload.deliveryAddress ? `Адрес: ${payload.deliveryAddress}` : null,
+      payload.comment
+    ].filter(Boolean).join(". "),
+    lines
   };
 
   try {
