@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, type TextStyle, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, type TextStyle, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EmptyState } from "../../src/components/EmptyState";
 import { ErrorState } from "../../src/components/ErrorState";
@@ -12,7 +12,7 @@ import { colors, radius, spacing, typography } from "../../src/constants/theme";
 import {
   useAddToCart,
   useCategories,
-  useProductsByCategory,
+  useInfiniteProductsByCategory,
   type ProductSort
 } from "../../src/hooks/useCatalog";
 import { useToast } from "../../src/hooks/useToast";
@@ -33,11 +33,21 @@ export default function CategoryProductsScreen() {
   const [sort, setSort] = useState<ProductSort>("name");
   const addToCart = useAddToCart();
   const { showToast } = useToast();
-  const products = useProductsByCategory(id, search, "all", sort);
+  const products = useInfiniteProductsByCategory(id, search, "all", sort);
 
   const category = useMemo(
-    () => categories.data?.find((item) => item.id === id),
+    () => categories.data?.find((item) => item.id === id) ?? (id === "all-products"
+      ? {
+          id: "all-products",
+          name: "Все товары",
+          slug: "all-products"
+        }
+      : null),
     [categories.data, id]
+  );
+  const productItems = useMemo(
+    () => products.data?.pages.flatMap((page) => page.products) ?? [],
+    [products.data]
   );
 
   const addProduct = async (product: Product) => {
@@ -113,13 +123,26 @@ export default function CategoryProductsScreen() {
       ) : null}
       {!products.isLoading && !products.isError ? (
         <FlatList
-          data={products.data ?? []}
+          data={productItems}
           renderItem={renderProduct}
           keyExtractor={(item) => item.id}
           numColumns={2}
           columnWrapperStyle={styles.productRow}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          onEndReachedThreshold={0.45}
+          onEndReached={() => {
+            if (products.hasNextPage && !products.isFetchingNextPage) {
+              void products.fetchNextPage();
+            }
+          }}
+          ListFooterComponent={
+            products.isFetchingNextPage ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator color={colors.primary} />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={
             <EmptyState
               title="Ничего не найдено"
@@ -212,6 +235,11 @@ const styles = StyleSheet.create({
   },
   productItem: {
     flex: 1
+  },
+  footerLoader: {
+    minHeight: 64,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 

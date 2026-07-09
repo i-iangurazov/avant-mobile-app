@@ -37,6 +37,19 @@ type ProductQuery = {
   limit?: number;
 };
 
+type ProductPageQuery = ProductQuery & {
+  page?: number;
+  pageSize?: number;
+};
+
+export type ProductPageResult = {
+  products: Product[];
+  page: number;
+  pageSize: number;
+  total: number | null;
+  hasMore: boolean;
+};
+
 export type BazaarCreateOrderPayload = {
   customerName: string;
   customerPhone: string;
@@ -376,6 +389,47 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   }
 
   return sortProducts(products, query.sort).slice(0, query.limit ?? products.length);
+}
+
+export async function getProductsPage(query: ProductPageQuery = {}): Promise<ProductPageResult> {
+  const page = Math.max(1, Math.floor(Number(query.page) || 1));
+  const pageSize = Math.max(1, Math.min(100, Math.floor(Number(query.pageSize) || DEFAULT_PRODUCTS_PAGE_SIZE)));
+  const payload = await bazaarClient.getProductsRaw({
+    page,
+    pageSize,
+    search: query.search?.trim() ?? undefined
+  });
+  const total = getPayloadTotal(payload);
+  let products = adaptProducts(payload);
+
+  if (query.categoryId && query.categoryId !== "all-products") {
+    products = products.filter((product) => product.category_id === query.categoryId);
+  }
+
+  if (query.search?.trim()) {
+    const normalized = query.search.trim().toLowerCase();
+    products = products.filter((product) =>
+      [
+        product.name,
+        product.sku,
+        product.brand,
+        product.description,
+        product.category?.name
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(normalized)
+    );
+  }
+
+  return {
+    products: sortProducts(products, query.sort),
+    page,
+    pageSize,
+    total,
+    hasMore: total !== null ? page * pageSize < total : products.length >= pageSize
+  };
 }
 
 export async function getProductById(productId: string): Promise<Product> {

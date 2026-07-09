@@ -33,7 +33,7 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const AUTH_STORAGE_KEY = "avantehnik:bazaar-session:v1";
+const AUTH_STORAGE_KEY = "avantehnik.bazaar-session.v1";
 
 const storage = {
   async getItem(key: string) {
@@ -187,4 +187,3 @@ export function useAuth() {
 
   return value;
 }
-

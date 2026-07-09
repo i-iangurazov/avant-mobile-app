@@ -111,8 +111,8 @@ try {
   await delay(2500);
   await send("Runtime.evaluate", {
     expression: `
-      localStorage.setItem("avantehnik:bazaar-session:v1", ${JSON.stringify(session)});
-      localStorage.setItem("AsyncStorage:avantehnik:bazaar-session:v1", ${JSON.stringify(session)});
+      localStorage.setItem("avantehnik.bazaar-session.v1", ${JSON.stringify(session)});
+      localStorage.setItem("AsyncStorage:avantehnik.bazaar-session.v1", ${JSON.stringify(session)});
     `,
     returnByValue: true
   });

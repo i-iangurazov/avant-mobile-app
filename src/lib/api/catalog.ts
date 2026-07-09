@@ -1,5 +1,5 @@
 import type { ProductFilter, ProductSort } from "../../hooks/useCatalog";
-import { getCategories, getProductById, getProducts } from "../bazaar/client";
+import { getCategories, getProductById, getProducts, getProductsPage } from "../bazaar/client";
 
 type ProductQuery = {
   categoryId?: string;
@@ -7,6 +7,8 @@ type ProductQuery = {
   filter?: ProductFilter;
   sort?: ProductSort;
   limit?: number;
+  page?: number;
+  pageSize?: number;
 };
 
 export async function fetchCategories() {
@@ -24,6 +26,22 @@ export async function fetchProducts({
     search,
     sort,
     limit
+  });
+}
+
+export async function fetchProductPage({
+  categoryId,
+  search = "",
+  sort = "name",
+  page = 1,
+  pageSize = 40
+}: ProductQuery = {}) {
+  return getProductsPage({
+    categoryId,
+    search,
+    sort,
+    page,
+    pageSize
   });
 }
 
