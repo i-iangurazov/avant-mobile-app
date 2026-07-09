@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: avantehnik-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: avantehnik
+      POSTGRES_USER: avantehnik
+      POSTGRES_PASSWORD: avantehnik_dev_password
+    ports:
+      - "5438:5432"
+    volumes:
+      - avantehnik-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  avantehnik-postgres-data:

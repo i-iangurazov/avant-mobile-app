@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Авантехник",
+    "slug": "avantehnik",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/imports/avant-icon.png",
+    "scheme": "avantehnik",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./src/imports/avant-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "assetBundlePatterns": [
+      "src/imports/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "kg.avantehnik.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Авантехник использует камеру для поиска товаров по фото.",
+        "NSPhotoLibraryUsageDescription": "Авантехник использует галерею для загрузки фото товара."
+      }
+    },
+    "android": {
+      "package": "kg.avantehnik.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/imports/avant-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-image-picker",
+      "expo-secure-store",
+      "expo-font"
+    ]
+  }
+}

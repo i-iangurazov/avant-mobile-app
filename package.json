@@ -1,0 +1,63 @@
+{
+  "name": "avantehnik-mobile-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "android": "expo start --android",
+    "lint": "expo lint",
+    "typecheck": "tsc --noEmit",
+    "check:bazaar": "tsx scripts/check-bazaar.ts",
+    "check:db": "tsx scripts/check-db.ts",
+    "db:up": "docker compose up -d postgres",
+    "dev:proxy": "tsx scripts/bazaar-proxy.ts",
+    "dev:all": "tsx scripts/dev-all.ts",
+    "visual:smoke": "node scripts/visual-smoke.mjs",
+    "visual:auth": "node scripts/auth-flow-smoke.mjs",
+    "visual:back": "node scripts/back-button-smoke.mjs",
+    "visual:cart": "node scripts/cart-flow-smoke.mjs",
+    "smoke": "npm run typecheck && npm run lint && npm run check:bazaar && npm run check:db",
+    "visual:order": "node scripts/order-detail-smoke.mjs"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@tanstack/react-query": "^5.101.2",
+    "expo": "~54.0.35",
+    "expo-constants": "~18.0.13",
+    "expo-font": "~14.0.12",
+    "expo-image-picker": "~17.0.11",
+    "expo-linking": "~8.0.12",
+    "expo-router": "~6.0.24",
+    "expo-secure-store": "~15.0.8",
+    "expo-status-bar": "~3.0.9",
+    "pg": "^8.22.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-screens": "~4.16.0",
+    "react-native-url-polyfill": "^3.0.0",
+    "react-native-web": "^0.21.0",
+    "react-native-webview": "13.15.0",
+    "zustand": "^5.0.8"
+  },
+  "overrides": {
+    "js-yaml": "4.2.0",
+    "postcss": "8.5.15",
+    "react-dom": "19.1.0",
+    "react-server-dom-webpack": "19.1.5",
+    "uuid": "11.1.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "@types/react": "~19.1.17",
+    "babel-preset-expo": "~54.0.11",
+    "eslint": "^9.39.1",
+    "eslint-config-expo": "~10.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.2"
+  }
+}
