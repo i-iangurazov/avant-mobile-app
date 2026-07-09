@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Image, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
 import { LoadingState } from "../../src/components/LoadingState";
@@ -25,29 +25,64 @@ export default function ImageSearchScreen() {
   const [resultMessage, setResultMessage] = useState("Поиск по фото будет доступен после подключения сервиса распознавания товаров.");
   const [results, setResults] = useState<Product[]>([]);
 
-  const pickImage = async (source: "camera" | "library") => {
-    const result = source === "camera"
-      ? await ImagePicker.launchCameraAsync({ quality: 0.8, allowsEditing: false })
-      : await ImagePicker.launchImageLibraryAsync({
-          quality: 0.8,
-          allowsEditing: false,
-          mediaTypes: ImagePicker.MediaTypeOptions.Images
-        });
+  const showPermissionAlert = (source: "camera" | "library") => {
+    const title = source === "camera" ? "Нет доступа к камере" : "Нет доступа к фото";
+    const message = source === "camera"
+      ? "Разрешите доступ к камере в настройках, чтобы сделать фото товара."
+      : "Разрешите доступ к галерее в настройках, чтобы загрузить фото товара.";
 
-    if (result.canceled || !result.assets[0]) {
-      return;
+    Alert.alert(title, message, [
+      { text: "Отмена", style: "cancel" },
+      { text: "Открыть настройки", onPress: () => void Linking.openSettings() }
+    ]);
+  };
+
+  const requestPermission = async (source: "camera" | "library") => {
+    const permission = source === "camera"
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      showPermissionAlert(source);
+      return false;
     }
 
-    const asset = result.assets[0];
-    setImageUri(asset.uri);
+    return true;
+  };
 
+  const pickImage = async (source: "camera" | "library") => {
     try {
-      const result = await uploadImage.mutateAsync(asset);
-      setResultMessage(result.message);
-      setResults(result.products);
+      const hasPermission = await requestPermission(source);
+
+      if (!hasPermission) {
+        return;
+      }
+
+      const result = source === "camera"
+        ? await ImagePicker.launchCameraAsync({ quality: 0.8, allowsEditing: false })
+        : await ImagePicker.launchImageLibraryAsync({
+            quality: 0.8,
+            allowsEditing: false,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images
+          });
+
+      if (result.canceled || !result.assets[0]) {
+        return;
+      }
+
+      const asset = result.assets[0];
+      setImageUri(asset.uri);
+
+      const uploadResult = await uploadImage.mutateAsync(asset);
+      setResultMessage(uploadResult.message);
+      setResults(uploadResult.products);
       setUploaded(true);
     } catch (error) {
-      Alert.alert("Не удалось загрузить фото", friendlyError(error instanceof Error ? error.message : undefined));
+      const message = friendlyError(error instanceof Error ? error.message : undefined);
+      Alert.alert(
+        source === "camera" ? "Не удалось сделать фото" : "Не удалось загрузить фото",
+        message
+      );
     }
   };
 

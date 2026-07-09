@@ -5,6 +5,8 @@ type ProductQuery = {
   categoryId?: string;
   search?: string;
   filter?: ProductFilter;
+  inStock?: boolean;
+  withPrice?: boolean;
   sort?: ProductSort;
   limit?: number;
   page?: number;
@@ -18,12 +20,16 @@ export async function fetchCategories() {
 export async function fetchProducts({
   categoryId,
   search = "",
+  inStock,
+  withPrice,
   sort = "name",
   limit
 }: ProductQuery = {}) {
   return getProducts({
     categoryId,
     search,
+    inStock,
+    withPrice,
     sort,
     limit
   });
@@ -32,6 +38,8 @@ export async function fetchProducts({
 export async function fetchProductPage({
   categoryId,
   search = "",
+  inStock,
+  withPrice,
   sort = "name",
   page = 1,
   pageSize = 40
@@ -39,6 +47,8 @@ export async function fetchProductPage({
   return getProductsPage({
     categoryId,
     search,
+    inStock,
+    withPrice,
     sort,
     page,
     pageSize

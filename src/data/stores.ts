@@ -21,6 +21,7 @@ export const stores: StoreLocation[] = [
     address: "Безымянная улица, 20/4, 6 ряд, 46С контейнер, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[0],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 1,
     is_active: true
@@ -31,6 +32,7 @@ export const stores: StoreLocation[] = [
     address: "Улица Ибраимова, 66, 3 ряд, 73, 76 бутик, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[1],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 2,
     is_active: true
@@ -41,6 +43,7 @@ export const stores: StoreLocation[] = [
     address: "Улица Льва Толстого, 19, 1 этаж, 46-48 контейнер, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[2],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 3,
     is_active: true
@@ -51,6 +54,7 @@ export const stores: StoreLocation[] = [
     address: "Табылга, проспект Жибек-Жолу, 150, 1 этаж, Б16, Б17 бутик, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[3],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 4,
     is_active: true
@@ -61,6 +65,7 @@ export const stores: StoreLocation[] = [
     address: "Улица Орозбекова, 354, 1 этаж, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[4],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 5,
     is_active: true
@@ -71,6 +76,7 @@ export const stores: StoreLocation[] = [
     address: "Улица Евразия, 4, 7 контейнер, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
+    two_gis_firm_id: TWO_GIS_FIRM_IDS[5],
     external_2gis_url: TWO_GIS_OPEN_URL,
     sort_order: 6,
     is_active: true

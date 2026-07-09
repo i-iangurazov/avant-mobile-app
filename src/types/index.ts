@@ -82,6 +82,7 @@ export type StoreLocation = {
   phone?: string | null;
   latitude?: number | string | null;
   longitude?: number | string | null;
+  two_gis_firm_id?: string | null;
   external_2gis_url?: string | null;
   sort_order?: number | null;
   is_active?: boolean | null;

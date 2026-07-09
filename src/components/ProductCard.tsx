@@ -16,6 +16,11 @@ export function ProductCard({
   onPress,
   onAdd
 }: ProductCardProps) {
+  const stockText =
+    typeof product.stock_quantity === "number" && product.stock_quantity > 0
+      ? `В наличии: ${product.stock_quantity}`
+      : product.availability_label || "Под заказ";
+
   return (
     <View style={styles.card}>
       <View style={styles.imageWrap}>
@@ -32,6 +37,7 @@ export function ProductCard({
           <Text style={styles.category}>{product.category?.name ?? product.brand ?? "Товар"}</Text>
           <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
           <Text style={styles.price}>{formatPrice(product.price, product.price_label ?? "Цена уточняется")}</Text>
+          <Text style={styles.stock}>{stockText}</Text>
         </View>
       </Pressable>
       <View style={styles.buttonWrap}>
@@ -80,6 +86,11 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.small,
     fontWeight: "900"
+  },
+  stock: {
+    color: colors.textMuted,
+    fontSize: typography.tiny,
+    fontWeight: "800"
   },
   buttonWrap: {
     paddingHorizontal: spacing.md,

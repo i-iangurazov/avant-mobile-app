@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ErrorState } from "../../../src/components/ErrorState";
 import { LoadingState } from "../../../src/components/LoadingState";
@@ -9,10 +10,21 @@ import { useStores } from "../../../src/hooks/useStores";
 
 export default function MapsScreen() {
   const stores = useStores();
+  const [selectedStoreId, setSelectedStoreId] = useState("store-1");
+  const [mapInteracting, setMapInteracting] = useState(false);
+  const selectedStore = useMemo(
+    () => stores.data?.find((store) => store.id === selectedStoreId) ?? stores.data?.[0],
+    [selectedStoreId, stores.data]
+  );
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={!mapInteracting}
+        nestedScrollEnabled
+      >
         <View style={styles.header}>
           <Text style={styles.title}>Магазины</Text>
           <Text style={styles.subtitle}>Точки продаж и самовывоза в Бишкеке</Text>
@@ -23,7 +35,34 @@ export default function MapsScreen() {
 
         {!stores.isLoading && !stores.isError ? (
           <>
-            <TwoGisMap />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.storeTabs}
+            >
+              {(stores.data ?? []).map((store) => {
+                const active = store.id === selectedStore?.id;
+
+                return (
+                  <Pressable
+                    key={store.id}
+                    accessibilityRole="button"
+                    onPress={() => setSelectedStoreId(store.id)}
+                    style={[styles.storeTab, active && styles.storeTabActive]}
+                  >
+                    <Text style={[styles.storeTabText, active && styles.storeTabTextActive]} numberOfLines={1}>
+                      {store.name.replace("Авантехник ", "")}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+
+            <TwoGisMap
+              firmId={selectedStore?.two_gis_firm_id}
+              storeName={selectedStore?.name ?? "Авантехник"}
+              onInteractionChange={setMapInteracting}
+            />
 
             <View style={styles.cards}>
               {(stores.data ?? []).map((store) => (
@@ -62,8 +101,36 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginTop: 2
   },
+  storeTabs: {
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
+    gap: spacing.sm
+  },
+  storeTab: {
+    minHeight: 38,
+    maxWidth: 190,
+    borderRadius: 999,
+    paddingHorizontal: spacing.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  storeTabActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary
+  },
+  storeTabText: {
+    color: colors.textMuted,
+    fontSize: typography.small,
+    fontWeight: "800"
+  },
+  storeTabTextActive: {
+    color: colors.surface
+  },
   cards: {
-    marginTop: spacing.xxxl * 2,
+    marginTop: spacing.lg,
     paddingHorizontal: spacing.xl,
     gap: spacing.md,
     alignItems: "stretch"

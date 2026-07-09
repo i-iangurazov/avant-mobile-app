@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, type TextStyle, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EmptyState } from "../../src/components/EmptyState";
@@ -30,10 +30,16 @@ export default function CategoryProductsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const categories = useCategories();
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sort, setSort] = useState<ProductSort>("name");
   const addToCart = useAddToCart();
   const { showToast } = useToast();
-  const products = useInfiniteProductsByCategory(id, search, "all", sort);
+  const products = useInfiniteProductsByCategory(id, debouncedSearch, "all", sort);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   const category = useMemo(
     () => categories.data?.find((item) => item.id === id) ?? (id === "all-products"

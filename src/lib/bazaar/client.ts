@@ -33,6 +33,7 @@ type ProductQuery = {
   categoryId?: string;
   search?: string;
   inStock?: boolean;
+  withPrice?: boolean;
   sort?: "name" | "price_asc" | "price_desc";
   limit?: number;
 };
@@ -149,6 +150,18 @@ const sortProducts = (products: Product[], sort: ProductQuery["sort"] = "name") 
   }
 
   return sorted.sort((a, b) => a.name.localeCompare(b.name, "ru"));
+};
+
+const productMatchesQuery = (product: Product, query: Pick<ProductQuery, "inStock" | "withPrice">) => {
+  if (query.inStock && !(product.inStock === true || (product.stock_quantity ?? 0) > 0)) {
+    return false;
+  }
+
+  if (query.withPrice && (product.price === null || product.price === undefined)) {
+    return false;
+  }
+
+  return true;
 };
 
 const adaptCustomerSession = (
@@ -357,6 +370,25 @@ export async function getCategories(): Promise<Category[]> {
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
   const category = categoryById(query.categoryId);
   const shouldStopEarly = query.limit && !query.search?.trim() && (!query.categoryId || query.categoryId === "all-products");
+
+  if (query.limit && (query.inStock || query.withPrice) && !query.search?.trim() && (!query.categoryId || query.categoryId === "all-products")) {
+    const pageSize = DEFAULT_PRODUCTS_PAGE_SIZE;
+    const visibleProducts: Product[] = [];
+    let total: number | null = null;
+
+    for (let page = 1; page <= 20; page += 1) {
+      const payload = await bazaarClient.getProductsRaw({ page, pageSize });
+      total = total ?? getPayloadTotal(payload);
+      visibleProducts.push(...adaptProducts(payload).filter((product) => productMatchesQuery(product, query)));
+
+      if (visibleProducts.length >= query.limit || (total !== null && page * pageSize >= total)) {
+        break;
+      }
+    }
+
+    return sortProducts(visibleProducts, query.sort).slice(0, query.limit);
+  }
+
   let products = await getAllProductsFromApi(
     {
       pageSize: DEFAULT_PRODUCTS_PAGE_SIZE,
@@ -388,6 +420,8 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
     );
   }
 
+  products = products.filter((product) => productMatchesQuery(product, query));
+
   return sortProducts(products, query.sort).slice(0, query.limit ?? products.length);
 }
 
@@ -405,6 +439,8 @@ export async function getProductsPage(query: ProductPageQuery = {}): Promise<Pro
   if (query.categoryId && query.categoryId !== "all-products") {
     products = products.filter((product) => product.category_id === query.categoryId);
   }
+
+  products = products.filter((product) => productMatchesQuery(product, query));
 
   if (query.search?.trim()) {
     const normalized = query.search.trim().toLowerCase();
@@ -435,13 +471,35 @@ export async function getProductsPage(query: ProductPageQuery = {}): Promise<Pro
 export async function getProductById(productId: string): Promise<Product> {
   const payload = await bazaarClient.getProductRaw(productId);
   const products = adaptProducts(payload);
-  const product = products.find((item) => item.id === productId) ?? products[0] ?? adaptProduct(payload);
+  const directProduct = products.find((item) => item.id === productId);
 
-  if (!product || product.id === "unknown-product") {
-    throw new Error("Товар не найден.");
+  if (directProduct) {
+    return directProduct;
   }
 
-  return product;
+  const singleProduct = adaptProduct(payload);
+
+  if (singleProduct && singleProduct.id === productId) {
+    return singleProduct;
+  }
+
+  const pageSize = DEFAULT_PRODUCTS_PAGE_SIZE;
+
+  for (let page = 1; page <= 30; page += 1) {
+    const pagePayload = await bazaarClient.getProductsRaw({ page, pageSize });
+    const total = getPayloadTotal(pagePayload);
+    const product = adaptProducts(pagePayload).find((item) => item.id === productId);
+
+    if (product) {
+      return product;
+    }
+
+    if (total !== null && page * pageSize >= total) {
+      break;
+    }
+  }
+
+  throw new Error("Товар не найден.");
 }
 
 export async function searchProducts(search: string): Promise<Product[]> {

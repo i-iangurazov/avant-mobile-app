@@ -15,7 +15,7 @@ import type { Product } from "../../../src/types";
 
 export default function CatalogScreen() {
   const categories = useCategories();
-  const productsPreview = usePopularProducts(4);
+  const productsPreview = usePopularProducts(15);
   const addToCart = useAddToCart();
   const { showToast } = useToast();
   const allProducts = categories.data?.find((category) => category.id === "all-products");

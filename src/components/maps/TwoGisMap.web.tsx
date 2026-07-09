@@ -10,17 +10,22 @@ const iframeStyle: React.CSSProperties = {
   border: 0
 };
 
-const buildMapUrl = () => {
+type TwoGisMapProps = {
+  firmId?: string | null;
+  storeName?: string;
+};
+
+const buildMapUrl = (firmId?: string | null) => {
   const options = {
     pos: {
       lat: 42.88904574206037,
       lon: 74.60369110107423,
-      zoom: 15
+      zoom: firmId ? 17 : 13
     },
     opt: {
       city: "bishkek"
     },
-    org: TWO_GIS_FIRM_IDS.join(",")
+    org: firmId || TWO_GIS_FIRM_IDS.join(",")
   };
 
   return `https://widgets.2gis.com/widget?type=firmsonmap&options=${encodeURIComponent(
@@ -28,23 +33,27 @@ const buildMapUrl = () => {
   )}`;
 };
 
-export function TwoGisMap() {
-  const mapUrl = useMemo(buildMapUrl, []);
+export function TwoGisMap({
+  firmId,
+  storeName = "Авантехник"
+}: TwoGisMapProps) {
+  const mapUrl = useMemo(() => buildMapUrl(firmId), [firmId]);
 
   return (
     <View style={styles.container}>
       {React.createElement("iframe", {
+        key: firmId || "all",
         src: mapUrl,
         title: "Карта магазинов Авантехник 2GIS",
         style: iframeStyle
       })}
       <View style={styles.mapLabel}>
         <Ionicons name="map-outline" size={16} color={colors.primary} />
-        <Text style={styles.mapLabelText}>2GIS карта Авантехник</Text>
+        <Text style={styles.mapLabelText} numberOfLines={1}>{storeName}</Text>
       </View>
       <View style={styles.widgetCtaCover}>
         <Ionicons name="storefront-outline" size={15} color={colors.primary} />
-        <Text style={styles.widgetCtaCoverText}>6 магазинов</Text>
+        <Text style={styles.widgetCtaCoverText}>{firmId ? "Точка продаж" : "6 магазинов"}</Text>
       </View>
     </View>
   );
@@ -52,7 +61,7 @@ export function TwoGisMap() {
 
 const styles = StyleSheet.create({
   container: {
-    height: 560,
+    height: 430,
     margin: spacing.xl,
     borderRadius: radius.xl,
     overflow: "hidden",
@@ -63,6 +72,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacing.md,
     top: spacing.md,
+    maxWidth: "72%",
     minHeight: 36,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
@@ -75,6 +85,7 @@ const styles = StyleSheet.create({
     ...shadows.card
   },
   mapLabelText: {
+    flexShrink: 1,
     color: colors.text,
     fontSize: typography.small,
     fontWeight: "900"

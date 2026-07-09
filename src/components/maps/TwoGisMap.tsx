@@ -5,17 +5,23 @@ import { WebView } from "react-native-webview";
 import { colors, radius, shadows, spacing, typography } from "../../constants/theme";
 import { TWO_GIS_FIRM_IDS, TWO_GIS_OPEN_URL } from "../../data/stores";
 
-const buildMapUrl = () => {
+type TwoGisMapProps = {
+  firmId?: string | null;
+  storeName?: string;
+  onInteractionChange?: (isInteracting: boolean) => void;
+};
+
+const buildMapUrl = (firmId?: string | null) => {
   const options = {
     pos: {
       lat: 42.88904574206037,
       lon: 74.60369110107423,
-      zoom: 15
+      zoom: firmId ? 17 : 13
     },
     opt: {
       city: "bishkek"
     },
-    org: TWO_GIS_FIRM_IDS.join(",")
+    org: firmId || TWO_GIS_FIRM_IDS.join(",")
   };
 
   return `https://widgets.2gis.com/widget?type=firmsonmap&options=${encodeURIComponent(
@@ -23,9 +29,13 @@ const buildMapUrl = () => {
   )}`;
 };
 
-export function TwoGisMap() {
+export function TwoGisMap({
+  firmId,
+  storeName = "Авантехник",
+  onInteractionChange
+}: TwoGisMapProps) {
   const [hasError, setHasError] = useState(false);
-  const mapUrl = useMemo(buildMapUrl, []);
+  const mapUrl = useMemo(() => buildMapUrl(firmId), [firmId]);
 
   const openInTwoGis = () => {
     void Linking.openURL(TWO_GIS_OPEN_URL);
@@ -54,12 +64,20 @@ export function TwoGisMap() {
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={styles.container}
+      onTouchStart={() => onInteractionChange?.(true)}
+      onTouchEnd={() => onInteractionChange?.(false)}
+      onTouchCancel={() => onInteractionChange?.(false)}
+    >
       <WebView
+        key={firmId || "all"}
         source={{ uri: mapUrl }}
         style={styles.webview}
         javaScriptEnabled
         domStorageEnabled
+        scrollEnabled
+        nestedScrollEnabled
         startInLoadingState
         mixedContentMode="always"
         originWhitelist={["*"]}
@@ -71,9 +89,13 @@ export function TwoGisMap() {
           </View>
         )}
       />
+      <View style={styles.mapLabel}>
+        <Ionicons name="map-outline" size={15} color={colors.primary} />
+        <Text style={styles.mapLabelText} numberOfLines={1}>{storeName}</Text>
+      </View>
       <View style={styles.widgetCtaCover}>
         <Ionicons name="storefront-outline" size={15} color={colors.primary} />
-        <Text style={styles.widgetCtaCoverText}>6 магазинов</Text>
+        <Text style={styles.widgetCtaCoverText}>{firmId ? "Точка продаж" : "6 магазинов"}</Text>
       </View>
     </View>
   );
@@ -81,7 +103,7 @@ export function TwoGisMap() {
 
 const styles = StyleSheet.create({
   container: {
-    height: 560,
+    height: 430,
     margin: spacing.xl,
     borderRadius: radius.xl,
     overflow: "hidden",
@@ -97,6 +119,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.surfaceMuted
+  },
+  mapLabel: {
+    position: "absolute",
+    right: spacing.sm,
+    top: spacing.sm,
+    maxWidth: "72%",
+    minHeight: 36,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    zIndex: 5,
+    ...shadows.card
+  },
+  mapLabelText: {
+    flexShrink: 1,
+    color: colors.text,
+    fontSize: typography.tiny,
+    fontWeight: "900"
   },
   widgetCtaCover: {
     position: "absolute",

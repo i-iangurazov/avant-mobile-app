@@ -91,6 +91,7 @@ export function usePopularProducts(limit = 4) {
     queryFn: () =>
       fetchProducts({
         sort: "name",
+        inStock: true,
         limit
       })
   });
