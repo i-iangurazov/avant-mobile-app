@@ -15,7 +15,7 @@ const buildMapUrl = () => {
     pos: {
       lat: 42.88904574206037,
       lon: 74.60369110107423,
-      zoom: 12
+      zoom: 13
     },
     opt: {
       city: "bishkek"

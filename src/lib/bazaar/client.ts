@@ -326,16 +326,16 @@ export async function getCategories(): Promise<Category[]> {
     }
   }
 
-  const allProductsFromApi = await getAllProductsFromApi({ pageSize: DEFAULT_PRODUCTS_PAGE_SIZE });
-  const productDerivedCategories = deriveCategoriesFromProducts(allProductsFromApi);
+  const productsPayload = await bazaarClient.getProductsRaw({ page: 1, pageSize: DEFAULT_PRODUCTS_PAGE_SIZE });
+  const productDerivedCategories = deriveCategoriesFromProducts(productsPayload);
   const allProducts = productDerivedCategories.find((category) => category.id === "all-products") ?? {
     id: "all-products",
     name: "Все товары",
     slug: "all-products",
     imageUrl: null,
     image_url: null,
-    productsCount: allProductsFromApi.length,
-    product_count: allProductsFromApi.length
+    productsCount: 0,
+    product_count: 0
   };
 
   return productDerivedCategories.length ? productDerivedCategories : [allProducts];
