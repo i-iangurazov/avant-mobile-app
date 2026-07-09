@@ -122,10 +122,18 @@ If an order endpoint is not found, the app reports that explicitly instead of fa
 ## What Is Local
 
 - Cart is persisted locally with AsyncStorage as a temporary basket.
-- Photo search currently accepts camera/gallery input, then shows that recognition requires a Bazaar image-search endpoint.
+- Photo search currently accepts camera/gallery input and offers WhatsApp support. Automatic visual matching is disabled unless `EXPO_PUBLIC_IMAGE_SEARCH_ENABLED=true` and a real `EXPO_PUBLIC_IMAGE_SEARCH_URL` recognition endpoint is configured.
 - Store addresses are static business data.
 
 No production catalog, product, or order screen uses local JSON fixtures as a data source.
+
+Real Taobao/Pinduoduo-style image search still requires:
+
+- real product photos in the catalog
+- an image-recognition/vector-search backend endpoint
+- product-image embeddings or a commercial vision API
+- server-side API keys and storage for uploaded images
+- a response that returns matching Bazaar product IDs
 
 ## Checks
 

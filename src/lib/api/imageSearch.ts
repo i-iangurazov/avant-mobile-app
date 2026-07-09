@@ -1,6 +1,6 @@
 import type * as ImagePicker from "expo-image-picker";
 import type { Product } from "../../types";
-import { bazaarProxyBaseUrl } from "../config/env";
+import { bazaarProxyBaseUrl, imageSearchEnabled, imageSearchEndpoint } from "../config/env";
 import { normalizeApiError } from "../errors/normalizeApiError";
 import { adaptProducts } from "../bazaar/adapters";
 
@@ -10,9 +10,18 @@ export type ImageSearchResult = {
 };
 
 export async function requestImageSearch(asset: ImagePicker.ImagePickerAsset): Promise<ImageSearchResult> {
-  if (!bazaarProxyBaseUrl) {
+  if (!imageSearchEnabled) {
     return {
-      message: "Поиск по фото будет доступен после подключения сервиса распознавания товаров.",
+      message: "Фото принято. Автоматический поиск похожих товаров будет доступен после подключения сервиса распознавания. Сейчас менеджер поможет найти товар по фото в WhatsApp.",
+      products: []
+    };
+  }
+
+  const endpoint = imageSearchEndpoint || (bazaarProxyBaseUrl ? `${bazaarProxyBaseUrl}/image-search` : "");
+
+  if (!endpoint) {
+    return {
+      message: "Фото принято. Сервис поиска по фото ещё не подключён.",
       products: []
     };
   }
@@ -25,7 +34,7 @@ export async function requestImageSearch(asset: ImagePicker.ImagePickerAsset): P
   } as unknown as Blob);
 
   try {
-    const response = await fetch(`${bazaarProxyBaseUrl}/image-search`, {
+    const response = await fetch(endpoint, {
       method: "POST",
       body: formData
     });
@@ -34,7 +43,7 @@ export async function requestImageSearch(asset: ImagePicker.ImagePickerAsset): P
 
     if (response.status === 501 || response.status === 404) {
       return {
-        message: "Поиск по фото будет доступен после подключения сервиса распознавания товаров.",
+        message: "Фото принято. Автоматический поиск похожих товаров будет доступен после подключения сервиса распознавания. Сейчас менеджер поможет найти товар по фото в WhatsApp.",
         products: []
       };
     }

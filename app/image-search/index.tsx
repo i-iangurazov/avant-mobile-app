@@ -14,6 +14,7 @@ import { useUploadImageSearch } from "../../src/hooks/useImageSearch";
 import { useToast } from "../../src/hooks/useToast";
 import { friendlyError } from "../../src/lib/formatters";
 import { safeBack } from "../../src/lib/navigation/safeBack";
+import { openWhatsApp } from "../../src/lib/whatsapp";
 import type { Product } from "../../src/types";
 
 export default function ImageSearchScreen() {
@@ -22,7 +23,7 @@ export default function ImageSearchScreen() {
   const { showToast } = useToast();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [uploaded, setUploaded] = useState(false);
-  const [resultMessage, setResultMessage] = useState("Поиск по фото будет доступен после подключения сервиса распознавания товаров.");
+  const [resultMessage, setResultMessage] = useState("Сделайте фото товара или загрузите изображение. Если автоматический поиск недоступен, менеджер поможет найти товар по фото.");
   const [results, setResults] = useState<Product[]>([]);
 
   const showPermissionAlert = (source: "camera" | "library") => {
@@ -63,7 +64,7 @@ export default function ImageSearchScreen() {
         : await ImagePicker.launchImageLibraryAsync({
             quality: 0.8,
             allowsEditing: false,
-            mediaTypes: ImagePicker.MediaTypeOptions.Images
+            mediaTypes: ["images"]
           });
 
       if (result.canceled || !result.assets[0]) {
@@ -83,6 +84,14 @@ export default function ImageSearchScreen() {
         source === "camera" ? "Не удалось сделать фото" : "Не удалось загрузить фото",
         message
       );
+    }
+  };
+
+  const askManager = async () => {
+    try {
+      await openWhatsApp("Здравствуйте! Хочу найти товар по фото. Сейчас отправлю изображение следующим сообщением.");
+    } catch (error) {
+      Alert.alert("WhatsApp", friendlyError(error instanceof Error ? error.message : undefined));
     }
   };
 
@@ -119,7 +128,7 @@ export default function ImageSearchScreen() {
           </View>
           <View style={styles.textBlock}>
             <Text style={styles.title}>Поиск по фото</Text>
-            <Text style={styles.subtitle}>Сфотографируйте товар или загрузите изображение. Приложение проверит, подключён ли сервис поиска похожих товаров.</Text>
+            <Text style={styles.subtitle}>Сфотографируйте товар или загрузите изображение. Если автоматический поиск недоступен, менеджер поможет найти товар по фото.</Text>
           </View>
           <View style={styles.actions}>
             <AppButton
@@ -151,20 +160,27 @@ export default function ImageSearchScreen() {
               <Image source={{ uri: imageUri }} style={styles.preview} resizeMode="cover" />
               <View style={styles.resultTextWrap}>
                 <Text style={styles.resultTitle}>
-                  {results.length ? "Похожие товары" : uploaded ? "Фото загружено" : "Загрузка фото"}
+                  {results.length ? "Похожие товары" : uploaded ? "Фото принято" : "Загрузка фото"}
                 </Text>
                 <Text style={styles.resultSubtitle}>
                   {resultMessage}
                 </Text>
               </View>
               {uploadImage.isPending ? <LoadingState text="Проверяем изображение..." /> : null}
+              {!results.length && uploaded ? (
+                <AppButton
+                  title="Написать менеджеру"
+                  onPress={() => void askManager()}
+                  icon={<Ionicons name="logo-whatsapp" size={18} color={colors.surface} />}
+                />
+              ) : null}
               <Pressable
                 accessibilityRole="button"
                 onPress={() => {
                   setImageUri(null);
                   setUploaded(false);
                   setResults([]);
-                  setResultMessage("Поиск по фото будет доступен после подключения сервиса распознавания товаров.");
+                  setResultMessage("Сделайте фото товара или загрузите изображение. Если автоматический поиск недоступен, менеджер поможет найти товар по фото.");
                 }}
                 style={styles.changePhoto}
               >

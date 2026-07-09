@@ -1,3 +1,5 @@
+import { debugApiErrors } from "../config/env";
+
 const UNKNOWN_ERROR = "Что-то пошло не так. Попробуйте ещё раз.";
 
 const getRawMessage = (error: unknown) => {
@@ -34,7 +36,7 @@ export function normalizeApiError(error: unknown, fallback = UNKNOWN_ERROR) {
   const rawMessage = getRawMessage(error);
   const lower = rawMessage.toLowerCase();
 
-  if (isDevelopmentRuntime() && error) {
+  if (debugApiErrors && isDevelopmentRuntime() && error) {
     console.warn("[api:error]", error);
   }
 
