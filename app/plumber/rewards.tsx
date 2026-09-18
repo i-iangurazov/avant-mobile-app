@@ -15,6 +15,8 @@ import { formatBonus } from "../../src/lib/programFormat";
 import { safeBack } from "../../src/lib/navigation/safeBack";
 import type { LoyaltyReward } from "../../src/types";
 
+const rewardStatuses:Record<string,string>={pending:"Ожидает обработки",approved:"Одобрена",fulfilled:"Выдана",cancelled:"Отменена"};
+
 export default function RewardsScreen() {
   const { user } = useAuth();
   const rewards = useRewards();
@@ -30,7 +32,7 @@ export default function RewardsScreen() {
   return <SafeAreaView edges={["top"]} style={styles.safe}>
     <ScreenHeader title="Награды" subtitle={`Доступно: ${formatBonus(dashboard.data?.balances.availableMinor ?? 0)}`} onBack={() => safeBack("/plumber-home")} />
     {attempt.isError?<ErrorState message="Не удалось восстановить предыдущую попытку обмена." onRetry={()=>void attempt.refetch()}/>:null}
-    {attempt.data?<View style={styles.notice}><Text style={styles.title}>{attempt.data.accepted?'Заявка создана':'Проверьте результат обмена'}</Text><Text>{attempt.data.title}</Text><Text>{attempt.data.accepted?`Номер заявки: ${attempt.data.accepted.id}. Стоимость: ${formatBonus(attempt.data.accepted.costMinor)}. Статус: ${attempt.data.accepted.status}.`:'Ответ мог потеряться. Проверка использует тот же запрос и не создаёт повторное списание.'}</Text><AppButton title={attempt.data.accepted?'Понятно':'Проверить результат'} loading={redeem.isPending||acknowledge.isPending} onPress={()=>attempt.data?.accepted?void acknowledge.mutateAsync().catch(()=>undefined):submit(attempt.data!)}/></View>:null}
+    {attempt.data?<View style={styles.notice}><Text style={styles.title}>{attempt.data.accepted?'Заявка создана':'Проверьте результат обмена'}</Text><Text>{attempt.data.title}</Text><Text>{attempt.data.accepted?`Номер заявки: ${attempt.data.accepted.id}. Стоимость: ${formatBonus(attempt.data.accepted.costMinor)}. Статус: ${rewardStatuses[attempt.data.accepted.status]??"Уточняется"}.`:'Ответ мог потеряться. Проверка использует тот же запрос и не создаёт повторное списание.'}</Text><AppButton title={attempt.data.accepted?'Понятно':'Проверить результат'} loading={redeem.isPending||acknowledge.isPending} onPress={()=>attempt.data?.accepted?void acknowledge.mutateAsync().catch(()=>undefined):submit(attempt.data!)}/></View>:null}
     {redeem.isError?<View style={styles.notice}><Text accessibilityRole="alert">{redeem.error.message}</Text></View>:null}
     {acknowledge.isError?<View style={styles.notice}><Text accessibilityRole="alert">{acknowledge.error.message}</Text></View>:null}
     {selected&&!attempt.data?<View style={styles.notice}><Text style={styles.title}>Обменять бонусы?</Text><Text>{selected.title} · {formatBonus(selected.costMinor)}. Заявка поступит администратору.</Text><AppButton title="Подтвердить обмен" onPress={()=>submit({rewardId:selected.id,title:selected.title})}/><AppButton title="Отмена" variant="secondary" onPress={()=>setSelected(null)}/></View>:null}
