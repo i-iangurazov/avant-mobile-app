@@ -42,6 +42,7 @@ export default function MapsScreen() {
               firmId={selectedStore?.two_gis_firm_id}
               storeName={selectedStore?.name ?? "Авантехник"}
               onInteractionChange={setMapInteracting}
+              onSelectFirm={firmId=>{const store=stores.data?.find(item=>item.two_gis_firm_id===firmId);if(store)setSelectedStoreId(store.id);}}
             />
 
             <View style={styles.cards}>

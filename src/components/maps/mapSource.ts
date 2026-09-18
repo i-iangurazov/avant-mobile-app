@@ -1,4 +1,22 @@
-import {TWO_GIS_FIRM_IDS,TWO_GIS_OPEN_URL} from '../../data/stores';
+import {stores,TWO_GIS_OPEN_URL} from '../../data/stores';
+import {branchCoordinates} from '../../data/branchCoordinates';
 export const externalMapUrl=(firmId?:string|null)=>firmId?`https://2gis.kg/bishkek/firm/${encodeURIComponent(firmId)}`:TWO_GIS_OPEN_URL;
-export const buildMapUrl=(firmId?:string|null)=>`https://widgets.2gis.com/widget?type=firmsonmap&options=${encodeURIComponent(JSON.stringify({pos:{lat:42.88904574206037,lon:74.60369110107423,zoom:firmId?17:13},opt:{city:'bishkek'},org:firmId||TWO_GIS_FIRM_IDS.join(',')}))}`;
-export type TwoGisMapProps={firmId?:string|null;storeName?:string;onInteractionChange?:(interacting:boolean)=>void};
+export type TwoGisMapProps={firmId?:string|null;storeName?:string;onInteractionChange?:(interacting:boolean)=>void;onSelectFirm?:(firmId:string)=>void};
+export const mapFirmIsKnown=(id:unknown):id is string=>typeof id==='string'&&Object.hasOwn(branchCoordinates,id);
+export function buildMapHtml(firmId?:string|null){
+ const data=stores.map(store=>({id:store.two_gis_firm_id,name:store.name,address:store.address,point:branchCoordinates[store.two_gis_firm_id||''],url:store.external_2gis_url})).filter(store=>store.point);
+ const config=JSON.stringify({stores:data,selected:firmId}).replace(/</g,'\\u003c');
+ return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin">
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+ <style>html,body,#map{height:100%;width:100%;margin:0}body{font:14px/1.4 system-ui;background:#f4f5f7}.leaflet-container{font:14px/1.4 system-ui}.leaflet-popup-content{margin:14px;overflow-wrap:anywhere}.leaflet-popup-content p{margin:8px 0}.leaflet-popup-content a{display:block;color:#a5280a;padding:8px 0}.leaflet-popup-close-button{min-width:32px;min-height:32px}.leaflet-control-zoom a{width:42px!important;height:42px!important;line-height:42px!important}.leaflet-control-attribution{max-width:calc(100vw - 16px);font-size:11px!important;white-space:normal}.branch-marker{border:3px solid white;border-radius:50%;background:#cf310b;color:white;text-align:center;font:bold 16px/30px system-ui;box-shadow:0 2px 6px #0005}.leaflet-marker-icon:focus{outline:3px solid #172e55}#status{position:absolute;z-index:900;inset:45% 20px auto;text-align:center;background:white;padding:10px;border-radius:8px}</style></head>
+ <body><div id="map" aria-label="Карта филиалов Авантехник"></div><div id="status" role="status">Загрузка карты…</div>
+ <script>function signal(type,id){var message=JSON.stringify({channel:'avantehnik-map',type:type,id:id});if(window.ReactNativeWebView)window.ReactNativeWebView.postMessage(message);else window.parent.postMessage(message,'*');}function failed(){document.getElementById('status').textContent='Карта временно недоступна';signal('failed');}</script>
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" onerror="failed()"></script>
+ <script>(function(){if(!window.L)return;var cfg=${config};var selected=cfg.stores.find(function(s){return s.id===cfg.selected;})||cfg.stores[0];var map=L.map('map',{scrollWheelZoom:false,keyboard:true,zoomControl:false}).setView(selected.point,15);L.control.zoom({position:'bottomleft'}).addTo(map);var loaded=false,errors=0;
+ var tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,keepBuffer:0,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'}).addTo(map);
+ tiles.on('tileload',function(){if(!loaded){loaded=true;document.getElementById('status').style.display='none';signal('ready');}});tiles.on('tileerror',function(){if(!loaded&&++errors>=3)failed();});
+ cfg.stores.forEach(function(store,i){var content=document.createElement('div');var title=document.createElement('strong');title.textContent=store.name;var address=document.createElement('p');address.textContent=store.address;var link=document.createElement('a');link.textContent='Открыть в 2GIS';link.href=store.url;link.target='_blank';link.rel='noopener';content.append(title,address,link);
+ var marker=L.marker(store.point,{title:store.name,alt:store.name,icon:L.divIcon({className:'branch-marker',html:String(i+1),iconSize:[30,30],iconAnchor:[18,18]})}).addTo(map).bindPopup(content,{minWidth:100,maxWidth:Math.min(260,innerWidth-64),maxHeight:160,autoPanPadding:[16,16],keepInView:true});marker.on('click',function(){signal('select',store.id);});if(store.id===selected.id)marker.openPopup();});
+ map.on('resize',function(){map.closePopup();});setTimeout(function(){if(!loaded)failed();},18000);
+ })();</script></body></html>`;
+}

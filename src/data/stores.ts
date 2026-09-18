@@ -41,7 +41,7 @@ export const stores: StoreLocation[] = [
   {
     id: "store-3",
     name: "Авантехник Баткен базар",
-    address: "Улица Льва Толстого, 19, 1 этаж, 46-48 контейнер, Бишкек",
+    address: "Улица Шабдан баатыра, 19, 1 этаж, 46-48 контейнер, Бишкек",
     working_hours: STORE_WORKING_HOURS,
     phone: STORE_PHONE,
     two_gis_firm_id: TWO_GIS_FIRM_IDS[2],
