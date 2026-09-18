@@ -6,6 +6,7 @@ import {
   adaptCategories,
   adaptProduct,
   adaptProducts,
+  productMatchesCategory,
   deriveCategoriesFromProducts
 } from "./adapters";
 import { BAZAAR_ENDPOINTS } from "./endpoints";
@@ -261,7 +262,8 @@ export async function getCategories(): Promise<Category[]> {
     }
   }
 
-  const productsPayload = await bazaarClient.getProductsRaw({ page: 1, pageSize: DEFAULT_PRODUCTS_PAGE_SIZE });
+  const complete = await loadCompleteCatalog(page=>bazaarClient.getProductsRaw({page,pageSize:DEFAULT_PRODUCTS_PAGE_SIZE}));
+  const productsPayload = {items:complete.map(product=>product.raw),total:complete.length};
   const productDerivedCategories = deriveCategoriesFromProducts(productsPayload);
   const allProducts = productDerivedCategories.find((category) => category.id === "all-products") ?? {
     id: "all-products",
@@ -308,7 +310,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
 
   if (query.categoryId && query.categoryId !== "all-products") {
     products = category
-      ? products.filter((product) => product.category_id === category.id)
+      ? products.filter((product) => productMatchesCategory(product,category.id))
       : [];
   }
 

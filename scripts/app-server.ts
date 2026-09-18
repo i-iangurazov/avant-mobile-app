@@ -1,3 +1,4 @@
+import {createCatalogGateway} from "./server/catalog";
 import {mediaProvider,uploadMedia,requireOwnedMedia} from "./server/media";
 import { listPublicDocuments } from "./server/documents";
 import { deleteAccount } from "./server/deletion";
@@ -118,6 +119,7 @@ const webhookSecret = telegramConfigured
   : "";
 const catalogBaseUrl = (env.BAZAAR_API_BASE_URL || "").replace(/\/+$/, "");
 const catalogToken = env.BAZAAR_API_TOKEN || "";
+const catalogGateway=createCatalogGateway(catalogBaseUrl,catalogToken);
 const databasePool = createPool(databaseUrl);
 const shouldLog = env.NODE_ENV !== "production";
 
@@ -1157,19 +1159,8 @@ const server = createServer(async (req, res) => {
         sendJson(req, res, 503, { error: "Catalog service is not configured." });
         return;
       }
-      const response = await fetch(`${catalogBaseUrl}${path}${requestUrl.search}`, {
-        method: req.method,
-        headers: { Accept: "application/json", Authorization: `Bearer ${catalogToken}` }
-      });
-      const responseBody = Buffer.from(await response.arrayBuffer());
-      res.writeHead(response.status, {
-        ...getCorsHeaders(req),
-        "Cache-Control": "public, max-age=60",
-        "Content-Type": response.headers.get("content-type") || "application/json; charset=utf-8",
-        "Content-Length": responseBody.byteLength,
-        "X-Content-Type-Options": "nosniff"
-      });
-      res.end(responseBody);
+      const payload=await catalogGateway(path,requestUrl.searchParams);
+      sendJson(req,res,200,payload);
       return;
     }
 

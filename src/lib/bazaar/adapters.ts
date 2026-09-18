@@ -117,34 +117,17 @@ const normalizeArray = (payload: unknown): unknown[] => {
 };
 
 const normalizeImageUrl = (record: UnknownRecord) => {
-  const direct = readNullableString(record, [
-    "imageUrl",
-    "image_url",
-    "photo",
-    "photo_url",
-    "picture",
-    "picture_url",
-    "thumbnail",
-    "thumbnail_url",
-    "main_image",
-    "mainImage"
-  ]);
-
-  if (direct) {
-    return direct;
+  const image=(value:unknown)=>typeof value==='string' && /^(https?:\/\/|\/)/.test(value.trim()) ? value.trim() : null;
+  for(const key of ['imageUrl','image_url','photo','photo_url','picture','picture_url','thumbnail','thumbnail_url','main_image','mainImage']){
+    const url=image(record[key]);if(url)return url;
   }
-
-  const images = read(record, ["images", "photos", "pictures"]);
-  if (Array.isArray(images) && images.length) {
-    const first = images[0];
-    if (typeof first === "string") {
-      return first;
-    }
-    if (isRecord(first)) {
-      return readNullableString(first, ["url", "src", "image_url", "imageUrl"]);
+  for(const key of ['imageObjects','images','photos','pictures']){
+    const values=record[key];if(!Array.isArray(values))continue;
+    for(const item of values){
+      const url=image(item);if(url)return url;
+      if(isRecord(item))for(const field of ['url','src','image_url','imageUrl']){const nested=image(item[field]);if(nested)return nested;}
     }
   }
-
   return null;
 };
 
@@ -188,7 +171,11 @@ const normalizeAvailability = (record: UnknownRecord) => {
   ]);
   const inStock = readBoolean(record, ["inStock", "in_stock", "is_available", "available"]);
 
-  if (inStock === true || (quantity !== null && quantity > 0) || lower.includes("in_stock") || lower.includes("available")) {
+  if (inStock === false || (quantity !== null && quantity <= 0) || ["unavailable", "out_of_stock", "not_available", "нет в наличии"].includes(lower)) {
+    return {status: "out_of_stock", label: "Нет в наличии", inStock: false};
+  }
+
+  if (inStock === true || (quantity !== null && quantity > 0) || ["in_stock", "available"].includes(lower)) {
     return {
       status: "in_stock",
       label: "В наличии",
@@ -272,6 +259,27 @@ export function adaptCategories(payload: unknown) {
   return normalizeArray(payload).map(adaptCategory);
 }
 
+export function productCategories(value: unknown): {id:string;name:string;slug?:string}[] {
+  const record=isRecord(value)?value:{};
+  const candidates=[record.category,...(Array.isArray(record.categories)?record.categories:[])];
+  const found=new Map<string,{id:string;name:string;slug?:string}>();
+  for(const item of candidates){
+    if(typeof item==='string' && item.trim()){
+      const name=item.trim();const id=`category:${name.toLocaleLowerCase('ru')}`;
+      found.set(id,{id,name});
+    }else if(isRecord(item)){
+      const name=readString(item,['name','title','label']).trim();
+      if(!name)continue;
+      const id=readString(item,['id','uuid','slug'],`category:${name.toLocaleLowerCase('ru')}`);
+      found.set(id,{id,name,slug:readNullableString(item,['slug','code'])??undefined});
+    }
+  }
+  return [...found.values()];
+}
+export function productMatchesCategory(product:Product,id:string){
+  return product.category_id===id || productCategories(product.raw).some(category=>category.id===id);
+}
+
 export function deriveCategoriesFromProducts(payload: unknown): Category[] {
   const products = adaptProducts(payload);
   const groups = new Map<string, Category>();
@@ -288,23 +296,11 @@ export function deriveCategoriesFromProducts(payload: unknown): Category[] {
   });
 
   for (const product of products) {
-    const categoryId = product.category?.id ?? product.category_id;
-    const categoryName = product.category?.name;
-
-    if (!categoryId || !categoryName || categoryId === "all-products") {
-      continue;
+    for (const category of productCategories(product.raw)) {
+      const current=groups.get(category.id);
+      const count=(current?.productsCount??0)+1;
+      groups.set(category.id,{...category,imageUrl:null,image_url:null,productsCount:count,product_count:count});
     }
-
-    const current = groups.get(categoryId);
-    groups.set(categoryId, {
-      id: categoryId,
-      name: categoryName,
-      slug: product.category?.slug,
-      imageUrl: null,
-      image_url: null,
-      productsCount: (current?.productsCount ?? 0) + 1,
-      product_count: (current?.product_count ?? 0) + 1
-    });
   }
 
   return [...groups.values()].sort((a, b) => {
@@ -324,14 +320,10 @@ export function adaptProduct(value: unknown): Product {
   const sku = readNullableString(record, ["sku", "article", "vendor_code", "code"]);
   const description = readNullableString(record, ["description", "body", "text"]);
   const brand = readNullableString(record, ["brand", "manufacturer", "producer"]);
-  const category =
-    categoryRecord
-      ? {
-          id: readString(categoryRecord, ["id", "uuid", "slug"], explicitCategoryId ?? "category"),
-          name: readString(categoryRecord, ["name", "title", "label"], "Категория"),
-          slug: readNullableString(categoryRecord, ["slug", "code"]) ?? undefined
-        }
-      : null;
+  const category = productCategories(record)[0] ?? (categoryRecord ? {
+    id: readString(categoryRecord,["id","uuid","slug"],explicitCategoryId??"category"),
+    name: readString(categoryRecord,["name","title","label"],"Категория")
+  } : null);
   const categoryId = explicitCategoryId ?? category?.id ?? null;
   const imageUrl = normalizeImageUrl(record);
   const price = normalizePrice(readNumber(record, ["priceKgs", "price_kgs", "price", "retail_price", "sale_price", "amount", "cost"]));
