@@ -64,8 +64,9 @@ function createAccessToken(customer: CustomerPayload, secret: string, sessionId:
 }
 
 export function verifyAccessToken(token: string, secret: string) {
-  const [encodedPayload, signature, extra] = token.split(".");
-  if (extra) return null;
+  const segments = token.split(".");
+  if (segments.length !== 2) return null;
+  const [encodedPayload, signature] = segments;
   if (!encodedPayload || !signature) return null;
   const expectedSignature = sign(encodedPayload, secret);
   if (

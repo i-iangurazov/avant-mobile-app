@@ -1,7 +1,7 @@
 import {setAdministrator} from '../server/admin-roles';
 import {registerFixture} from './fixtures';
 import assert from 'node:assert/strict';
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID } from 'node:crypto';
 import { createPool, ensureSchema } from '../server/db';
 import { registerCustomer, loginCustomer, updateCustomerProfile, hasAdminAccess, requireSession, refreshSession, revokeSession, resetPassword } from '../server/auth';
 import { createPhoneChallenge, consumePhoneProof, rateLimit, type PhoneAction } from '../server/security';
@@ -66,6 +66,11 @@ try {
  assert.equal(Number((await pool.query("SELECT count(*) FROM app_admin_audit_log WHERE action='admin.role_changed' AND entity_id=$1",[target.user.id])).rows[0].count),1);assertions++;
  await setAdministrator(pool,id,target.user.id,false,'fixture-revoke');await rejects(()=>requireSession(pool,target.session.accessToken,secret),401);
  await rejects(()=>refreshSession(pool,target.session.refreshToken,secret),401);
+ await rejects(()=>requireSession(pool,signedIn.session.accessToken+'.',secret),401);
+ const expired=JSON.parse(Buffer.from(signedIn.session.accessToken.split('.')[0],'base64url').toString());expired.exp=Math.floor(Date.now()/1000)-1;const encoded=Buffer.from(JSON.stringify(expired)).toString('base64url');
+ await rejects(()=>requireSession(pool,encoded+'.'+createHmac('sha256',secret).update(encoded).digest('base64url'),secret),401);
+ await pool.query("UPDATE app_sessions SET expires_at=now()-interval '1 second' WHERE id=$1",[expired.sid]);
+ await rejects(()=>refreshSession(pool,signedIn.session.refreshToken,secret),401);
  const identity=randomUUID();
  await rateLimit(pool,'test',identity,2,60000); await rateLimit(pool,'test',identity,2,60000);
  await rejects(()=>rateLimit(pool,'test',identity,2,60000),429);

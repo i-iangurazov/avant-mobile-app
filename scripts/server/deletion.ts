@@ -21,6 +21,13 @@ export async function deleteAccount(pool:pg.Pool,accountId:string,password:strin
    for(const item of items)await client.query('UPDATE app_order_offers SET reserved_quantity=reserved_quantity-$4 WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3',[order.organization_id,order.store_id,item.product_id,item.quantity]);
   }
   const requests=(await client.query<{id:string}>('SELECT id FROM app_service_requests WHERE customer_id=$1',[accountId])).rows.map(x=>x.id);
+  const related=(await client.query<{id:string}>(`SELECT id FROM app_loyalty_transactions WHERE plumber_id=ANY($2::text[])
+   UNION SELECT id FROM app_loyalty_receipts WHERE plumber_id=ANY($2::text[])
+   UNION SELECT id FROM app_loyalty_returns WHERE receipt_id IN (SELECT id FROM app_loyalty_receipts WHERE plumber_id=ANY($2::text[]))
+   UNION SELECT id FROM app_reward_redemptions WHERE plumber_id=ANY($2::text[])
+   UNION SELECT id FROM app_plumber_reviews WHERE customer_id=$1 OR plumber_id=ANY($2::text[])`,[accountId,plumbers])).rows.map(x=>x.id);
+  // Keep another customer's request, but remove identifiers of this deleted plumber from its event metadata.
+  for(const table of ['app_service_request_events','app_admin_audit_log'])await client.query(`UPDATE ${table} SET metadata=metadata-ARRAY(SELECT key FROM jsonb_each_text(metadata) WHERE value=ANY($1::text[])) WHERE EXISTS(SELECT 1 FROM jsonb_each_text(metadata) WHERE value=ANY($1::text[]))`,[[accountId,...plumbers]]);
   await client.query('DELETE FROM app_plumber_reviews WHERE customer_id=$1 OR plumber_id=ANY($2::text[])',[accountId,plumbers]);
   await client.query('DELETE FROM app_service_requests WHERE customer_id=$1',[accountId]);
   await client.query("UPDATE app_service_requests SET assigned_plumber_id=NULL,assigned_by=NULL,assigned_at=NULL,status=CASE WHEN status IN ('accepted','in_progress','viewed') THEN 'new' ELSE status END WHERE assigned_plumber_id=ANY($1::text[])",[plumbers]);
@@ -30,7 +37,7 @@ export async function deleteAccount(pool:pg.Pool,accountId:string,password:strin
   await client.query(`UPDATE app_rewards r SET availability_count=availability_count+x.count FROM (SELECT reward_id,COUNT(*)::int count FROM app_reward_redemptions WHERE plumber_id=ANY($1::text[]) AND status IN ('pending','approved') GROUP BY reward_id) x WHERE r.id=x.reward_id AND r.availability_count IS NOT NULL`,[plumbers]);
   await client.query('DELETE FROM app_reward_redemptions WHERE plumber_id=ANY($1::text[])',[plumbers]);
   await client.query('DELETE FROM app_orders WHERE customer_id=$1',[accountId]);
-  const entities=[accountId,...plumbers,...requests,...orders.map(o=>o.id)];
+  const entities=[accountId,...plumbers,...requests,...related,...orders.map(o=>o.id)];
   await client.query('DELETE FROM app_admin_audit_log WHERE actor_id=$1 OR entity_id=ANY($2::text[])',[accountId,entities]);
   await client.query('DELETE FROM app_notification_outbox WHERE recipient_account_id=$1 OR EXISTS(SELECT 1 FROM unnest($2::text[]) entity WHERE position(entity in dedupe_key)>0)',[accountId,entities]);
   await client.query('DELETE FROM app_phone_challenges WHERE phone=$1',[account.phone]);

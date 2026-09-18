@@ -19,7 +19,7 @@ export const colors = {
   successSoft: "#ECFDF5",
   warning: "#995006",
   warningSoft: "#FFF7ED",
-  danger: "#DC2626",
+  danger: "#C91F1F",
   dangerSoft: "#FEF2F2"
 };
 
