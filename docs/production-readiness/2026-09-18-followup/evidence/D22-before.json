@@ -1,0 +1,20 @@
+{
+  "commit": "6c40f51",
+  "cases": [
+    {
+      "input": {
+        "id": "status",
+        "availabilityStatus": "unavailable"
+      },
+      "beforeInStock": true
+    },
+    {
+      "input": {
+        "id": "quantity",
+        "stockQty": -1,
+        "inStock": true
+      },
+      "beforeInStock": true
+    }
+  ]
+}

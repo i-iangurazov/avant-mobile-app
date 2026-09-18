@@ -1,0 +1,42 @@
+Telegram webhook not registered: no public webhook URL in local development.
+Avantehnik app server listening on http://127.0.0.1:8789
+DATABASE_URL: present
+TELEGRAM: missing
+CATALOG: read-only
+GET /profile -> 200 7ms
+GET /plumber/rewards -> 200 4ms
+GET /plumber/dashboard -> 200 10ms
+POST /plumber/rewards/51ea4faa-d8ae-49f6-8142-2c79618d4c8c/redeem -> 201 6ms
+GET /profile -> 200 3ms
+GET /plumber/rewards -> 200 4ms
+GET /plumber/dashboard -> 200 6ms
+POST /plumber/rewards/51ea4faa-d8ae-49f6-8142-2c79618d4c8c/redeem -> 200 5ms
+GET /plumber/rewards -> 200 2ms
+GET /plumber/dashboard -> 200 4ms
+GET /profile -> 200 2ms
+GET /plumber/rewards -> 200 2ms
+GET /plumber/dashboard -> 200 2ms
+GET /profile -> 200 2ms
+GET /profile -> 200 3ms
+GET /plumber/rewards -> 200 2ms
+GET /plumber/dashboard -> 200 4ms
+GET /profile -> 200 5ms
+GET /categories -> 200 13ms
+GET /products -> 200 1ms
+GET /plumber/rewards -> 200 3ms
+GET /profile -> 200 10ms
+GET /plumber/dashboard -> 200 9ms
+POST /plumber/rewards/f9a58925-ef6f-4464-9790-23ec7b25abdf/redeem -> 201 6ms
+GET /profile -> 200 4ms
+GET /plumber/rewards -> 200 3ms
+GET /plumber/dashboard -> 200 5ms
+POST /plumber/rewards/f9a58925-ef6f-4464-9790-23ec7b25abdf/redeem -> 200 8ms
+GET /plumber/rewards -> 200 4ms
+GET /plumber/dashboard -> 200 7ms
+GET /profile -> 200 2ms
+GET /plumber/rewards -> 200 3ms
+GET /plumber/dashboard -> 200 5ms
+GET /profile -> 200 2ms
+GET /profile -> 200 2ms
+GET /plumber/rewards -> 200 2ms
+GET /plumber/dashboard -> 200 4ms

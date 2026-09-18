@@ -1,0 +1,40 @@
+{
+  "sourceCommit": "9a7b4210ac3b88a1dbd045bdd4e99aee4a6a17b7",
+  "export": {
+    "platforms": [
+      "android Hermes",
+      "ios Hermes",
+      "web"
+    ],
+    "endpoint": "http://127.0.0.1:8789 isolated local API",
+    "bundles": [
+      {
+        "path": "metadata.json",
+        "bytes": 4148,
+        "sha256": "e25a62b46dc83d86072a5eee5b2aeeea93dc7d60ae6a47e47c672943d723fdbe"
+      },
+      {
+        "path": "_expo/static/js/web/entry-20e796202a50a0cc0b8de96f2b3136cc.js",
+        "bytes": 1657209,
+        "sha256": "e6f728bf6e4ad952509b77bd59b852738cbc7de32c011938a757ea5dd3d17c66"
+      },
+      {
+        "path": "_expo/static/js/ios/entry-27c8e8984cd363850682590d907bf8b2.hbc",
+        "bytes": 4130018,
+        "sha256": "e21a213fec5f9244f8f3b47bbcc1c8675c48cdf52bccd46383b9629cfc1e4543"
+      },
+      {
+        "path": "_expo/static/js/android/entry-c7fffce2e92bf9cb7d963f8c3e97d031.hbc",
+        "bytes": 4125488,
+        "sha256": "817bca2689b2878429664cc820dc6452b2f6f1b76ab2751990774a96a8726a15"
+      }
+    ]
+  },
+  "standalone": {
+    "currentSourceAndroid": "NOT BUILT",
+    "currentSourceIOS": "NOT BUILT",
+    "priorSource": "5b8ea84",
+    "priorArtifacts": "../../../../artifacts/remediation-20260918/android/",
+    "limitations": "Previous Android APK/AAB do not contain followup changes. No devices/Xcode; previous temporary Android SDK/JDK directory absent. No installation/signing acceptance."
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "method": "public GET only, max3 concurrent, no credentials",
+  "pages": 24,
+  "declaredTotal": 2365,
+  "uniqueProducts": 2365,
+  "withImage": 242,
+  "withDescription": 2,
+  "withCategory": 2,
+  "positivePriceKgs": 12,
+  "allFour": 0,
+  "seconds": 11.4,
+  "preparedSample": [],
+  "source": "https://api-production-2e6d.up.railway.app/products?page=N&pageSize=100",
+  "captureSha256": "b64e39afd9301156783880ca9a26347f6bcbafeb5dd296ca333e50d43636ad11",
+  "captureBytes": 1883021,
+  "capturedAt": "2026-09-18"
+}

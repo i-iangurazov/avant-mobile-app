@@ -1,0 +1,94 @@
+{
+  "time": "2026-09-18T16:44:01.512Z",
+  "method": "Local new gateway -> public deployed GET /products, no auth/mutations; shared Bazaar source reviewed locally",
+  "calls": 24,
+  "maxActive": 3,
+  "elapsedMs": 6207,
+  "categories": [
+    {
+      "id": "all-products",
+      "name": "Все товары",
+      "slug": "all-products",
+      "imageUrl": null,
+      "image_url": null,
+      "productsCount": 2365,
+      "product_count": 2365
+    },
+    {
+      "id": "category:краны и вентили",
+      "name": "Краны и вентили",
+      "imageUrl": null,
+      "image_url": null,
+      "productsCount": 2,
+      "product_count": 2
+    }
+  ],
+  "exactProduct": {
+    "items": [
+      {
+        "id": "c1472a86-be89-451c-9a35-c8680a857fec",
+        "sku": "SKU-004225",
+        "name": "Кран Дун Ён оригинал Ф15 м/п",
+        "category": "Краны и вентили",
+        "categories": [
+          "Краны и вентили"
+        ],
+        "description": null,
+        "unit": "шт",
+        "baseUnit": {
+          "id": "cmp5pk2ii00027q4seehekfp1",
+          "code": "шт",
+          "labelRu": "шт",
+          "labelKg": "шт"
+        },
+        "supplier": null,
+        "isBundle": false,
+        "barcodes": [],
+        "packs": [],
+        "createdAt": "2026-06-01T04:42:45.658Z",
+        "updatedAt": "2026-06-01T04:42:45.658Z",
+        "price": 0,
+        "priceKgs": 0,
+        "pricing": {
+          "currency": "KGS",
+          "basePrice": 0,
+          "effectivePrice": 0,
+          "compareAtPrice": null,
+          "hasDiscount": false,
+          "discount": null
+        },
+        "stockQty": 0,
+        "pcs": 0,
+        "stockByVariant": [
+          {
+            "variantKey": "BASE",
+            "stockQty": 0,
+            "pcs": 0
+          }
+        ],
+        "images": [
+          "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/unassigned/0a8e37efcea93f4918681d59797eb92cbbfd1c79.jpg"
+        ],
+        "imageObjects": [
+          {
+            "id": null,
+            "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/unassigned/0a8e37efcea93f4918681d59797eb92cbbfd1c79.jpg",
+            "position": 0,
+            "isPrimary": true,
+            "isAiGenerated": false
+          }
+        ],
+        "variants": []
+      }
+    ],
+    "store": {
+      "id": "cmpjepgfn0007nzjsro9wie4n",
+      "name": "Баткен базар"
+    },
+    "currencyCode": "KGS",
+    "currencyRateKgsPerUnit": 1,
+    "page": 1,
+    "pageSize": 50,
+    "total": 1
+  }
+}

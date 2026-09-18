@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "Lost 201: exactly one DB redemption",
+    "Reload, unavailable reward, retry: one redemption",
+    "Exactly one ledger debit of 3000",
+    "Accepted receipt survives another reload",
+    "Other account cannot see receipt",
+    "Only explicit acknowledgment clears attempt"
+  ],
+  "lost": true,
+  "serverOperations": 1,
+  "source": "WEB export + actual isolated API/PostgreSQL; network response deliberately dropped"
+}

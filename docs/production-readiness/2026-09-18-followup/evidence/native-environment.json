@@ -1,0 +1,19 @@
+{
+  "xcode-select": {
+    "exit": 0,
+    "output": "/Library/Developer/CommandLineTools"
+  },
+  "xcodebuild": {
+    "exit": 1,
+    "output": "xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance"
+  },
+  "java_home": {
+    "exit": 1,
+    "output": "The operation couldn’t be completed. Unable to locate a Java Runtime.\nPlease visit http://www.java.com for information on installing Java."
+  },
+  "adb": null,
+  "sdkmanager": "/opt/homebrew/bin/sdkmanager",
+  "androidSdkExists": false,
+  "ownerStatement": "No devices and no Xcode available",
+  "previousTemporarySdkExists": false
+}

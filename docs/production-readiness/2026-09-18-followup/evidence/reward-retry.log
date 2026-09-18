@@ -1,0 +1,16 @@
+{
+  status: 'PASS',
+  checks: [
+    'Before: new client keys create two redemptions',
+    'Loss after committed debit preserves durable attempt',
+    'Unknown result cannot be discarded',
+    'Reload and 20 parallel retries produce one server redemption',
+    'Exactly one ledger debit of 100 for recovered request',
+    'Accepted receipt remains until explicit acknowledgment',
+    'Account B cannot recover account A attempt',
+    'Cannot replace unresolved reward',
+    'Only explicit acknowledgment permits next purchase',
+    'No debit when durable save fails',
+    'Authoritative no-operation rejection permits corrected selection'
+  ]
+}

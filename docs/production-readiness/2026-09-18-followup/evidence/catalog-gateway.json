@@ -1,0 +1,30 @@
+{
+  "status": "PASS",
+  "scenarios": [
+    "concurrent single-flight full catalog",
+    "last-page exact ID",
+    "multiple categories",
+    "secondary category client/server",
+    "foreign product absent",
+    "six invalid/context-injection queries",
+    "repeated upstream page",
+    "invalid upstream JSON",
+    "three negative stock statuses",
+    "negative stock overrides flag",
+    "imageObjects and empty-array fallback",
+    "unsafe image rejected"
+  ],
+  "upstreamRequestsForConcurrentFullCategoriesAndLastPageDetail": 2,
+  "actualCategories": [
+    {
+      "id": "all-products",
+      "name": "Все товары",
+      "count": 2365
+    },
+    {
+      "id": "category:краны и вентили",
+      "name": "Краны и вентили",
+      "count": 2
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+PASS [
+  'map-390',
+  'map-320',
+  'map-430',
+  'map-selector',
+  'categories',
+  'category-results',
+  'exact-product',
+  'map-offline',
+  'map-retry'
+]

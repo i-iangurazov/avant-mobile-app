@@ -1,0 +1,15 @@
+# Изменения в main; внедрение отдельно
+
+По прямому указанию владельца `main` fast-forward340b960→6c40f51, затем новые небольшие коммиты. До перехода оригинальные200 локальных файлов сверены со snapshot c88450a:198 одинаковых файлов,2 одинаковых удаления. Сохранён stash3255624efcb197069f2b1d68b90965100ec2c029 (`backup: original local changes before authorized main integration 2026-09-18`). Он не применялся поверх уже включённого snapshot. Старый worktree и исходный аудит сохранены. Исходные node_modules сохранены отдельно в/private/tmp/avantehnik-main-node-modules-before-followup. Baseline128 файлов и предыдущий отчёт не изменены.
+
+Изменён один репозиторий: Avantehnik Mobile App. Shared backend `../bazaar` f64a7ce44e6f21d05c680abaf712ef7ece6c8c83 изучен read-only, рабочее дерево чистое. Его `src/app/api/bazaar/v1/products/route.ts` и `src/server/services/bazaarApi.ts:listBazaarApiProducts` не имеют отдельного categories API и не фильтруют id; категории — строки/массив строк. Mobile gateway теперь адаптирует этот контракт. Org/store определяются server bearer контекстом; пользовательский storeId/org в каталоге отклоняется. Остальные потребители Bazaar не менялись. Соседние avantehnik/avant изучались только для поиска источников/документов.
+
+Порядок внедрения после отдельного разрешения:
+
+1. Выполнить [исходный preflight/backup/rollback](../2026-09-18-remediation/DEPLOYMENT.md): утверждённые документы, inventory mapping/adapter, SMS/media, incident review старых admin/sessions. Новые catalog/map/reward изменения не добавляют миграций; предыдущая additive migration обязательна.
+2. В staging развернуть server из main. Проверить `/categories`, exact `/products?id=…`, отказ org/store injection, cold24GET≤mobile timeout, одинаковый org/store на всех страницах. Кэш60с и3 параллельных запроса — эксплуатационные параметры; наблюдать upstream ошибки/лимиты. Для реальных данных в проверке6.207с; это единичное измерение, не нагрузочный SLA.
+3. Проверить reward endpoint: новые clients сохраняют ключ; старый контракт clientRequestId остаётся. Серверное requestNotCreated=true выдаётся только после отсутствия записи данного ключа и окончательного отказа до изменений. Старые клиенты проигнорируют дополнительное поле. До обновления старого клиента его потеряACK всё ещё создаёт новый ключ — сервер не может угадать, является ли новый ключ новой покупкой.
+4. Пересобрать Android/iOS с одобренным HTTPS staging API; новые bundles нельзя подменять в старом APK/AAB вручную. Пройти owner native matrix, затем store подпись и review. Ключи/production не использовались.
+5. Rollback: сохранить backup, остановить rollout, вернуть предыдущий server/client только по проверенному плану; не откатывать на уязвимую baseline авторизацию. Не удалять сохранённые reward attempts во время обычного logout/retry: это восстановление после потерянного ответа. Account deletion удаляет attempt. Старые релизы не понимают новое состояние — перед откатом сверить pending redemption по журналу, не пересоздавать операции.
+
+Ничего не отправлено в production и не опубликовано в магазинах. Общий backend и реальные балансы не изменялись.

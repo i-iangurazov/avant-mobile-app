@@ -1,0 +1,12 @@
+{
+  "original": {
+    "FIXED & VERIFIED": 8,
+    "IMPLEMENTED, NOT VERIFIED": 3,
+    "BLOCKED": 6,
+    "OPEN": 0
+  },
+  "originalBlockers": 11,
+  "originalBlockersFixed": 4,
+  "newCount": 6,
+  "newOpen": 0
+}
