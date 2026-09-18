@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {createRewardAttemptClient,readRewardAttempt} from "../lib/rewards/rewardAttempt";
 import { useMutation, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   assignAdminLead,
@@ -108,12 +110,18 @@ export function useRewards() {
   });
 }
 
+const rewardAttempts=createRewardAttemptClient(AsyncStorage);
+export function useRewardAttempt(){const {user}=useAuth();return useQuery({queryKey:['reward-attempt',user?.id],enabled:!!user?.id,queryFn:()=>readRewardAttempt(AsyncStorage,user!.id)});}
+export function useAcknowledgeReward(){const {user}=useAuth();const client=useQueryClient();return useMutation({mutationFn:()=>rewardAttempts.acknowledge(user!.id),onSuccess:()=>client.invalidateQueries({queryKey:['reward-attempt',user?.id]})});}
 export function useRedeemReward() {
   const { session, user } = useAuth();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ rewardId, clientRequestId }: { rewardId: string; clientRequestId: string }) =>
-      redeemReward(rewardId, clientRequestId, session?.accessToken),
+    mutationFn: (reward: {rewardId:string;title:string}) => {
+      if(!user)throw new Error('Войдите в аккаунт.');
+      return rewardAttempts.submit(user.id,reward,(rewardId,key)=>redeemReward(rewardId,key,session?.accessToken));
+    },
+    onSettled:()=>queryClient.invalidateQueries({queryKey:['reward-attempt',user?.id]}),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["loyalty-rewards", user?.id] });
       void queryClient.invalidateQueries({ queryKey: ["plumber-dashboard", user?.id] });

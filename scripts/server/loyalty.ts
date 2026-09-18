@@ -849,10 +849,10 @@ export async function redeemReward(pool: pg.Pool, accountId: string, rewardId: s
       [rewardId]
     );
     const item = reward.rows[0];
-    if (!item || !item.is_active || item.availability_count === 0) throw Object.assign(new Error("Награда сейчас недоступна."), { statusCode: 409 });
+    if (!item || !item.is_active || item.availability_count === 0) throw Object.assign(new Error("Награда сейчас недоступна."), { statusCode: 409, requestNotCreated: true });
     const balance = await getLoyaltyBalances(client, plumber.id);
     const cost = BigInt(String(item.cost_minor));
-    if (BigInt(balance.availableMinor) < cost) throw Object.assign(new Error("Недостаточно доступных бонусов."), { statusCode: 409 });
+    if (BigInt(balance.availableMinor) < cost) throw Object.assign(new Error("Недостаточно доступных бонусов."), { statusCode: 409, requestNotCreated: true });
     const id = randomUUID();
     await client.query(
       `INSERT INTO app_reward_redemptions (id, plumber_id, reward_id, client_request_id, cost_minor)

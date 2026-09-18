@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {rewardAttemptKey} from "../src/lib/rewards/rewardAttempt";
 import {useEffect,useState} from 'react';
 import {router} from 'expo-router';
 import {ScrollView,Text,Pressable} from 'react-native';
@@ -17,6 +19,7 @@ export default function DeleteAccount(){const {user,session,signOut}=useAuth();c
  useEffect(()=>setConfirmed(false),[policy?.version]);
  const submit=async()=>{setLoading(true);setError('');try{
   await appApiClient.request('/profile',{method:'DELETE',headers:{Authorization:`Bearer ${session?.accessToken}`},body:JSON.stringify({password,phoneProof:proof,deletionDocumentVersion:policy?.version})});
+  if(user)await AsyncStorage.removeItem(rewardAttemptKey(user.id));
   await signOut();router.replace('/welcome');
  }catch(e){setError(e instanceof Error?e.message:'Аккаунт не удалён. Попробуйте снова.');}finally{setLoading(false);}};
  return <SafeAreaView style={{flex:1,backgroundColor:colors.surface}}><ScreenHeader title="Удалить аккаунт" onBack={()=>safeBack('/profile')} />
