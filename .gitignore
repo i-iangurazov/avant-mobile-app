@@ -18,3 +18,5 @@ android/
 npm-debug.log*
 
 /node_modules
+
+/artifacts/
