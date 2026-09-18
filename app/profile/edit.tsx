@@ -1,3 +1,4 @@
+import { PhoneVerification, type PhoneProof } from "../../src/components/PhoneVerification";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from "react-native";
@@ -21,10 +22,11 @@ import {
 import { safeBack } from "../../src/lib/navigation/safeBack";
 
 export default function EditProfileScreen() {
-  const { user } = useAuth();
+  const { user, session, signOut } = useAuth();
   const profile = useProfile();
   const updateProfile = useUpdateProfile();
   const [name, setName] = useState("");
+  const [phoneProof, setPhoneProof] = useState<PhoneProof>();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
 
@@ -46,9 +48,10 @@ export default function EditProfileScreen() {
       await updateProfile.mutateAsync({
         name: name.trim() || "Покупатель",
         phone: normalizePhone(phone),
-        address: address.trim()
+        phoneProof, address: address.trim()
       });
-      safeBack("/profile");
+      if (normalizePhone(phone) !== user?.phone) { await signOut(); router.replace("/login"); }
+      else safeBack("/profile");
     } catch (error) {
       Alert.alert("Не удалось сохранить профиль", friendlyError(error instanceof Error ? error.message : undefined));
     }
@@ -101,6 +104,7 @@ export default function EditProfileScreen() {
             autoComplete="tel"
           />
           <AppInput label="Адрес" placeholder="Улица, дом, квартира" value={address} onChangeText={setAddress} />
+          {normalizePhone(phone) !== user.phone ? <PhoneVerification phone={phone} action="phone_change" token={session?.accessToken} onChange={setPhoneProof} /> : null}
           <AppButton title="Сохранить" onPress={() => void save()} loading={updateProfile.isPending} />
         </ScrollView>
       </KeyboardAvoidingView>

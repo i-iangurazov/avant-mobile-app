@@ -484,3 +484,22 @@ ALTER TABLE app_orders
   ADD COLUMN IF NOT EXISTS order_kind TEXT NOT NULL DEFAULT 'order';
 ALTER TABLE app_orders
   ADD COLUMN IF NOT EXISTS project_note TEXT;
+
+-- Additive remediation migration; never infer verification or administrator status from phone numbers.
+ALTER TABLE app_customers ADD COLUMN IF NOT EXISTS phone_verified_at TIMESTAMPTZ;
+CREATE TABLE IF NOT EXISTS app_sessions (
+ id TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES app_customers(id) ON DELETE CASCADE,
+ refresh_hash TEXT UNIQUE NOT NULL, expires_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ,
+ created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS app_sessions_account_idx ON app_sessions(account_id);
+CREATE TABLE IF NOT EXISTS app_phone_challenges (
+ id TEXT PRIMARY KEY, account_id TEXT REFERENCES app_customers(id) ON DELETE CASCADE,
+ phone TEXT NOT NULL, action TEXT NOT NULL CHECK(action IN ('register','login','phone_change','password_reset','delete')),
+ code_hash TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
+ consumed_at TIMESTAMPTZ, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS app_rate_limits (
+ key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, expires_at TIMESTAMPTZ NOT NULL
+);
+ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS request_hash TEXT;

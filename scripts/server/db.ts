@@ -10,6 +10,7 @@ export type CustomerRow = {
   phone: string;
   address: string | null;
   password_hash: string;
+  phone_verified_at: Date | string | null;
   created_at: Date | string;
   updated_at: Date | string;
 };

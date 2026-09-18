@@ -8,12 +8,16 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from "react";
 import { Platform } from "react-native";
-import { getCustomerProfile, loginCustomer, registerCustomer } from "../lib/api/account";
+import { getCustomerProfile, loginCustomer, registerCustomer, refreshCustomerSession } from "../lib/api/account";
 import type { AppCustomer, AppCustomerSession, RegisterCustomerPayload } from "../lib/api/types";
 import { friendlyError, normalizePhone } from "../lib/formatters";
+
+import { appApiClient, AppApiError, setSessionRefreshHandler } from "../lib/api/client";
+import type { PhoneProof } from "../components/PhoneVerification";
 
 type SignUpPayload = RegisterCustomerPayload;
 
@@ -21,7 +25,7 @@ type AuthContextValue = {
   session: AppCustomerSession | null;
   user: AppCustomer | null;
   isLoading: boolean;
-  signIn: (phone: string, password: string) => Promise<AppCustomer>;
+  signIn: (phone: string, password: string, phoneProof?: PhoneProof) => Promise<AppCustomer>;
   signUp: (payload: SignUpPayload) => Promise<{ needsLogin: boolean }>;
   updateSessionUser: (user: AppCustomer) => Promise<void>;
   signOut: () => Promise<void>;
@@ -71,6 +75,32 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const [session, setSession] = useState<AppCustomerSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const sessionRef = useRef<AppCustomerSession | null>(null);
+  const refreshRef = useRef<Promise<string | null> | null>(null);
+  sessionRef.current = session;
+  useEffect(() => {
+    setSessionRefreshHandler(async token => {
+      const current = sessionRef.current;
+      if (!current || current.accessToken !== token) return null;
+      if (refreshRef.current) return refreshRef.current;
+      refreshRef.current = (async () => {
+        try {
+          const next = await refreshCustomerSession(current);
+          if (sessionRef.current?.user.id !== current.user.id) return null;
+          sessionRef.current = next; setSession(next);
+          await storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(next)); return next.accessToken || null;
+        } catch (error) {
+          if (error instanceof AppApiError && error.status === 401 && sessionRef.current?.user.id === current.user.id) {
+            sessionRef.current = null; setSession(null); queryClient.clear();
+            await storage.removeItem(AUTH_STORAGE_KEY);
+          }
+          throw error;
+        } finally { refreshRef.current = null; }
+      })();
+      return refreshRef.current;
+    });
+    return () => setSessionRefreshHandler(null);
+  }, [queryClient]);
 
   useEffect(() => {
     let mounted = true;
@@ -80,7 +110,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         const sessionToRestore = storedSession || legacySession;
         const restored = parseSession(sessionToRestore);
         if (mounted) {
-          setSession(restored);
+          sessionRef.current = restored; setSession(restored);
         }
         if (!storedSession && legacySession) {
           await storage.setItem(AUTH_STORAGE_KEY, legacySession);
@@ -89,11 +119,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (restored?.accessToken) {
           try {
             const refreshedUser = await getCustomerProfile(restored);
-            const refreshed = { ...restored, user: refreshedUser };
+            const refreshed = { ...(sessionRef.current || restored), user: refreshedUser };
             if (mounted) setSession(refreshed);
             await storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(refreshed));
-          } catch {
-            // Keep the cached session for offline startup; authenticated requests still enforce server access.
+          } catch (error) {
+            if (error instanceof AppApiError && error.status === 401) {
+              if (mounted) { sessionRef.current = null; setSession(null); }
+              await storage.removeItem(AUTH_STORAGE_KEY);
+            }
           }
         }
       })
@@ -109,7 +142,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   const persistSession = useCallback(async (nextSession: AppCustomerSession | null) => {
-    setSession(nextSession);
+    sessionRef.current = nextSession; setSession(nextSession);
 
     if (nextSession) {
       await storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextSession));
@@ -120,14 +153,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   const signIn = useCallback(
-    async (phone: string, password: string) => {
+    async (phone: string, password: string, phoneProof?: PhoneProof) => {
       try {
         const nextSession = await loginCustomer({
           phone: normalizePhone(phone),
-          password
+          password, phoneProof
         });
         await persistSession(nextSession);
-        void queryClient.invalidateQueries();
+        queryClient.clear();
         return nextSession.user;
       } catch (error) {
         throw new Error(friendlyError(error instanceof Error ? error.message : undefined));
@@ -137,7 +170,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signUp = useCallback(
-    async ({ name, phone, address, password, accountType, plumberApplication }: SignUpPayload) => {
+    async ({ name, phone, address, password, accountType, plumberApplication, phoneProof }: SignUpPayload) => {
       try {
         const nextSession = await registerCustomer({
           name,
@@ -145,10 +178,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
           address,
           password,
           accountType,
-          plumberApplication
+          plumberApplication, phoneProof
         });
         await persistSession(nextSession);
-        void queryClient.invalidateQueries();
+        queryClient.clear();
         return { needsLogin: !nextSession.accessToken };
       } catch (error) {
         throw new Error(friendlyError(error instanceof Error ? error.message : undefined));
@@ -173,6 +206,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signOut = useCallback(async () => {
+    const token = sessionRef.current?.accessToken;
+    if (token) await appApiClient.request('/auth/logout', { method:'POST', headers:{Authorization:`Bearer ${token}`}, body:JSON.stringify({refreshToken:sessionRef.current?.refreshToken}) }).catch(()=>undefined);
+    const keys = await AsyncStorage.getAllKeys();
+    await AsyncStorage.multiRemove(keys.filter(key => key.startsWith('avantehnik:') || key.startsWith('avantehnik.checkout.')));
     await persistSession(null);
     queryClient.clear();
   }, [persistSession, queryClient]);

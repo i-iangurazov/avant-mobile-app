@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { getCustomerProfile, updateCustomerProfile } from "../lib/api/account";
 import { friendlyError, normalizePhone } from "../lib/formatters";
+import type { PhoneProof } from "../components/PhoneVerification";
 import type { UserProfile } from "../types";
 import { useAuth } from "./useAuth";
 
@@ -37,13 +38,14 @@ export function useUpdateProfile() {
   const { session, user, updateSessionUser } = useAuth();
 
   return useMutation({
-    mutationFn: async (payload: { name: string; phone: string; address: string }) => {
+    mutationFn: async (payload: { name: string; phone: string; address: string; phoneProof?: PhoneProof }) => {
       if (!user?.id) {
         throw new Error("Войдите в аккаунт.");
       }
 
       try {
         const profile = await updateCustomerProfile({
+          phoneProof: payload.phoneProof,
           name: payload.name,
           phone: normalizePhone(payload.phone),
           address: payload.address

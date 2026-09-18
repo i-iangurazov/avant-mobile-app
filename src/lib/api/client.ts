@@ -13,8 +13,11 @@ export class AppApiError extends Error {
   }
 }
 
+type RefreshHandler = (token: string) => Promise<string | null>;
+let refreshHandler: RefreshHandler | null = null;
+export const setSessionRefreshHandler = (handler: RefreshHandler | null) => { refreshHandler = handler; };
 class AppApiClient {
-  async request<T>(path: string, init: RequestInit = {}) {
+  async request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
     if (!apiBaseUrl) {
       throw new Error("Не настроен сервер приложения. Укажите EXPO_PUBLIC_API_URL.");
     }
@@ -40,6 +43,11 @@ class AppApiClient {
         payload = text;
       }
 
+      const authorization = new Headers(init.headers).get('Authorization');
+      if (response.status === 401 && authorization && refreshHandler && !retried && path !== '/auth/logout') {
+        const next = await refreshHandler(authorization.replace(/^Bearer /i, ''));
+        if (next) return this.request<T>(path, {...init, headers: {...Object.fromEntries(new Headers(init.headers).entries()), Authorization: `Bearer ${next}`}}, true);
+      }
       if (!response.ok) {
         const record = payload && typeof payload === "object" ? payload as Record<string, unknown> : null;
         const message = record?.error ?? record?.message ?? record?.detail;

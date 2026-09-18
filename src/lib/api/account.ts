@@ -150,3 +150,8 @@ export async function updateCustomerProfile(
   });
   return adaptCustomerSession(response, payload).user;
 }
+
+export async function refreshCustomerSession(session: AppCustomerSession) {
+  const response = await appApiClient.request<unknown>('/auth/refresh', { method: 'POST', body: JSON.stringify({refreshToken:session.refreshToken}) });
+  return adaptCustomerSession(response, session.user);
+}

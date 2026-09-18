@@ -8,8 +8,9 @@ import {
   loginCustomer,
   registerCustomer,
   updateCustomerProfile,
-  verifyAccessToken
+  requireSession, refreshSession, revokeSession, resetPassword, normalizePhone
 } from "./server/auth";
+import { createPhoneChallenge, httpSmsSender, rateLimit, type PhoneAction } from "./server/security";
 import { createPool, ensureSchema } from "./server/db";
 import { loadEnv } from "./server/env";
 import {
@@ -131,7 +132,7 @@ const blockedPathParts = [
 
 const getCorsHeaders = (req: IncomingMessage) => ({
   "Access-Control-Allow-Origin": req.headers.origin || "*",
-  "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,OPTIONS",
+  "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, Access-Control-Request-Private-Network",
   "Access-Control-Allow-Private-Network": "true",
   "Access-Control-Max-Age": "86400",
@@ -198,42 +199,19 @@ const requireDatabase = () => {
   return databasePool;
 };
 
-const requireCustomerId = (req: IncomingMessage) => {
-  const token = bearerToken(req.headers.authorization);
-  const payload = verifyAccessToken(token, authTokenSecret);
-  if (!payload?.sub) {
-    throw Object.assign(new Error("Войдите в аккаунт."), { statusCode: 401 });
-  }
-  return payload.sub;
-};
+const requireCustomerId = (req: IncomingMessage) => requireSession(requireDatabase(), bearerToken(req.headers.authorization), authTokenSecret);
 
 const requireAdminId = async (req: IncomingMessage) => {
   const pool = requireDatabase();
-  const accountId = requireCustomerId(req);
+  const accountId = await requireCustomerId(req);
   if (!await hasAdminAccess(pool, accountId, adminPhoneNumbers)) {
     throw Object.assign(new Error("Недостаточно прав администратора."), { statusCode: 403 });
   }
   return accountId;
 };
 
-const rateLimits = new Map<string, { count: number; resetAt: number }>();
-const enforceRateLimit = (req: IncomingMessage, scope: string, limit: number, windowMs = 60_000) => {
-  const forwarded = Array.isArray(req.headers["x-forwarded-for"])
-    ? req.headers["x-forwarded-for"][0]
-    : req.headers["x-forwarded-for"];
-  const clientIp = forwarded?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
-  const key = `${scope}:${clientIp}`;
-  const now = Date.now();
-  const current = rateLimits.get(key);
-  if (!current || current.resetAt <= now) {
-    rateLimits.set(key, { count: 1, resetAt: now + windowMs });
-    return;
-  }
-  if (current.count >= limit) {
-    throw Object.assign(new Error("Слишком много запросов. Попробуйте позже."), { statusCode: 429 });
-  }
-  current.count += 1;
-};
+const enforceRateLimit = (req: IncomingMessage, scope: string, limit: number, windowMs = 60_000) =>
+  rateLimit(requireDatabase(), scope, req.socket.remoteAddress || 'unknown', limit, windowMs);
 
 const sendError = (req: IncomingMessage, res: ServerResponse, error: unknown) => {
   const status =
@@ -241,7 +219,7 @@ const sendError = (req: IncomingMessage, res: ServerResponse, error: unknown) =>
       ? error.statusCode
       : 500;
   const message = error instanceof Error ? error.message : "Сервис временно недоступен. Попробуйте позже.";
-  sendJson(req, res, status, { error: status >= 500 && env.NODE_ENV === "production" ? "Сервис временно недоступен. Попробуйте позже." : message });
+  sendJson(req, res, status, { error: status >= 500 ? "Сервис временно недоступен. Попробуйте позже." : message });
 };
 
 const asText = (value: unknown, maxLength: number) =>
@@ -251,6 +229,7 @@ const asNullableText = (value: unknown, maxLength: number) => asText(value, maxL
 
 const asBoolean = (value: unknown) => value === true;
 const asNumber = (value: unknown, fallback = 0) => {
+  if (value === null || value === undefined || value === "") return fallback;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
@@ -260,6 +239,11 @@ const asStringArray = (value: unknown, maxItems = 20) =>
     : [];
 const asRecord = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+
+const parsePhoneProof = (value: unknown) => {
+  const proof = asRecord(value);
+  return { challengeId: asText(proof.challengeId, 100), code: asText(proof.code, 10) };
+};
 
 const parsePlumberApplication = (payload: Record<string, unknown>): PlumberApplicationInput => ({
   fullName: asText(payload.fullName, 200),
@@ -579,12 +563,52 @@ const server = createServer(async (req, res) => {
 
     const pool = requireDatabase();
 
+    if (path === '/auth/phone/challenge' && req.method === 'POST') {
+      await enforceRateLimit(req, 'phone-challenge', 20, 60 * 60_000);
+      const payload = await readJsonBody(req);
+      const action = asText(payload.action, 30) as PhoneAction;
+      if (!['register','login','phone_change','password_reset','delete'].includes(action)) {
+        throw Object.assign(new Error('Недопустимое действие.'), { statusCode: 400 });
+      }
+      let phone = normalizePhone(asText(payload.phone, 40));
+      let accountId: string | null = null;
+      if (action === 'phone_change' || action === 'delete') {
+        accountId = await requireCustomerId(req);
+        if (action === 'delete') phone = (await getCustomerProfile(pool, accountId)).user.phone;
+      } else if (action !== 'register') {
+        const found = await pool.query<{id:string}>('SELECT id FROM app_customers WHERE phone=$1', [phone]);
+        accountId = found.rows[0]?.id ?? null;
+        if (!accountId) {
+          sendJson(req, res, 200, { challengeId: crypto.randomUUID(), expiresInSeconds: 300 }); return;
+        }
+      }
+      sendJson(req, res, 200, await createPhoneChallenge(pool, authTokenSecret,
+        httpSmsSender(env.SMS_PROVIDER_URL || '', env.SMS_PROVIDER_TOKEN || ''), action, phone, accountId)); return;
+    }
+    if (path === '/auth/refresh' && req.method === 'POST') {
+      await enforceRateLimit(req, 'refresh', 60);
+      const body = await readJsonBody(req);
+      sendJson(req, res, 200, await refreshSession(pool, asText(body.refreshToken, 200), authTokenSecret)); return;
+    }
+    if (path === '/auth/logout' && req.method === 'POST') {
+      const body = await readJsonBody(req);
+      await revokeSession(pool, bearerToken(req.headers.authorization), authTokenSecret, asText(body.refreshToken,200));
+      sendJson(req, res, 200, { success: true }); return;
+    }
+    if (path === '/auth/password/reset' && req.method === 'POST') {
+      await enforceRateLimit(req, 'password-reset', 10, 10 * 60_000);
+      const body = await readJsonBody(req);
+      await resetPassword(pool, normalizePhone(asText(body.phone,40)), asText(body.password,200), parsePhoneProof(body.phoneProof), authTokenSecret);
+      sendJson(req, res, 200, { success: true }); return;
+    }
+
     if (path === "/auth/register" && req.method === "POST") {
-      enforceRateLimit(req, "auth-register", 8, 10 * 60_000);
+      await enforceRateLimit(req, "auth-register", 8, 10 * 60_000);
       const payload = await readJsonBody(req);
       const result = await registerCustomer(
         pool,
         {
+          phoneProof: parsePhoneProof(payload.phoneProof),
           name: typeof payload.name === "string" ? payload.name : undefined,
           phone: typeof payload.phone === "string" ? payload.phone : undefined,
           address: typeof payload.address === "string" ? payload.address : undefined,
@@ -610,11 +634,12 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/auth/login" && req.method === "POST") {
-      enforceRateLimit(req, "auth-login", 15, 10 * 60_000);
+      await enforceRateLimit(req, "auth-login", 15, 10 * 60_000);
       const payload = await readJsonBody(req);
       const result = await loginCustomer(
         pool,
         {
+          phoneProof: parsePhoneProof(payload.phoneProof),
           phone: typeof payload.phone === "string" ? payload.phone : undefined,
           password: typeof payload.password === "string" ? payload.password : undefined
         },
@@ -626,30 +651,31 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/profile" && req.method === "GET") {
-      sendJson(req, res, 200, await getCustomerProfile(pool, requireCustomerId(req), adminPhoneNumbers));
+      sendJson(req, res, 200, await getCustomerProfile(pool, await requireCustomerId(req), adminPhoneNumbers));
       return;
     }
 
     if (path === "/profile" && ["PATCH", "PUT"].includes(req.method || "")) {
       const payload = await readJsonBody(req);
-      const result = await updateCustomerProfile(pool, requireCustomerId(req), {
+      const result = await updateCustomerProfile(pool, await requireCustomerId(req), {
+        phoneProof: parsePhoneProof(payload.phoneProof),
         name: typeof payload.name === "string" ? payload.name : undefined,
         phone: typeof payload.phone === "string" ? payload.phone : undefined,
         address: typeof payload.address === "string" ? payload.address : undefined
-      }, adminPhoneNumbers);
+      }, adminPhoneNumbers, authTokenSecret);
       sendJson(req, res, 200, result);
       return;
     }
 
     if (path === "/plumber/application" && req.method === "GET") {
-      const accountId = requireCustomerId(req);
+      const accountId = await requireCustomerId(req);
       sendJson(req, res, 200, { data: await getPlumberProfileByAccount(pool, accountId) });
       return;
     }
 
     if (path === "/plumber/application" && req.method === "POST") {
-      enforceRateLimit(req, "plumber-application", 5, 60 * 60_000);
-      const accountId = requireCustomerId(req);
+      await enforceRateLimit(req, "plumber-application", 5, 60 * 60_000);
+      const accountId = await requireCustomerId(req);
       const profile = await applyForPlumber(pool, accountId, parsePlumberApplication(await readJsonBody(req)));
       await enqueueNotification(pool, {
         targetChatId: telegramConfig.chatId,
@@ -662,12 +688,12 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/plumber/dashboard" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await getPlumberDashboard(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await getPlumberDashboard(pool, await requireCustomerId(req)) });
       return;
     }
 
     if (path === "/plumber/qr" && req.method === "GET") {
-      const plumber = await requireApprovedPlumber(pool, requireCustomerId(req));
+      const plumber = await requireApprovedPlumber(pool, await requireCustomerId(req));
       const dashboard = await getPlumberDashboard(pool, plumber.accountId);
       sendJson(req, res, 200, {
         data: {
@@ -684,7 +710,7 @@ const server = createServer(async (req, res) => {
       const limit = Math.floor(asNumber(requestUrl.searchParams.get("limit"), 30));
       const offset = Math.floor(asNumber(requestUrl.searchParams.get("offset"), 0));
       sendJson(req, res, 200, {
-        data: await listLoyaltyTransactions(pool, requireCustomerId(req), {
+        data: await listLoyaltyTransactions(pool, await requireCustomerId(req), {
           status: asNullableText(requestUrl.searchParams.get("status"), 30) ?? undefined,
           type: asNullableText(requestUrl.searchParams.get("type"), 50) ?? undefined,
           limit,
@@ -695,17 +721,17 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/plumber/rewards" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await listRewards(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await listRewards(pool, await requireCustomerId(req)) });
       return;
     }
 
     const rewardRedeemMatch = path.match(/^\/plumber\/rewards\/([^/]+)\/redeem$/);
     if (rewardRedeemMatch && req.method === "POST") {
-      enforceRateLimit(req, "reward-redemption", 10, 60 * 60_000);
+      await enforceRateLimit(req, "reward-redemption", 10, 60 * 60_000);
       const payload = await readJsonBody(req);
       const result = await redeemReward(
         pool,
-        requireCustomerId(req),
+        await requireCustomerId(req),
         decodeURIComponent(rewardRedeemMatch[1]),
         asText(payload.clientRequestId, 100)
       );
@@ -714,30 +740,30 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/plumber/content" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await listProgramContent(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await listProgramContent(pool, await requireCustomerId(req)) });
       return;
     }
 
     const contentRegisterMatch = path.match(/^\/plumber\/content\/([^/]+)\/register$/);
     if (contentRegisterMatch && req.method === "POST") {
-      const result = await registerForTraining(pool, requireCustomerId(req), decodeURIComponent(contentRegisterMatch[1]));
+      const result = await registerForTraining(pool, await requireCustomerId(req), decodeURIComponent(contentRegisterMatch[1]));
       sendJson(req, res, result.created ? 201 : 200, { data: result });
       return;
     }
 
     if (path === "/plumber/reviews" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await listPlumberReviews(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await listPlumberReviews(pool, await requireCustomerId(req)) });
       return;
     }
 
     if (path === "/telegram/link" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await getTelegramLinkStatus(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await getTelegramLinkStatus(pool, await requireCustomerId(req)) });
       return;
     }
 
     if (path === "/telegram/link-token" && req.method === "POST") {
-      enforceRateLimit(req, "telegram-link", 5, 10 * 60_000);
-      sendJson(req, res, 201, { data: await createTelegramLinkToken(pool, requireCustomerId(req), telegramBotUsername) });
+      await enforceRateLimit(req, "telegram-link", 5, 10 * 60_000);
+      sendJson(req, res, 201, { data: await createTelegramLinkToken(pool, await requireCustomerId(req), telegramBotUsername) });
       return;
     }
 
@@ -745,7 +771,7 @@ const server = createServer(async (req, res) => {
       const payload = await readJsonBody(req);
       const result = await updateTelegramPreferences(
         pool,
-        requireCustomerId(req),
+        await requireCustomerId(req),
         payload.notificationsEnabled !== false,
         Object.fromEntries(Object.entries(asRecord(payload.preferences)).map(([key, value]) => [key, value === true]))
       );
@@ -756,12 +782,12 @@ const server = createServer(async (req, res) => {
     if (path === "/service-requests" && req.method === "GET") {
       const limit = Math.floor(asNumber(requestUrl.searchParams.get("limit"), 30));
       const offset = Math.floor(asNumber(requestUrl.searchParams.get("offset"), 0));
-      sendJson(req, res, 200, { data: await listCustomerServiceRequests(pool, requireCustomerId(req), limit, offset) });
+      sendJson(req, res, 200, { data: await listCustomerServiceRequests(pool, await requireCustomerId(req), limit, offset) });
       return;
     }
 
     if (path === "/service-requests" && req.method === "POST") {
-      enforceRateLimit(req, "service-request", 10, 60 * 60_000);
+      await enforceRateLimit(req, "service-request", 10, 60 * 60_000);
       const payload = await readJsonBody(req);
       const input: ServiceRequestInput = {
         serviceType: asText(payload.serviceType, 120),
@@ -775,14 +801,14 @@ const server = createServer(async (req, res) => {
         relatedOrderId: asNullableText(payload.relatedOrderId, 100),
         consentToShare: asBoolean(payload.consentToShare)
       };
-      sendJson(req, res, 201, { data: await createServiceRequest(pool, requireCustomerId(req), input, telegramConfig.chatId) });
+      sendJson(req, res, 201, { data: await createServiceRequest(pool, await requireCustomerId(req), input, telegramConfig.chatId) });
       return;
     }
 
     const serviceRequestCancelMatch = path.match(/^\/service-requests\/([^/]+)\/cancel$/);
     if (serviceRequestCancelMatch && req.method === "POST") {
       sendJson(req, res, 200, {
-        data: await cancelCustomerServiceRequest(pool, requireCustomerId(req), decodeURIComponent(serviceRequestCancelMatch[1]))
+        data: await cancelCustomerServiceRequest(pool, await requireCustomerId(req), decodeURIComponent(serviceRequestCancelMatch[1]))
       });
       return;
     }
@@ -791,7 +817,7 @@ const server = createServer(async (req, res) => {
     if (serviceRequestReviewMatch && req.method === "POST") {
       const payload = await readJsonBody(req);
       sendJson(req, res, 201, {
-        data: await createLeadReview(pool, requireCustomerId(req), decodeURIComponent(serviceRequestReviewMatch[1]), {
+        data: await createLeadReview(pool, await requireCustomerId(req), decodeURIComponent(serviceRequestReviewMatch[1]), {
           rating: asNumber(payload.rating),
           review: asNullableText(payload.review, 2_000),
           tags: asStringArray(payload.tags, 10)
@@ -803,14 +829,14 @@ const server = createServer(async (req, res) => {
     if (path === "/plumber/leads" && req.method === "GET") {
       const limit = Math.floor(asNumber(requestUrl.searchParams.get("limit"), 30));
       const offset = Math.floor(asNumber(requestUrl.searchParams.get("offset"), 0));
-      sendJson(req, res, 200, { data: await listPlumberLeads(pool, requireCustomerId(req), limit, offset) });
+      sendJson(req, res, 200, { data: await listPlumberLeads(pool, await requireCustomerId(req), limit, offset) });
       return;
     }
 
     const plumberLeadViewMatch = path.match(/^\/plumber\/leads\/([^/]+)\/view$/);
     if (plumberLeadViewMatch && req.method === "POST") {
       sendJson(req, res, 200, {
-        data: await markLeadViewed(pool, requireCustomerId(req), decodeURIComponent(plumberLeadViewMatch[1]))
+        data: await markLeadViewed(pool, await requireCustomerId(req), decodeURIComponent(plumberLeadViewMatch[1]))
       });
       return;
     }
@@ -823,7 +849,7 @@ const server = createServer(async (req, res) => {
         : null;
       if (!nextStatus) throw Object.assign(new Error("Недоступный статус заявки."), { statusCode: 400 });
       sendJson(req, res, 200, {
-        data: await updateLeadByPlumber(pool, requireCustomerId(req), decodeURIComponent(plumberLeadStatusMatch[1]), nextStatus)
+        data: await updateLeadByPlumber(pool, await requireCustomerId(req), decodeURIComponent(plumberLeadStatusMatch[1]), nextStatus)
       });
       return;
     }
@@ -919,7 +945,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/admin/receipts" && req.method === "POST") {
-      enforceRateLimit(req, "admin-receipt", 120, 60_000);
+      await enforceRateLimit(req, "admin-receipt", 120, 60_000);
       const actorId = await requireAdminId(req);
       const result = await ingestReceipt(pool, parseReceiptInput(await readJsonBody(req)), actorId);
       sendJson(req, res, result.created ? 201 : 200, { data: result });
@@ -927,7 +953,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/admin/returns" && req.method === "POST") {
-      enforceRateLimit(req, "admin-return", 120, 60_000);
+      await enforceRateLimit(req, "admin-return", 120, 60_000);
       const actorId = await requireAdminId(req);
       const result = await ingestReturn(pool, parseReturnInput(await readJsonBody(req)), actorId);
       sendJson(req, res, result.created ? 201 : 200, { data: result });
@@ -1036,7 +1062,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (path === "/orders" && req.method === "GET") {
-      sendJson(req, res, 200, { data: await listAppOrders(pool, requireCustomerId(req)) });
+      sendJson(req, res, 200, { data: await listAppOrders(pool, await requireCustomerId(req)) });
       return;
     }
 
@@ -1044,7 +1070,7 @@ const server = createServer(async (req, res) => {
       if (!telegramConfigured) {
         throw Object.assign(new Error("Сервис заказов временно недоступен."), { statusCode: 503 });
       }
-      const customerId = requireCustomerId(req);
+      const customerId = await requireCustomerId(req);
       const orderPayload = parseNewOrder(await readJsonBody(req));
       if (orderPayload.orderKind === "reservation") {
         await requireApprovedPlumber(pool, customerId);
@@ -1067,7 +1093,7 @@ const server = createServer(async (req, res) => {
 
     const orderMatch = path.match(/^\/orders\/([^/]+)$/);
     if (orderMatch && req.method === "GET") {
-      const order = await getAppOrder(pool, decodeURIComponent(orderMatch[1]), requireCustomerId(req));
+      const order = await getAppOrder(pool, decodeURIComponent(orderMatch[1]), await requireCustomerId(req));
       if (!order) {
         throw Object.assign(new Error("Заказ не найден."), { statusCode: 404 });
       }
