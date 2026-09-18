@@ -129,7 +129,7 @@ export default function RegisterScreen() {
                   <Pressable
                     key={value}
                     accessibilityRole="radio"
-                    accessibilityState={{ checked: selected }}
+                    aria-checked={selected} accessibilityState={{ checked: selected }}
                     accessibilityLabel={title}
                     onPress={() => setAccountType(value)}
                     style={[styles.accountCard, selected && styles.accountCardSelected]}
@@ -223,7 +223,7 @@ export default function RegisterScreen() {
 
 function ConsentRow({ checked, onPress, text }: { checked: boolean; onPress: () => void; text: string }) {
   return (
-    <Pressable accessibilityRole="checkbox" accessibilityState={{ checked }} onPress={onPress} style={styles.consentRow}>
+    <Pressable accessibilityRole="checkbox" aria-checked={checked} accessibilityState={{ checked }} onPress={onPress} style={styles.consentRow}>
       <View style={[styles.checkbox, checked && styles.checkboxChecked]}>
         {checked ? <Ionicons name="checkmark" size={16} color={colors.surface} /> : null}
       </View>

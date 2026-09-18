@@ -143,7 +143,7 @@ export default function PlumberApplicationScreen() {
 }
 
 function Consent({ checked, onPress, text }: { checked: boolean; onPress: () => void; text: string }) {
-  return <Pressable accessibilityRole="checkbox" accessibilityState={{ checked }} onPress={onPress} style={styles.consent}><View style={[styles.checkbox, checked && styles.checked]}>{checked ? <Ionicons name="checkmark" size={16} color={colors.surface} /> : null}</View><Text style={styles.consentText}>{text}</Text></Pressable>;
+  return <Pressable accessibilityRole="checkbox" aria-checked={checked} accessibilityState={{ checked }} onPress={onPress} style={styles.consent}><View style={[styles.checkbox, checked && styles.checked]}>{checked ? <Ionicons name="checkmark" size={16} color={colors.surface} /> : null}</View><Text style={styles.consentText}>{text}</Text></Pressable>;
 }
 
 const styles = StyleSheet.create({

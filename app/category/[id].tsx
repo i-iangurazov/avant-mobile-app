@@ -1,7 +1,8 @@
+import {SelectField} from "../../src/components/SelectField";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, type TextStyle, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, TextInput, type TextStyle, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { EmptyState } from "../../src/components/EmptyState";
 import { ErrorState } from "../../src/components/ErrorState";
@@ -109,17 +110,7 @@ export default function CategoryProductsScreen() {
           </Pressable>
         </View>
         <View style={styles.chips}>
-          {sortOptions.map((option) => (
-            <Pressable
-              key={option.value}
-              accessibilityRole="button"
-              onPress={() => setSort(option.value)}
-              style={[styles.neutralChip, sort === option.value && styles.chipActive]}
-            >
-              <Ionicons name="swap-vertical-outline" size={15} color={sort === option.value ? colors.surface : colors.textMuted} />
-              <Text style={[styles.neutralChipText, sort === option.value && styles.chipTextActive]}>{option.label}</Text>
-            </Pressable>
-          ))}
+          <SelectField label="Сортировка" value={sort} options={sortOptions} onChange={setSort}/>
         </View>
       </View>
 

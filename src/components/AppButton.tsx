@@ -24,6 +24,7 @@ export function AppButton({
   return (
     <Pressable
       accessibilityRole="button"
+      aria-disabled={disabled || loading} aria-busy={loading} accessibilityState={{disabled:disabled || loading,busy:loading}}
       disabled={disabled || loading}
       onPress={onPress}
       style={({ pressed }) => [
@@ -96,6 +97,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
     borderWidth: 1
   },
   content: {
@@ -105,6 +107,8 @@ const styles = StyleSheet.create({
     gap: spacing.sm
   },
   title: {
+    flexShrink: 1,
+    textAlign: "center",
     fontSize: typography.body,
     fontWeight: "700"
   },

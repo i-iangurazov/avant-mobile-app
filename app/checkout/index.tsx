@@ -1,3 +1,4 @@
+import {SelectField} from "../../src/components/SelectField";
 import { useAuth } from "../../src/hooks/useAuth";
 import { quoteOrder, hasPendingOrder, type OrderQuote } from "../../src/lib/api/orders";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -170,7 +171,8 @@ export default function CheckoutScreen() {
               ]).map(([value, label]) => (
                 <Pressable
                   key={value}
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
+                  aria-checked={method===value} accessibilityState={{checked:method===value}}
                   onPress={() => setMethod(value as FulfillmentMethod)}
                   style={[styles.segmentItem, method === value && styles.segmentItemActive]}
                 >
@@ -182,21 +184,7 @@ export default function CheckoutScreen() {
 
           {method === "pickup" ? (
             <View style={styles.segmentBlock}>
-              <Text style={styles.label}>Магазин для самовывоза</Text>
-              <View style={styles.storeList}>
-                {(stores.data ?? []).map((store) => (
-                  <Pressable
-                    key={store.id}
-                    accessibilityRole="button"
-                    onPress={() => setStoreId(store.id)}
-                    style={[styles.storeOption, storeId === store.id && styles.storeOptionActive]}
-                  >
-                    <Text style={[styles.storeName, storeId === store.id && styles.storeNameActive]}>{store.name}</Text>
-                    <Text style={styles.storeAddress}>{store.address}</Text>
-                  </Pressable>
-                ))}
-              </View>
-              {errors.store ? <Text style={styles.errorText}>{errors.store}</Text> : null}
+              <SelectField label="Магазин для самовывоза" value={storeId} options={(stores.data??[]).map(store=>({value:store.id,label:store.name,description:store.address}))} onChange={setStoreId} searchable error={errors.store}/>
             </View>
           ) : (
             <AppInput

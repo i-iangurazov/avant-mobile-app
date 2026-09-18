@@ -39,9 +39,8 @@ export default function ImageSearchScreen() {
   };
 
   const requestPermission = async (source: "camera" | "library") => {
-    const permission = source === "camera"
-      ? await ImagePicker.requestCameraPermissionsAsync()
-      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (source === "library") return true;
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
 
     if (!permission.granted) {
       showPermissionAlert(source);

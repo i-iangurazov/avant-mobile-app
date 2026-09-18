@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {SelectField} from "../../../src/components/SelectField";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ErrorState } from "../../../src/components/ErrorState";
@@ -35,28 +36,7 @@ export default function MapsScreen() {
 
         {!stores.isLoading && !stores.isError ? (
           <>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.storeTabs}
-            >
-              {(stores.data ?? []).map((store) => {
-                const active = store.id === selectedStore?.id;
-
-                return (
-                  <Pressable
-                    key={store.id}
-                    accessibilityRole="button"
-                    onPress={() => setSelectedStoreId(store.id)}
-                    style={[styles.storeTab, active && styles.storeTabActive]}
-                  >
-                    <Text style={[styles.storeTabText, active && styles.storeTabTextActive]} numberOfLines={1}>
-                      {store.name.replace("Авантехник ", "")}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
+            <View style={{padding:spacing.xl}}><SelectField label="Филиал" value={selectedStore?.id??null} options={(stores.data??[]).map(store=>({value:store.id,label:store.name,description:store.address}))} onChange={setSelectedStoreId} searchable/></View>
 
             <TwoGisMap
               firmId={selectedStore?.two_gis_firm_id}
@@ -65,7 +45,7 @@ export default function MapsScreen() {
             />
 
             <View style={styles.cards}>
-              {(stores.data ?? []).map((store) => (
+              {(selectedStore ? [selectedStore] : []).map((store) => (
                 <StoreCard key={store.id} store={store} />
               ))}
             </View>

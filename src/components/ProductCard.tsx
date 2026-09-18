@@ -1,3 +1,4 @@
+import {useState} from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
 import { formatPrice } from "../lib/formatters";
@@ -16,6 +17,8 @@ export function ProductCard({
   onPress,
   onAdd
 }: ProductCardProps) {
+  const [imageFailed,setImageFailed]=useState(false);
+  const hasImage=Boolean(product.image_url)&&!imageFailed;
   const stockText =
     typeof product.stock_quantity === "number" && product.stock_quantity > 0
       ? `В наличии: ${product.stock_quantity}`
@@ -23,12 +26,12 @@ export function ProductCard({
 
   return (
     <View style={styles.card}>
-      <View style={styles.imageWrap}>
+      <View style={[styles.imageWrap,!hasImage&&{height:64}]}>
         <Pressable accessibilityRole="button" onPress={onPress} style={styles.imagePressable}>
-          {product.image_url ? (
-            <Image source={{ uri: product.image_url }} style={styles.image} resizeMode="cover" />
+          {hasImage ? (
+            <Image source={{ uri: product.image_url! }} style={styles.image} resizeMode="contain" onError={()=>setImageFailed(true)} />
           ) : (
-            <ProductImagePlaceholder />
+            <ProductImagePlaceholder compact />
           )}
         </Pressable>
       </View>

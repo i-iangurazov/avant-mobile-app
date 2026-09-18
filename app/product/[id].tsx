@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
@@ -25,6 +25,8 @@ export default function ProductDetailScreen() {
   const addToCart = useAddToCart();
   const { showToast } = useToast();
   const insets = useSafeAreaInsets();
+  const [imageFailed,setImageFailed]=useState(false);
+  useEffect(()=>setImageFailed(false),[product.data?.image_url]);
   const [quantity, setQuantity] = useState(1);
   const [tab, setTab] = useState<DetailTab>("desc");
 
@@ -88,9 +90,9 @@ export default function ProductDetailScreen() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 110 + insets.bottom }]} showsVerticalScrollIndicator={false}>
-        <View style={styles.imageWrap}>
-          {currentProduct.image_url ? (
-            <Image source={{ uri: currentProduct.image_url }} style={styles.image} resizeMode="cover" />
+        <View style={[styles.imageWrap,(!product.data.image_url||imageFailed)&&{height:100}]}>
+          {currentProduct.image_url && !imageFailed ? (
+            <Image source={{ uri: currentProduct.image_url }} style={styles.image} resizeMode="contain" onError={()=>setImageFailed(true)} />
           ) : (
             <ProductImagePlaceholder />
           )}
@@ -108,7 +110,7 @@ export default function ProductDetailScreen() {
             ].map(([tabId, label]) => (
               <Pressable
                 key={tabId}
-                accessibilityRole="button"
+                accessibilityRole="tab" aria-selected={tab===tabId} accessibilityState={{selected:tab===tabId}}
                 onPress={() => setTab(tabId as DetailTab)}
                 style={[styles.tab, tab === tabId && styles.tabActive]}
               >

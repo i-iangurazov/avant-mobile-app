@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
 import { whatsAppBusinessPhone } from "../lib/config/env";
 import { openWhatsApp } from "../lib/whatsapp";
@@ -14,7 +14,7 @@ export function StoreCard({ store }: StoreCardProps) {
 
   const openRoute = () => {
     const query = encodeURIComponent(`Авантехник ${store.address}`);
-    void Linking.openURL(store.external_2gis_url ?? `https://2gis.kg/bishkek/search/${query}`);
+    void Linking.openURL(store.external_2gis_url ?? `https://2gis.kg/bishkek/search/${query}`).catch(()=>Alert.alert("Карта", "Не удалось открыть 2GIS. Попробуйте позже."));
   };
 
   const call = () => {
@@ -36,8 +36,8 @@ export function StoreCard({ store }: StoreCardProps) {
         <View style={styles.info}>
           <Text style={styles.name}>{store.name}</Text>
           <Text style={styles.address}>{store.address}</Text>
-          <Text style={styles.hours}>{store.working_hours ?? "9:00 - 18:00"}</Text>
-          <Text style={styles.phone}>{phone}</Text>
+          <Text style={styles.hours}>{store.working_hours ?? "Уточните часы работы"}</Text>
+          <Text style={styles.phone}>Поддержка: {phone}</Text>
         </View>
       </View>
       <View style={styles.actions}>

@@ -33,7 +33,7 @@ export default function LoyaltyHistoryScreen() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
       <ScreenHeader title="История бонусов" subtitle="Все операции можно проверить" onBack={() => safeBack("/plumber-home")} />
-      <View style={styles.filters}>{filters.map((filter) => <Pressable accessibilityRole="radio" accessibilityState={{selected:status===filter.value}} key={filter.label} onPress={() => setStatus(filter.value)} style={[styles.filter, status === filter.value && styles.filterActive]}><Text style={[styles.filterText, status === filter.value && styles.filterTextActive]}>{filter.label}</Text></Pressable>)}</View>
+      <View style={styles.filters}>{filters.map((filter) => <Pressable accessibilityRole="radio" aria-checked={status===filter.value} accessibilityState={{checked:status===filter.value}} key={filter.label} onPress={() => setStatus(filter.value)} style={[styles.filter, status === filter.value && styles.filterActive]}><Text style={[styles.filterText, status === filter.value && styles.filterTextActive]}>{filter.label}</Text></Pressable>)}</View>
       {history.isLoading ? <LoadingState text="Загружаем операции..." /> : null}
       {history.isError ? <ErrorState message={history.error.message} onRetry={() => void history.refetch()} /> : null}
       {!history.isLoading && !history.isError && !entries.length ? <EmptyState title="Операций пока нет" text="Начисления появятся после обработки чека с вашим QR-кодом." icon="receipt-outline" /> : null}

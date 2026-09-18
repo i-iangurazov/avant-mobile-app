@@ -1,116 +1,15 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import React, { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { colors, radius, shadows, spacing, typography } from "../../constants/theme";
-import { TWO_GIS_FIRM_IDS } from "../../data/stores";
-
-const iframeStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  border: 0
-};
-
-type TwoGisMapProps = {
-  firmId?: string | null;
-  storeName?: string;
-};
-
-const buildMapUrl = (firmId?: string | null) => {
-  const options = {
-    pos: {
-      lat: 42.88904574206037,
-      lon: 74.60369110107423,
-      zoom: firmId ? 17 : 13
-    },
-    opt: {
-      city: "bishkek"
-    },
-    org: firmId || TWO_GIS_FIRM_IDS.join(",")
-  };
-
-  return `https://widgets.2gis.com/widget?type=firmsonmap&options=${encodeURIComponent(
-    JSON.stringify(options)
-  )}`;
-};
-
-export function TwoGisMap({
-  firmId,
-  storeName = "Авантехник"
-}: TwoGisMapProps) {
-  const mapUrl = useMemo(() => buildMapUrl(firmId), [firmId]);
-
-  return (
-    <View style={styles.container}>
-      {React.createElement("iframe", {
-        key: firmId || "all",
-        src: mapUrl,
-        title: "Карта магазинов Авантехник 2GIS",
-        style: iframeStyle
-      })}
-      <View style={styles.mapLabel}>
-        <Ionicons name="map-outline" size={16} color={colors.primary} />
-        <Text style={styles.mapLabelText} numberOfLines={1}>{storeName}</Text>
-      </View>
-      <View style={styles.widgetCtaCover}>
-        <Ionicons name="storefront-outline" size={15} color={colors.primary} />
-        <Text style={styles.widgetCtaCoverText}>{firmId ? "Точка продаж" : "6 магазинов"}</Text>
-      </View>
-    </View>
-  );
+import React,{useEffect,useState} from 'react';
+import {Linking,Text,View} from 'react-native';
+import {AppButton} from '../AppButton';
+import {colors,spacing} from '../../constants/theme';
+import {buildMapUrl,externalMapUrl,type TwoGisMapProps} from './mapSource';
+export function TwoGisMap({firmId,storeName='Авантехник'}:TwoGisMapProps){
+ const [failed,setFailed]=useState(false);const [loaded,setLoaded]=useState(false);const [attempt,setAttempt]=useState(0);
+ useEffect(()=>{setFailed(false);setLoaded(false);},[firmId,attempt]);
+ useEffect(()=>{if(loaded)return;const timer=setTimeout(()=>setFailed(true),20000);return()=>clearTimeout(timer);},[loaded,firmId,attempt]);
+ return <View style={{gap:spacing.md}}>
+ {failed?<View style={{padding:20,gap:12}}><Text>Карта временно недоступна. Адрес и контакты филиала доступны ниже.</Text><AppButton title="Повторить загрузку карты" onPress={()=>setAttempt(v=>v+1)} variant="secondary"/></View>:
+ React.createElement('iframe',{key:`${firmId}-${attempt}`,src:buildMapUrl(firmId),title:`Карта 2GIS: ${storeName}`,onLoad:()=>setLoaded(true),onError:()=>setFailed(true),style:{width:'100%',height:390,border:0,background:colors.surfaceMuted},referrerPolicy:'no-referrer'})}
+ <View style={{paddingHorizontal:spacing.xl}}><AppButton title="Открыть выбранный филиал в 2GIS" variant="secondary" onPress={()=>void Linking.openURL(externalMapUrl(firmId))}/></View>
+ </View>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    height: 430,
-    margin: spacing.xl,
-    borderRadius: radius.xl,
-    overflow: "hidden",
-    backgroundColor: colors.surfaceMuted,
-    ...shadows.card
-  },
-  mapLabel: {
-    position: "absolute",
-    right: spacing.md,
-    top: spacing.md,
-    maxWidth: "72%",
-    minHeight: 36,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    ...shadows.card
-  },
-  mapLabelText: {
-    flexShrink: 1,
-    color: colors.text,
-    fontSize: typography.small,
-    fontWeight: "900"
-  },
-  widgetCtaCover: {
-    position: "absolute",
-    right: spacing.sm,
-    bottom: spacing.sm,
-    minWidth: 118,
-    minHeight: 36,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    gap: spacing.xs,
-    zIndex: 5,
-    ...shadows.card
-  },
-  widgetCtaCoverText: {
-    color: colors.text,
-    fontSize: typography.tiny,
-    fontWeight: "900"
-  }
-});

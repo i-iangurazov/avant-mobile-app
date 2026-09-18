@@ -11,12 +11,13 @@ export function AppInput({ label, error, style, ...props }: AppInputProps) {
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        accessibilityLabel={props.accessibilityLabel || label}
         placeholderTextColor={colors.textSubtle}
         selectionColor={colors.primary}
         style={[styles.input, webInputReset, error && styles.inputError, style]}
         {...props}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
     </View>
   );
 }
