@@ -1,3 +1,4 @@
+import {PhotoAttachment} from "../../src/components/PhotoAttachment";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -84,7 +85,7 @@ export default function FindPlumberScreen() {
         <AppInput label="Точный адрес (необязательно)" placeholder="Откроется только принятому мастеру" value={address} onChangeText={setAddress} />
         <AppInput label="Желаемые дата и время (необязательно)" placeholder="2026-09-10T14:00:00+06:00" value={preferredAt} onChangeText={setPreferredAt} autoCapitalize="none" />
         <AppInput label="Телефон" keyboardType="phone-pad" value={phone} onChangeText={setPhone} error={errors.phone} />
-        <AppInput label="HTTPS-ссылка на фото (необязательно)" placeholder="https://..." value={photoUrl} onChangeText={setPhotoUrl} autoCapitalize="none" error={errors.photoUrl} />
+        <PhotoAttachment value={photoUrl} onChange={setPhotoUrl} />
         {params.productId ? <Text style={styles.related}>Заявка связана с товаром из каталога.</Text> : null}
         <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: consent }} onPress={() => setConsent((value) => !value)} style={styles.consent}><Ionicons name={consent ? "checkbox" : "square-outline"} size={23} color={consent ? colors.secondary : colors.textSubtle} /><Text style={styles.consentText}>Согласен передать описание, район и после принятия — контакт назначенному сантехнику.</Text></Pressable>{errors.consent ? <Text style={styles.error}>{errors.consent}</Text> : null}
         <AppButton title="Отправить заявку" loading={create.isPending} onPress={() => void submit()} />

@@ -22,6 +22,8 @@ export type RegisterCustomerPayload = {
     experienceYears: number;
     profilePhotoUrl?: string | null;
     description?: string | null;
+    programDocumentVersion?: string;
+    privacyDocumentVersion?: string;
     programConsent: boolean;
     dataProcessingConsent: boolean;
   };

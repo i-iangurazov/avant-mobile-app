@@ -1,3 +1,5 @@
+import {requireOwnedMedia} from "./media";
+import {requireConsentVersions} from "./documents";
 import { randomBytes, randomUUID } from "node:crypto";
 import type pg from "pg";
 
@@ -12,6 +14,8 @@ export type PlumberApplicationInput = {
   experienceYears?: number;
   profilePhotoUrl?: string | null;
   description?: string | null;
+  programDocumentVersion?: string;
+  privacyDocumentVersion?: string;
   programConsent?: boolean;
   dataProcessingConsent?: boolean;
 };
@@ -178,6 +182,8 @@ export async function createPlumberApplicationRecord(
   payload: PlumberApplicationInput
 ) {
   const application = validatePlumberApplication(payload);
+  await requireConsentVersions(database,payload.programDocumentVersion,payload.privacyDocumentVersion);
+  await requireOwnedMedia(database,accountId,application.profilePhotoUrl?[application.profilePhotoUrl]:[]);
   const existing = await database.query<{ id: string; application_status: PlumberApplicationStatus }>(
     "SELECT id, application_status FROM app_plumber_profiles WHERE account_id = $1 LIMIT 1",
     [accountId]
@@ -194,6 +200,7 @@ export async function createPlumberApplicationRecord(
            working_districts = $4::jsonb, specializations = $5::jsonb,
            experience_years = $6, profile_photo_url = $7, description = $8,
            program_consent_at = now(), data_processing_consent_at = now(),
+           program_document_version=$9, privacy_document_version=$10,
            rejection_reason = NULL, suspension_reason = NULL, verified_by = NULL,
            verified_at = NULL, updated_at = now()
        WHERE account_id = $1`,
@@ -205,7 +212,7 @@ export async function createPlumberApplicationRecord(
         JSON.stringify(application.specializations),
         application.experienceYears,
         application.profilePhotoUrl,
-        application.description
+        application.description, payload.programDocumentVersion, payload.privacyDocumentVersion
       ]
     );
     await database.query(
@@ -222,8 +229,8 @@ export async function createPlumberApplicationRecord(
     `INSERT INTO app_plumber_profiles (
        id, account_id, public_id, loyalty_code, application_status,
        full_name, city, working_districts, specializations, experience_years,
-       profile_photo_url, description, program_consent_at, data_processing_consent_at
-     ) VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, now(), now())`,
+       profile_photo_url, description, program_consent_at, data_processing_consent_at, program_document_version, privacy_document_version
+     ) VALUES ($1, $2, $3, $4, 'pending', $5, $6, $7::jsonb, $8::jsonb, $9, $10, $11, now(), now(), $12, $13)`,
     [
       id,
       accountId,
@@ -235,7 +242,7 @@ export async function createPlumberApplicationRecord(
       JSON.stringify(application.specializations),
       application.experienceYears,
       application.profilePhotoUrl,
-      application.description
+      application.description, payload.programDocumentVersion, payload.privacyDocumentVersion
     ]
   );
   await database.query(

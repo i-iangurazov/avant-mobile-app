@@ -1,3 +1,7 @@
+import {appApiClient} from "../../src/lib/api/client";
+import {PhotoAttachment} from "../../src/components/PhotoAttachment";
+import {LegalLinks} from "../../src/components/LegalLinks";
+import {useDocuments} from "../../src/hooks/useDocuments";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -24,7 +28,7 @@ const statusCopy = {
 } as const;
 
 export default function PlumberApplicationScreen() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const application = usePlumberApplication();
   const submitApplication = useSubmitPlumberApplication();
   const [fullName, setFullName] = useState(user?.name ?? "");
@@ -33,9 +37,12 @@ export default function PlumberApplicationScreen() {
   const [specializations, setSpecializations] = useState("");
   const [experience, setExperience] = useState("");
   const [description, setDescription] = useState("");
+  const documents=useDocuments();
   const [photoUrl, setPhotoUrl] = useState("");
   const [programConsent, setProgramConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
+  const documentVersions=documents.data?.map(doc=>`${doc.kind}:${doc.version}`).join("|");
+  useEffect(()=>{setProgramConsent(false);setDataConsent(false);},[documentVersions]);
 
   useEffect(() => {
     const profile = application.data;
@@ -68,6 +75,7 @@ export default function PlumberApplicationScreen() {
             <Text style={styles.statusText}>{copy.text}</Text>
             {profile.suspensionReason ? <Text style={styles.reason}>Причина: {profile.suspensionReason}</Text> : null}
           </View>
+          <PhotoAttachment value={photoUrl} onChange={url=>{void appApiClient.request('/plumber/profile/photo',{method:'PATCH',headers:{Authorization:`Bearer ${session?.accessToken}`},body:JSON.stringify({url})}).then(()=>{setPhotoUrl(url);void application.refetch();}).catch(error=>Alert.alert('Фото',error.message));}} />
           {profile.applicationStatus === "approved" ? <AppButton title="Открыть кабинет" onPress={() => router.replace("/plumber-home")} /> : null}
         </View>
       </SafeAreaView>
@@ -97,6 +105,8 @@ export default function PlumberApplicationScreen() {
         experienceYears,
         profilePhotoUrl: photoUrl.trim() || null,
         description: description.trim() || null,
+        programDocumentVersion:documents.data?.find(d=>d.kind==="loyalty")?.version,
+        privacyDocumentVersion:documents.data?.find(d=>d.kind==="privacy")?.version,
         programConsent,
         dataProcessingConsent: dataConsent
       });
@@ -121,7 +131,8 @@ export default function PlumberApplicationScreen() {
           <AppInput label="Специализации" value={specializations} onChangeText={setSpecializations} placeholder="Отопление, водоснабжение, монтаж" />
           <AppInput label="Стаж, лет" value={experience} onChangeText={setExperience} keyboardType="number-pad" placeholder="5" />
           <AppInput label="О себе (необязательно)" value={description} onChangeText={setDescription} multiline style={styles.multiline} placeholder="Опыт, типы объектов и удобное время" />
-          <AppInput label="HTTPS-ссылка на фото (необязательно)" value={photoUrl} onChangeText={setPhotoUrl} autoCapitalize="none" keyboardType="url" placeholder="https://..." />
+          <LegalLinks />
+          <PhotoAttachment value={photoUrl} onChange={setPhotoUrl} />
           <Consent checked={programConsent} onPress={() => setProgramConsent((value) => !value)} text="Принимаю правила программы лояльности" />
           <Consent checked={dataConsent} onPress={() => setDataConsent((value) => !value)} text="Согласен на обработку данных анкеты для проверки и участия" />
           <AppButton title={profile ? "Отправить повторно" : "Отправить анкету"} onPress={() => void submit()} loading={submitApplication.isPending} />

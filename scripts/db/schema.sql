@@ -523,3 +523,16 @@ CREATE TABLE IF NOT EXISTS app_order_offers (
 );
 ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS organization_id TEXT;
 ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS inventory_held BOOLEAN NOT NULL DEFAULT false;
+
+CREATE TABLE IF NOT EXISTS app_public_documents (
+ kind TEXT NOT NULL CHECK(kind IN ('privacy','terms','loyalty','deletion')),
+ version TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL, approved_at TIMESTAMPTZ NOT NULL,
+ is_current BOOLEAN NOT NULL DEFAULT true, PRIMARY KEY(kind,version)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS app_public_documents_current_idx ON app_public_documents(kind) WHERE is_current;
+ALTER TABLE app_plumber_profiles ADD COLUMN IF NOT EXISTS program_document_version TEXT;
+ALTER TABLE app_plumber_profiles ADD COLUMN IF NOT EXISTS privacy_document_version TEXT;
+CREATE TABLE IF NOT EXISTS app_uploaded_media (
+ id TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES app_customers(id) ON DELETE CASCADE,
+ provider_id TEXT UNIQUE NOT NULL, url TEXT UNIQUE NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

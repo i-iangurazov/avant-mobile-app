@@ -1,3 +1,4 @@
+import {LegalLinks} from "../../src/components/LegalLinks";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,6 +31,7 @@ export default function AboutScreen() {
           <InfoRow label="Версия" value="1.0.0" />
         </View>
 
+        <LegalLinks />
         <View style={styles.actions}>
           <AppButton
             title="Написать в WhatsApp"

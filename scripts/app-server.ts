@@ -1,3 +1,6 @@
+import {mediaProvider,uploadMedia,requireOwnedMedia} from "./server/media";
+import { listPublicDocuments } from "./server/documents";
+import { deleteAccount } from "./server/deletion";
 import { trustedOrder, trustedTotal } from "./server/order-trust";
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -180,8 +183,8 @@ const readBody = (req: IncomingMessage, maxBytes = 256 * 1024) =>
     req.on("error", reject);
   });
 
-const readJsonBody = async (req: IncomingMessage) => {
-  const body = await readBody(req);
+const readJsonBody = async (req: IncomingMessage, maxBytes?:number) => {
+  const body = await readBody(req,maxBytes);
   if (!body.length) {
     return {};
   }
@@ -247,6 +250,8 @@ const parsePhoneProof = (value: unknown) => {
 };
 
 const parsePlumberApplication = (payload: Record<string, unknown>): PlumberApplicationInput => ({
+  programDocumentVersion: asText(payload.programDocumentVersion,100),
+  privacyDocumentVersion: asText(payload.privacyDocumentVersion,100),
   fullName: asText(payload.fullName, 200),
   city: asText(payload.city, 100),
   workingDistricts: asStringArray(payload.workingDistricts, 12),
@@ -544,16 +549,18 @@ const server = createServer(async (req, res) => {
   }
 
   if (path === "/health" && req.method === "GET") {
-    const ready = Boolean(databasePool && configuredAuthSecret && telegramConfigured && webhookUrl);
+    let reachable=false;
+    if(databasePool) try { await databasePool.query('SELECT 1'); reachable=true; } catch { /* Health must report the failed dependency. */ }
+    const ready = Boolean(reachable && configuredAuthSecret && telegramConfigured && webhookUrl);
     sendJson(req, res, ready ? 200 : 503, {
       ok: ready,
-      database: databasePool ? "present" : "missing",
+      database: reachable ? "reachable" : databasePool ? "unreachable" : "missing",
       authTokenSecret: configuredAuthSecret ? "present" : "missing",
       telegramBotToken: telegramConfig.botToken ? "present" : "missing",
       telegramChatId: telegramConfig.chatId ? "present" : "missing",
       telegramWebhook: webhookUrl ? "configured" : "missing",
       plumberProgram: "configured",
-      adminAccess: adminPhoneNumbers.length ? "configured" : "database-role-only",
+      adminAccess: "database-role-only",
       catalog: catalogBaseUrl && catalogToken ? "read-only" : "missing"
     });
     return;
@@ -566,6 +573,29 @@ const server = createServer(async (req, res) => {
     }
 
     const pool = requireDatabase();
+    if (path === '/media' && req.method === 'POST') {
+      const accountId=await requireCustomerId(req);
+      await enforceRateLimit(req,'media-upload',20,60*60_000);
+      const body=await readJsonBody(req,2_900_000);
+      sendJson(req,res,201,{data:await uploadMedia(pool,accountId,asText(body.dataBase64,2_800_001),mediaProvider(env.MEDIA_PROVIDER_URL || '',env.MEDIA_PROVIDER_TOKEN || '',env.MEDIA_PUBLIC_HOST || ''))}); return;
+    }
+    if(path==='/plumber/profile/photo' && req.method==='PATCH') {
+      const id=await requireCustomerId(req);const body=await readJsonBody(req);const url=asNullableText(body.url,1000);
+      await requireOwnedMedia(pool,id,url?[url]:[]);
+      await pool.query('UPDATE app_plumber_profiles SET profile_photo_url=$2,updated_at=now() WHERE account_id=$1',[id,url]);
+      sendJson(req,res,200,{data:await getPlumberProfileByAccount(pool,id)});return;
+    }
+    if (path === '/public/documents' && req.method === 'GET') {
+      sendJson(req,res,200,{data:await listPublicDocuments(pool)}); return;
+    }
+    if (path === '/profile' && req.method === 'DELETE') {
+      const accountId=await requireCustomerId(req);
+      await enforceRateLimit(req,'account-delete',5,60*60_000);
+      const policy=(await listPublicDocuments(pool)).find(doc=>doc.kind==='deletion');
+      const body=await readJsonBody(req);
+      sendJson(req,res,200,await deleteAccount(pool,accountId,asText(body.password,200),parsePhoneProof(body.phoneProof),authTokenSecret,
+        {mode:env.ACCOUNT_DELETION_MODE || '',version:policy?.version || ''},mediaProvider(env.MEDIA_PROVIDER_URL || '',env.MEDIA_PROVIDER_TOKEN || '',env.MEDIA_PUBLIC_HOST || ''))); return;
+    }
 
     if (path === '/auth/phone/challenge' && req.method === 'POST') {
       await enforceRateLimit(req, 'phone-challenge', 20, 60 * 60_000);
@@ -1168,7 +1198,10 @@ const startServer = async () => {
     throw new Error("TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, and a public Telegram webhook URL are required in production.");
   }
 
-  await ensureSchema(databasePool);
+  if(env.NODE_ENV==='production') {
+    const required=await databasePool.query("SELECT to_regclass('app_sessions') sessions,to_regclass('app_order_offers') offers,to_regclass('app_public_documents') documents,to_regclass('app_uploaded_media') media");
+    if(Object.values(required.rows[0]).some(value=>!value)) throw new Error('Apply the reviewed 20260918 migration before starting this backend.');
+  } else await ensureSchema(databasePool);
   if (telegramConfigured && webhookUrl) {
     try {
       await registerTelegramWebhook(telegramConfig, webhookUrl, webhookSecret);

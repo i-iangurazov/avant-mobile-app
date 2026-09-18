@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {createPool,ensureSchema} from '../server/db';
+import {registerFixture,assertTestDatabase} from './fixtures';
+import {deleteAccount} from '../server/deletion';
+import {createPhoneChallenge} from '../server/security';
+import {loginCustomer,requireSession,refreshSession} from '../server/auth';
+import {createManualAdjustment} from '../server/loyalty';
+const pool=createPool(process.env.TEST_DATABASE_URL || '')!;const secret='isolated-delete-test';
+async function main(){try{assertTestDatabase(pool);await ensureSchema(pool);
+const phone=`+996704${String(Date.now()).slice(-6)}`;
+const account=await registerFixture(pool,{name:'Delete test',phone,password:'test-password',accountType:'plumber',plumberApplication:{fullName:'Delete test',city:'Бишкек',workingDistricts:['Test'],specializations:['Test'],experienceYears:1,programConsent:true,dataProcessingConsent:true}},secret);
+const id=account.user.id;const plumber=account.user.plumber!.id;
+await pool.query("UPDATE app_plumber_profiles SET application_status='approved' WHERE id=$1",[plumber]);
+await createManualAdjustment(pool,id,plumber,100,'Isolated deletion fixture');
+let code='';const challenge=await createPhoneChallenge(pool,secret,async m=>{code=m.code;},'delete',phone,id);const proof={challengeId:challenge.challengeId,code};
+const policy={mode:'erase-all',version:'fixture-v1'};
+await assert.rejects(()=>deleteAccount(pool,id,'wrong',proof,secret,policy),(e:any)=>e.statusCode===401);
+await assert.rejects(()=>deleteAccount(pool,id,'test-password',proof,secret,{mode:'',version:''}),(e:any)=>e.statusCode===503);
+await assert.rejects(()=>deleteAccount(pool,id,'test-password',{...proof,code:'wrong'},secret,policy),(e:any)=>e.statusCode===400);
+assert.equal((await deleteAccount(pool,id,'test-password',proof,secret,policy)).deleted,true);
+await assert.rejects(()=>requireSession(pool,account.session.accessToken,secret),(e:any)=>e.statusCode===401);
+await assert.rejects(()=>refreshSession(pool,account.session.refreshToken,secret),(e:any)=>e.statusCode===401);
+await assert.rejects(()=>loginCustomer(pool,{phone,password:'test-password'},secret),(e:any)=>e.statusCode===401);
+for(const [table,column,value] of [['app_customers','id',id],['app_sessions','account_id',id],['app_plumber_profiles','id',plumber],['app_loyalty_transactions','plumber_id',plumber],['app_admin_audit_log','actor_id',id],['app_phone_challenges','phone',phone]])assert.equal(Number((await pool.query(`SELECT COUNT(*) FROM ${table} WHERE ${column}=$1`,[value])).rows[0].count),0);
+console.log(JSON.stringify({suite:'deletion',assertions:13,status:'PASS',scope:'app database; external providers and retention approval remain blocked'}));
+}finally{await pool.end();}}
+void main().catch(e=>{console.error(e);process.exitCode=1;});

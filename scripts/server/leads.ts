@@ -1,3 +1,4 @@
+import {requireOwnedMedia} from "./media";
 import { randomUUID } from "node:crypto";
 import type pg from "pg";
 import { enqueueNotification } from "./notifications";
@@ -133,6 +134,7 @@ export async function createServiceRequest(
   adminChatId?: string | null
 ) {
   const payload = validateInput(input);
+  await requireOwnedMedia(pool,customerId,payload.photoUrls);
   if (payload.relatedOrderId) {
     const order = await pool.query("SELECT id FROM app_orders WHERE id = $1 AND customer_id = $2", [payload.relatedOrderId, customerId]);
     if (!order.rowCount) throw Object.assign(new Error("Связанный заказ не найден."), { statusCode: 404 });

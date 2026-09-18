@@ -1,7 +1,9 @@
+import {LegalLinks} from "../../src/components/LegalLinks";
+import {useDocuments} from "../../src/hooks/useDocuments";
 import { PhoneVerification, type PhoneProof } from "../../src/components/PhoneVerification";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
@@ -40,9 +42,12 @@ export default function RegisterScreen() {
   const [specializations, setSpecializations] = useState("");
   const [experience, setExperience] = useState("");
   const [description, setDescription] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
+  const documents=useDocuments();
+
   const [programConsent, setProgramConsent] = useState(false);
   const [dataConsent, setDataConsent] = useState(false);
+  const documentVersions=documents.data?.map(doc=>`${doc.kind}:${doc.version}`).join("|");
+  useEffect(()=>{setProgramConsent(false);setDataConsent(false);},[documentVersions]);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [loading, setLoading] = useState(false);
 
@@ -81,8 +86,10 @@ export default function RegisterScreen() {
           workingDistricts: toList(districts),
           specializations: toList(specializations),
           experienceYears,
-          profilePhotoUrl: photoUrl.trim() || null,
+
           description: description.trim() || null,
+          programDocumentVersion:documents.data?.find(d=>d.kind==="loyalty")?.version,
+          privacyDocumentVersion:documents.data?.find(d=>d.kind==="privacy")?.version,
           programConsent,
           dataProcessingConsent: dataConsent
         } : undefined
@@ -190,20 +197,14 @@ export default function RegisterScreen() {
                 multiline
                 style={styles.multiline}
               />
-              <AppInput
-                label="HTTPS-ссылка на фото (необязательно)"
-                placeholder="https://..."
-                value={photoUrl}
-                onChangeText={setPhotoUrl}
-                autoCapitalize="none"
-                keyboardType="url"
-              />
+              <Text style={styles.label}>Фото можно добавить в анкете после входа.</Text>
               <ConsentRow checked={programConsent} onPress={() => setProgramConsent((value) => !value)} text="Я принимаю правила программы лояльности для сантехников" />
               <ConsentRow checked={dataConsent} onPress={() => setDataConsent((value) => !value)} text="Я согласен на обработку данных анкеты для проверки и участия" />
               {errors.consent ? <Text style={styles.error}>{errors.consent}</Text> : null}
             </View>
           ) : null}
 
+          <LegalLinks />
           <PhoneVerification phone={phone} action="register" onChange={setPhoneProof} />
           <AppInput label="Пароль" placeholder="Минимум 8 символов" secureTextEntry value={password} onChangeText={setPassword} error={errors.password} />
           <AppInput label="Повторите пароль" placeholder="Повторите пароль" secureTextEntry value={passwordRepeat} onChangeText={setPasswordRepeat} error={errors.passwordRepeat} />

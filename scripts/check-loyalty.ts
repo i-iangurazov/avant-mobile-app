@@ -37,6 +37,8 @@ const application = (name: string, district = "Октябрьский") => ({
   specializations: ["Монтаж сантехники"],
   experienceYears: 7,
   description: "Тестовая анкета интеграционного сценария",
+  programDocumentVersion:"fixture-v1",
+  privacyDocumentVersion:"fixture-v1",
   programConsent: true,
   dataProcessingConsent: true
 });
