@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checks": [
+    "primary throttled",
+    "second process sharing DB remains throttled despite spoofed forwarding header",
+    "restart remains throttled"
+  ],
+  "scope": "two local HTTP processes; staging reverse proxy routing and capacity NOT verified"
+}

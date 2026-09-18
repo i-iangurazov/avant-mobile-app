@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "sourceCommit": "5b8ea84",
+  "scope": "3 exported bundles; marker/fixture-secret scan, not proof against every possible secret",
+  "files": [
+    {
+      "file": "_expo/static/js/web/entry-4f2fec94aa38a93a9cc8b67be1cdba0e.js",
+      "bytes": 1646031,
+      "sha256": "a67208ce291c74359126016f5c9575cf25bf946ce7bac8a0773955c064d42f45",
+      "serverSecretMarkers": []
+    },
+    {
+      "file": "_expo/static/js/ios/entry-af90b19ede3b524ea0318395dabb65bf.hbc",
+      "bytes": 4110915,
+      "sha256": "ead0633dea6122f5b583a267dde374f112ff5e005e542c8b9f03bf2947d76987",
+      "serverSecretMarkers": []
+    },
+    {
+      "file": "_expo/static/js/android/entry-368be1d0a61d797846128840e60d7bfb.hbc",
+      "bytes": 4106426,
+      "sha256": "9ed54ab1231bc60f3b77ab54781aacc76287711e8b50155941c04a625114e9aa",
+      "serverSecretMarkers": []
+    }
+  ]
+}

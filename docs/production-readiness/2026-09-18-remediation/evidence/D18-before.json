@@ -1,0 +1,15 @@
+{
+  "first": {
+    "created": true,
+    "id": "1aeb6c73-2867-47dd-9d04-c2615ad68c9d",
+    "status": "pending",
+    "costMinor": "100"
+  },
+  "changed": {
+    "created": false,
+    "id": "1aeb6c73-2867-47dd-9d04-c2615ad68c9d",
+    "status": "pending",
+    "costMinor": "100"
+  },
+  "defect": "Different reward under same request key silently returns first redemption"
+}

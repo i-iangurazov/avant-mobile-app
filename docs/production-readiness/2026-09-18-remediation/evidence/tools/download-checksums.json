@@ -1,0 +1,12 @@
+[
+  {
+    "file": "sdk-tools.zip",
+    "sha256": "835b62a26162b229b441d1f6d4680383815a270809eb33522c0d480fa5002c4e",
+    "bytes": 156083281
+  },
+  {
+    "file": "jdk.tar.gz",
+    "sha256": "196d13ba5f10414bef7f6a05a9b3f00edacb18ebacef2b99485db9e2ee18f0e8",
+    "bytes": 185851019
+  }
+]

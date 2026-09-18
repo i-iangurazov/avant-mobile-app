@@ -1,0 +1,25 @@
+Add through catalog appears in cart
+Select exposes expanded and checked states
+Searchable branch select applies and closes
+Select empty search has explicit state
+Escape closes select and preserves chosen branch
+Delivery address validation
+Trusted quote is shown before submission
+Successful server response deliberately lost
+One server order exists after lost response
+Retry key persisted after network failure
+Response recovery opens actual persisted order
+Retry after reload did not create a second order
+Persisted attempt cleared after accepted result
+Submitted cart cleared
+History shows created order
+Order can be reopened
+UI loads all 137 real fixture ledger entries
+UI pagination finished at five pages
+Ledger filter has no invented rows
+Account switch clears plumber identity
+Revoked cached session cleared on startup
+Deletion consent exposes checked state
+Web deletion removes account after password and bound OTP
+Deletion clears local session and private keys
+No JavaScript runtime exceptions

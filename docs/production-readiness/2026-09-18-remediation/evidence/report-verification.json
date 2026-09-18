@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "originalDefects": 17,
+  "originalBlockers": 11,
+  "originalCriteria": 147,
+  "currentCriteria": 151,
+  "originalWeightsMethodsExpectedPreserved": true,
+  "sourceMatchesBuiltCommit": "5b8ea84",
+  "sourceFiles": 129,
+  "artifactHashes": "verified",
+  "closureStates": {
+    "FIXED & VERIFIED": 12,
+    "BLOCKED": 7,
+    "IMPLEMENTED, NOT VERIFIED": 2
+  }
+}

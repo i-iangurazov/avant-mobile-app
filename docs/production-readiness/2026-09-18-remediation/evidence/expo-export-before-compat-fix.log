@@ -1,0 +1,23 @@
+Starting Metro Bundler
+| (node:16590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16593) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16594) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16592) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16595) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:16596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web node_modules/expo-router/entry.js ▓▓░░░░░░░░░░░░░░ 17.7% (138/328)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓░░░░░░░░░░ 39.9% (292/462)
+Android node_modules/expo-router/entry.js ▓▓▓▓░░░░░░░░░░░░ 26.5% (288/559)
+Web node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 71.2% (599/710)
+iOS node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 86.5% ( 941/1012)
+Android node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 80.0% (831/929)
+iOS Bundling failed 9023ms node_modules/expo-router/entry.js (1445 modules)
+SyntaxError: node_modules/expo-router/assets/unmatched.png: The "list" argument must be an instance of SharedArrayBuffer, ArrayBuffer or ArrayBufferView.

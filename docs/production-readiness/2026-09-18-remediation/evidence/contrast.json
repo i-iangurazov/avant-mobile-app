@@ -1,0 +1,77 @@
+{
+  "pairs": [
+    {
+      "foreground": "text",
+      "background": "surface",
+      "ratio": 17.442,
+      "pass45": true
+    },
+    {
+      "foreground": "textMuted",
+      "background": "surface",
+      "ratio": 5.393,
+      "pass45": true
+    },
+    {
+      "foreground": "textSubtle",
+      "background": "surface",
+      "ratio": 5.393,
+      "pass45": true
+    },
+    {
+      "foreground": "textSubtle",
+      "background": "surfaceMuted",
+      "ratio": 4.818,
+      "pass45": true
+    },
+    {
+      "foreground": "primary",
+      "background": "surface",
+      "ratio": 5.125,
+      "pass45": true
+    },
+    {
+      "foreground": "primary",
+      "background": "primarySoft",
+      "ratio": 4.622,
+      "pass45": true
+    },
+    {
+      "foreground": "secondary",
+      "background": "secondarySoft",
+      "ratio": 6.056,
+      "pass45": true
+    },
+    {
+      "foreground": "success",
+      "background": "successSoft",
+      "ratio": 5.083,
+      "pass45": true
+    },
+    {
+      "foreground": "warning",
+      "background": "warningSoft",
+      "ratio": 5.644,
+      "pass45": true
+    },
+    {
+      "foreground": "danger",
+      "background": "dangerSoft",
+      "ratio": 5.189,
+      "pass45": true
+    },
+    {
+      "foreground": "#D8EBFF",
+      "background": "#0B5EA8",
+      "ratio": 5.422,
+      "pass45": true
+    },
+    {
+      "foreground": "#FFE4B5",
+      "background": "#0B5EA8",
+      "ratio": 5.35,
+      "pass45": true
+    }
+  ],
+  "scope": "token calculation; web screenshots inspected; native accessibility/large-font tests remain blocked"
+}

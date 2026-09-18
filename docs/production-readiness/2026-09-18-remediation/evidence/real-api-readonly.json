@@ -1,0 +1,29 @@
+{
+  "method": "GET only; no credentials; deployed revision unknown; not the locally fixed backend",
+  "results": [
+    {
+      "path": "/health",
+      "status": 200,
+      "response": {
+        "ok": true,
+        "bazaarBaseUrl": "present",
+        "bazaarToken": "present",
+        "database": "present"
+      }
+    },
+    {
+      "path": "/categories",
+      "error": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+    },
+    {
+      "path": "/products?page=1&pageSize=50",
+      "status": 200,
+      "total": 2365,
+      "sample": 50,
+      "missingImages": 50,
+      "missingDescription": 50,
+      "missingCategory": 50,
+      "zeroPrice": 50
+    }
+  ]
+}

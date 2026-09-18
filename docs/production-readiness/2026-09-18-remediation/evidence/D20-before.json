@@ -1,0 +1,7 @@
+{
+  "source": "c88450a:src/lib/cart/localCart.ts",
+  "method": "Actual baseline module transpiled by TypeScript, in-memory asynchronous storage",
+  "parallelAdds": 20,
+  "expectedQuantity": 20,
+  "actualQuantity": 1
+}

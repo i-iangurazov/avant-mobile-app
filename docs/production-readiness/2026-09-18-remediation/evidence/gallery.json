@@ -1,0 +1,793 @@
+[
+  {
+    "name": "guest-welcome",
+    "role": "guest",
+    "path": "/welcome",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-welcome.png",
+    "bottoms": [],
+    "body": "Добро пожаловать\nПокупайте сантехнику, отопление, трубы, фитинги и товары для ремонта в Авантехник\nВойти\nЗарегистрироваться\nСмотреть каталог",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-choice",
+    "role": "guest",
+    "path": "/choice",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-choice.png",
+    "bottoms": [],
+    "body": "Добро пожаловать\nПокупайте сантехнику, отопление, трубы, фитинги и товары для ремонта в Авантехник\nВойти\nЗарегистрироваться\nСмотреть каталог",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-login",
+    "role": "guest",
+    "path": "/login",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-login.png",
+    "bottoms": [],
+    "body": "\nВход в аккаунт\nВведите телефон и пароль\nТелефон\nПароль\nЗабыли пароль?\nПри первом входе подтвердите номер кодом из SMS.\nПолучить код подтверждения\nВойти\nНет аккаунта?\nЗарегистрироваться",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-register",
+    "role": "guest",
+    "path": "/register",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-register.png",
+    "bottoms": [
+      "guest-register-bottom.png"
+    ],
+    "body": "\nСоздать аккаунт\nОдин аккаунт для покупок и программы мастеров\nТип аккаунта\n\nПокупатель\nКаталог, корзина и заказы\n\nСантехник\nБонусы, QR и заявки клиентов\nИмя и фамилия\nТелефон\nАдрес\nПолитика конфиденциальности\nУсловия использования\nПравила программы лояльности\nУдаление аккаунта и данных\nПолучить код подтверждения\nПароль\nПовторите пароль\nСоздать аккаунт\nУже есть аккаунт?\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 763,
+        "total": 1066
+      }
+    ]
+  },
+  {
+    "name": "guest-catalog",
+    "role": "guest",
+    "path": "/catalog",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-catalog.png",
+    "bottoms": [],
+    "body": "Каталог\n\nБишкек\n\nВсё для ванной, отопления и ремонта\nСантехника, трубы, фитинги, фильтры и инструменты для ремонта\nВсе товары\nВсе товары\n50 товаров\n\n\nТовар\nAQ-7705 Aquatec\nЦена уточняется\nВ наличии: 24\nВ корзину\n\nТовар\nAQ-7707 Aquatec\nЦена уточняется\nВ наличии: 9\nВ корзину\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-category-all-products",
+    "role": "guest",
+    "path": "/category/all-products",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-category-all-products.png",
+    "bottoms": [
+      "guest-category-all-products-bottom.png"
+    ],
+    "body": "\nВсе товары\nВсе товары\n\n\nСортировка\nПо названию\n\n\nТовар\n10НКП\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n1197\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\n1212121\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n463-DMB2 Rosagua\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n9631-1 Аквамарин\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA1-341 Trigor\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA6-FD-341 Trigor\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA6-TT-341-Trigor\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAH-24 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-2701 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-8820 хром Авантехник\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAH-8820BK Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-903 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAKL-00670B Akvaline\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAN 46049 авант\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7701 Aquatec\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAQ-7702 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7703 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7705 Aquatec\nЦена уточняется\nВ наличии: 24\nВ корзину\n\nТовар\nAQ-7706 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7707 Aquatec\nЦена уточняется\nВ наличии: 9\nВ корзину\n\nТовар\nAQ-8803B Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8803G Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804 AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804B AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804G AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804W AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8808 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8811 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAR-2001 Klipfel\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAR-2002 Klipfel\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAR-2005 Klipfel\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nB0303-L ITALOMIX\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nC1-402 Trigor\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nC5-402 Trigor\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nDionis DAF15-502\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nDMG4-E-MG-229 Dionis\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nDNA4-15-113 Dionis\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nDNA4-B-BD-305 Dionis\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nDNE6-FW-203 Dionis\nЦена уточняется\nНет в наличии\nВ корзину",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 630,
+        "total": 5296
+      }
+    ]
+  },
+  {
+    "name": "guest-product-50f5a432-b716-4112-9195-7055803b5b36",
+    "role": "guest",
+    "path": "/product/50f5a432-b716-4112-9195-7055803b5b36",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-product-50f5a432-b716-4112-9195-7055803b5b36.png",
+    "bottoms": [],
+    "body": "\n\nAQ-7705 Aquatec\nЦена уточняется\n\nНужен сантехник?\nОтправьте заявку проверенному мастеру\n\nОписание\nХарактеристики\nНаличие\nОписание\nОписание товара будет добавлено позже.\n\n\nУточнить в WhatsApp",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-cart",
+    "role": "guest",
+    "path": "/cart",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-cart.png",
+    "bottoms": [],
+    "body": "Корзина\nТовары: 0\n\nКорзина пуста\nДобавьте товары из каталога, чтобы оформить заказ\nПерейти в каталог\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-orders",
+    "role": "guest",
+    "path": "/orders",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-orders.png",
+    "bottoms": [],
+    "body": "Мои заказы\n0 операций\n\nВойдите в аккаунт\nИстория заказов доступна после входа в аккаунт.\nВойти\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-profile",
+    "role": "guest",
+    "path": "/profile",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-profile.png",
+    "bottoms": [],
+    "body": "Профиль\nДанные покупателя и поддержка\n\nВойдите в аккаунт\nПрофиль будет доступен после входа в аккаунт Авантехник.\nВойти\nПолитика конфиденциальности\nУсловия использования\nПравила программы лояльности\nУдаление аккаунта и данных\nНаписать в WhatsApp\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-maps",
+    "role": "guest",
+    "path": "/maps",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-maps.png",
+    "bottoms": [
+      "guest-maps-bottom.png"
+    ],
+    "body": "Магазины\nТочки продаж и самовывоза в Бишкеке\nФилиал\nАвантехник Ортосай\n\nОткрыть выбранный филиал в 2GIS\n\nАвантехник Ортосай\nБезымянная улица, 20/4, 6 ряд, 46С контейнер, Бишкек\nАктуальные часы работы — в 2GIS\nПоддержка: +996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 1010
+      }
+    ]
+  },
+  {
+    "name": "guest-image-search",
+    "role": "guest",
+    "path": "/image-search",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-image-search.png",
+    "bottoms": [],
+    "body": "\nПоиск по фото\n\nПоиск по фото\nСфотографируйте товар или загрузите изображение. Если автоматический поиск недоступен, менеджер поможет найти товар по фото.\n\nСделать фото\n\nЗагрузить из галереи",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-profile-about",
+    "role": "guest",
+    "path": "/profile/about",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-profile-about.png",
+    "bottoms": [
+      "guest-profile-about-bottom.png"
+    ],
+    "body": "\nО приложении\n\nАвантехник\nМобильное приложение для покупки сантехники, отопления, водоснабжения, труб, фитингов, фильтров и товаров для ремонта в Бишкеке.\nГород\nБишкек, Кыргызстан\nКаталог\nВсе товары\nЗаказы\nМенеджер подтверждает наличие и цену\nВерсия\n1.0.0\nПолитика конфиденциальности\nУсловия использования\nПравила программы лояльности\nУдаление аккаунта и данных\nНаписать в WhatsApp\nОткрыть 2GIS",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 782,
+        "total": 969
+      }
+    ]
+  },
+  {
+    "name": "guest-legal-privacy",
+    "role": "guest",
+    "path": "/legal/privacy",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-legal-privacy.png",
+    "bottoms": [],
+    "body": "\nТест: privacy\nВерсия fixture-v1\nТЕСТОВЫЙ ДОКУМЕНТ. Только изолированная проверка. Не является действующим условием Авантехник.\nПоддержка",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-legal-loyalty",
+    "role": "guest",
+    "path": "/legal/loyalty",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-legal-loyalty.png",
+    "bottoms": [],
+    "body": "\nТест: loyalty\nВерсия fixture-v1\nТЕСТОВЫЙ ДОКУМЕНТ. Только изолированная проверка. Не является действующим условием Авантехник.\nПоддержка",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-delete-account",
+    "role": "guest",
+    "path": "/delete-account",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-delete-account.png",
+    "bottoms": [],
+    "body": "\nУдалить аккаунт\nАвантехник — удаление аккаунта и связанных данных. Этот путь доступен в приложении и в браузере.\nТЕСТОВЫЙ ДОКУМЕНТ. Только изолированная проверка. Не является действующим условием Авантехник.\nВойдите, чтобы подтвердить личность и удалить аккаунт. Устанавливать приложение для этого не требуется.\nВойти\nСвязаться с поддержкой",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-password-reset",
+    "role": "guest",
+    "path": "/password-reset",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-password-reset.png",
+    "bottoms": [],
+    "body": "\nВосстановление доступа\nПодтвердите номер телефона. После смены пароля все прежние сеансы завершатся.\nТелефон\nПолучить код подтверждения\nНовый пароль\nИзменить пароль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-find-plumber",
+    "role": "guest",
+    "path": "/find-plumber",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-find-plumber.png",
+    "bottoms": [],
+    "body": "\nНайти сантехника\n\nСначала войдите\nТак заявка будет защищена и останется в истории.\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-plumber-apply",
+    "role": "guest",
+    "path": "/plumber/apply",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-plumber-apply.png",
+    "bottoms": [],
+    "body": "\nВойдите в аккаунт\nДля анкеты используется существующий аккаунт — второй создавать не нужно.\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "guest-admin",
+    "role": "guest",
+    "path": "/admin",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "guest-admin.png",
+    "bottoms": [],
+    "body": "\nВойдите в аккаунт\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "register-validation",
+    "role": "guest",
+    "path": "/register",
+    "state": "invalid empty",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "register-validation.png",
+    "bottoms": [
+      "register-validation-bottom.png"
+    ],
+    "body": "\nСоздать аккаунт\nОдин аккаунт для покупок и программы мастеров\nТип аккаунта\n\nПокупатель\nКаталог, корзина и заказы\n\nСантехник\nБонусы, QR и заявки клиентов\nИмя и фамилия\nВведите имя\nТелефон\nВведите телефон в формате +996 XXX XXX XXX\nАдрес\nВведите адрес\nПолитика конфиденциальности\nУсловия использования\nПравила программы лояльности\nУдаление аккаунта и данных\nПолучить код подтверждения\nПароль\nМинимум 8 символов\nПовторите пароль\nПовторите пароль\nСоздать аккаунт\nУже есть аккаунт?\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 763,
+        "total": 1171
+      }
+    ]
+  },
+  {
+    "name": "customer-profile",
+    "role": "customer",
+    "path": "/profile",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-profile.png",
+    "bottoms": [],
+    "body": "Профиль\nДанные покупателя и настройки\n\nТестовый customer\n+996710327280\nТестовый адрес, Бишкек\n\nСтать сантехником\nОдин аккаунт для покупок и программы лояльности\n\n\nУдалить аккаунт\n\n\nРедактировать профиль\n\n\nTelegram-уведомления\n\n\nПоддержка\n\n\nО приложении\n\nВыйти\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-delete-account",
+    "role": "customer",
+    "path": "/delete-account",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-delete-account.png",
+    "bottoms": [],
+    "body": "\nУдалить аккаунт\nАвантехник — удаление аккаунта и связанных данных. Этот путь доступен в приложении и в браузере.\nТЕСТОВЫЙ ДОКУМЕНТ. Только изолированная проверка. Не является действующим условием Авантехник.\nПроверяем аккаунт +996710327280. Удаление нельзя отменить.\nТекущий пароль\nПолучить код подтверждения\n☐ Я прочитал порядок удаления и подтверждаю удаление аккаунта и связанных данных.\nУдалить аккаунт и данные\nСвязаться с поддержкой",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-profile-edit",
+    "role": "customer",
+    "path": "/profile/edit",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-profile-edit.png",
+    "bottoms": [],
+    "body": "\nРедактировать профиль\nИмя\nТелефон\nАдрес\nСохранить",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-profile-telegram",
+    "role": "customer",
+    "path": "/profile/telegram",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-profile-telegram.png",
+    "bottoms": [],
+    "body": "\nTelegram\nБезопасные уведомления бота\n\nTelegram не подключён\nПодключение выполняется одноразовой командой в личном чате с ботом.\n\nПодключить Telegram\nБот не отправляет полный адрес клиента, данные чеков или другую чувствительную информацию. Подробности доступны только после входа в приложение.",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-orders",
+    "role": "customer",
+    "path": "/orders",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-orders.png",
+    "bottoms": [],
+    "body": "Мои заказы\n2 операций\nAV-20260918-01069\n18 сентября 2026 г.\nЗаказ создан\n1 товар\n123,45 сом\nПодробнее\n\nAV-20260918-01068\n18 сентября 2026 г.\nЗаказ создан\n1 товар\n123,45 сом\nПодробнее\n\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-orders-f50ad330-24d7-4a68-b497-f00935a6a7ad",
+    "role": "customer",
+    "path": "/orders/f50ad330-24d7-4a68-b497-f00935a6a7ad",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-orders-f50ad330-24d7-4a68-b497-f00935a6a7ad.png",
+    "bottoms": [
+      "customer-orders-f50ad330-24d7-4a68-b497-f00935a6a7ad-bottom.png"
+    ],
+    "body": "\nЗаказ AV-20260918-01068\n18 сентября 2026 г.\n\nЗаказ AV-20260918-01068\nСамовывоз · 1 товар\nЗаказ создан\nИтого\n123,45 сом\nСтатус заказа\nЗаказ создан\n\nЗаказ создан\nПодтверждён\nСобирается\nГотов к выдаче\nЗавершён\nИстория\nЗаказ создан\n18 сентября 2026 г.\nСостав заказа\n1 позиция\nAQ-7705 Aquatec\n1 шт.\n123,45 сом\nПолучатель\nИмя\nТестовый customer\nТелефон\n+996710327280\nПолучение\nСамовывоз\nМагазин\nТестовый филиал 1\nТестовый адрес\nКомментарий: Изолированная проверка",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 756,
+        "total": 1094
+      }
+    ]
+  },
+  {
+    "name": "customer-find-plumber",
+    "role": "customer",
+    "path": "/find-plumber",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-find-plumber.png",
+    "bottoms": [],
+    "body": "\nНайти сантехника\nТолько проверенные мастера\n\nБезопасный подбор\nСначала заявку видит администратор. Телефон и точный адрес откроются только назначенному мастеру после принятия.\nСоздать заявку\nМои заявки\n\nЗаявок пока нет",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-plumber-apply",
+    "role": "customer",
+    "path": "/plumber/apply",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-plumber-apply.png",
+    "bottoms": [
+      "customer-plumber-apply-bottom.png"
+    ],
+    "body": "\nСтать сантехником\nВторой аккаунт не нужен\nИмя и фамилия\n\nТелефон аккаунта\n+996710327280\nГород\nРабочие районы\nПеречислите через запятую.\nСпециализации\nСтаж, лет\nО себе (необязательно)\nПолитика конфиденциальности\nУсловия использования\nПравила программы лояльности\nУдаление аккаунта и данных\nФотография (необязательно)\nВыбрать фото\nПринимаю правила программы лояльности\nСогласен на обработку данных анкеты для проверки и участия\nОтправить анкету",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 779,
+        "total": 1231
+      }
+    ]
+  },
+  {
+    "name": "customer-cart-populated",
+    "role": "customer",
+    "path": "/cart",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-cart-populated.png",
+    "bottoms": [],
+    "body": "Корзина\nТовары: 1\n\n10НКП\n\nЦена уточняется\n\n\nТовары: 1\nДоставка: уточняется\nИтого\nуточняется менеджером\nОформить заказ\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-checkout-pickup",
+    "role": "customer",
+    "path": "/checkout",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-checkout-pickup.png",
+    "bottoms": [],
+    "body": "\nОформление заказа\nМенеджер подтвердит наличие и цену\nИмя\nТелефон\nСпособ получения\nСамовывоз\nДоставка\nМагазин для самовывоза\nАвантехник Ортосай\n\nКомментарий\nПроверить итог",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "customer-checkout-delivery",
+    "role": "customer",
+    "path": "/checkout",
+    "state": "delivery",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "customer-checkout-delivery.png",
+    "bottoms": [],
+    "body": "\nОформление заказа\nМенеджер подтвердит наличие и цену\nИмя\nТелефон\nСпособ получения\nСамовывоз\nДоставка\nАдрес доставки\nКомментарий\nПроверить итог",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "plumber-plumber-home",
+    "role": "plumber",
+    "path": "/plumber-home",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-home.png",
+    "bottoms": [
+      "plumber-plumber-home-bottom.png"
+    ],
+    "body": "РАБОЧИЙ КАБИНЕТ\nТестовый мастер\n\nПодтверждён\n\nДоступно\n137 бонусов\nПрофи\n\nОжидает: 0 бонусов\n0 сом за 90 дней\nДо «Эксперт»: 100 000 сом\n\nНаличие\n\nМой QR\n\nНаграды\n\nЗаявки\n\n0\nАктивные резервы\n\n0\nНовые заявки\n\n—\n0 отзывов\nПоследние покупки\nВся история\n\nПокупки появятся после сканирования QR-кода на кассе.\nАкции для мастеров\nВсе материалы\n\nАктивных промо сейчас нет. Мы сообщим о новых предложениях.\n\nГлавная\n\nНаличие\n\nРезервы\n\nЗаявки\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 966
+      }
+    ]
+  },
+  {
+    "name": "plumber-plumber-qr",
+    "role": "plumber",
+    "path": "/plumber/qr",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-qr.png",
+    "bottoms": [],
+    "body": "\nМой QR\nДля начисления бонусов на кассе\n\nПрофи\nТестовый мастер\nКОД УЧАСТНИКА\nAVP-5195-AA68-AEDD\n\nПокажите QR кассиру до закрытия чека. Покупку можно привязать к вам, даже если платит ваш клиент.\n\nМаксимальная яркость\nВ QR нет номера аккаунта, телефона или других личных данных. Код можно безопасно показать кассиру.",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "plumber-plumber-history",
+    "role": "plumber",
+    "path": "/plumber/history",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-history.png",
+    "bottoms": [
+      "plumber-plumber-history-bottom.png"
+    ],
+    "body": "\nИстория бонусов\nВсе операции можно проверить\nВсе\nОжидает\nНачислено\nИспользовано\nВозвраты\n\nРучная корректировка: Тестовая операция 137\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 136\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 135\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 134\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 133\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 132\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 131\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 130\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 129\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 128\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 127\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 126\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 125\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 124\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 123\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 122\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 121\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 120\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 119\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 118\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 117\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 116\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 115\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 114\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 113\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 112\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 111\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 110\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 109\n18.09.2026\n1 бонус\nДоступно\n\nРучная корректировка: Тестовая операция 108\n18.09.2026\n1 бонус\nДоступно\nПоказать ещё",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 701,
+        "total": 2500
+      }
+    ]
+  },
+  {
+    "name": "plumber-plumber-rewards",
+    "role": "plumber",
+    "path": "/plumber/rewards",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-rewards.png",
+    "bottoms": [
+      "plumber-plumber-rewards-bottom.png"
+    ],
+    "body": "\nНаграды\nДоступно: 137 бонусов\n\nFixture\nFixture\n0,50 бонуса\nОбменять бонусы\n\nFixture\nFixture\n0,50 бонуса\nОбменять бонусы\n\nFixture\nFixture\n0,50 бонуса\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы\n\nFixture\nFixture\n1 бонус\nОбменять бонусы",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 779,
+        "total": 5472
+      }
+    ]
+  },
+  {
+    "name": "plumber-plumber-content",
+    "role": "plumber",
+    "path": "/plumber/content",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-content.png",
+    "bottoms": [],
+    "body": "\nДля мастеров\nАкции, новинки и обучение\n\nНовостей пока нет\nАкции и события появятся после публикации командой Авантехник.",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "plumber-plumber-reviews",
+    "role": "plumber",
+    "path": "/plumber/reviews",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-reviews.png",
+    "bottoms": [],
+    "body": "\nОтзывы клиентов\n— · 0 отзывов\n\nОтзывов пока нет\nКлиент сможет оценить работу только после завершённой заявки.",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "plumber-leads",
+    "role": "plumber",
+    "path": "/leads",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-leads.png",
+    "bottoms": [],
+    "body": "Заявки клиентов\nКонтакты откроются только после принятия\n\nНовых заявок нет\nАдминистратор назначит подходящие заявки по району, специализации и качеству работы.\n\nГлавная\n\nНаличие\n\nРезервы\n\nЗаявки\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "plumber-profile",
+    "role": "plumber",
+    "path": "/profile",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-profile.png",
+    "bottoms": [
+      "plumber-profile-bottom.png"
+    ],
+    "body": "Профиль\nДанные покупателя и настройки\n\nТестовый plumber\n+996711327280\nТестовый адрес, Бишкек\n\nКабинет сантехника\nAVP-5195-AA68-AEDD · бонусы, QR и заявки\n\n\nИстория бонусов\n\n\nНаграды\n\n\nАкции и обучение\n\n\nОтзывы клиентов\n\n\nУдалить аккаунт\n\n\nРедактировать профиль\n\n\nTelegram-уведомления\n\n\nПоддержка\n\n\nО приложении\n\nВыйти\n\nГлавная\n\nНаличие\n\nРезервы\n\nЗаявки\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 1033
+      }
+    ]
+  },
+  {
+    "name": "plumber-plumber-apply",
+    "role": "plumber",
+    "path": "/plumber/apply",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "plumber-plumber-apply.png",
+    "bottoms": [],
+    "body": "\nПрограмма сантехников\n\nСантехник подтверждён\nВам доступны профессиональный кабинет, QR-код, бонусы и заявки клиентов.\nФотография (необязательно)\nВыбрать фото\nОткрыть кабинет",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "admin-overview",
+    "role": "admin",
+    "path": "/admin",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "admin-overview.png",
+    "bottoms": [
+      "admin-overview-bottom.png"
+    ],
+    "body": "\nПрограмма сантехников\nПилотное управление\nСводка\nАнкеты\nЗаявки\nЧеки\nПравила\n\n0\nАнкет на проверке\n\n11\nПодтверждено\n\n3\nОткрытых заявок\nДоставка уведомлений\nОжидает\n1534\nПоследние чеки\nЧек №fixture\n1 000 сом\n1923483b-05f9-4640-8b4c-bccb77f73a84 · AVP-152E-E58B-3DFE\nЧек №fixture\n1 000 сом\nf0ceada4-77cc-4d89-8afe-1871bf687e0e · AVP-D2AF-5075-DF17\nЧек №fixture\n1 000 сом\nf364f349-3e93-4a12-a234-ee667cf6cae6 · AVP-2591-E5BF-7357\nЧек №fixture\n1 000 сом\ne3904c1b-704e-42f1-b930-ec1f7814db88 · AVP-E0CC-C658-7A60\nЗаявки на награды\nFixture\n1 бонус\nLedger Test · Отменено\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Отменено\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Отменено\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Отменено\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить\nFixture\n1 бонус\nLedger Test · Ожидает\nПодтвердить\nОтменить",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 733,
+        "total": 2146
+      }
+    ]
+  },
+  {
+    "name": "admin-applications",
+    "role": "admin",
+    "path": "/admin",
+    "state": "Анкеты",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "admin-applications.png",
+    "bottoms": [
+      "admin-applications-bottom.png"
+    ],
+    "body": "\nПрограмма сантехников\nПилотное управление\nСводка\nАнкеты\nЗаявки\nЧеки\nПравила\nТестовый мастер\n+996711327280 · Бишкек\nПодтверждён\nРайоны: Октябрьский\nСпециализации: Монтаж\nСтаж: 5 лет\nПричина отклонения/приостановки\nПриостановить\nТестовый мастер\n+996711408144 · Бишкек\nПодтверждён\nРайоны: Октябрьский\nСпециализации: Монтаж\nСтаж: 5 лет\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703387290 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703348541 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nТестовый мастер\n+996711244744 · Бишкек\nПодтверждён\nРайоны: Октябрьский\nСпециализации: Монтаж\nСтаж: 5 лет\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703796081 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703694469 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nТестовый мастер\n+996711448770 · Бишкек\nПодтверждён\nРайоны: Октябрьский\nСпециализации: Монтаж\nСтаж: 5 лет\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703353002 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703427874 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить\nLedger Test\n+996703381831 · Бишкек\nПодтверждён\nРайоны: Тест\nСпециализации: Тест\nСтаж: 1 год\nПричина отклонения/приостановки\nПриостановить",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 733,
+        "total": 3193
+      }
+    ]
+  },
+  {
+    "name": "admin-leads",
+    "role": "admin",
+    "path": "/admin",
+    "state": "Заявки",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "admin-leads.png",
+    "bottoms": [],
+    "body": "\nПрограмма сантехников\nПилотное управление\nСводка\nАнкеты\nЗаявки\nЧеки\nПравила\nTest\nНовая\nTest · Fixture service request\nКонтакт доступен администратору: +996780387617\nПодобрать мастера\nTest\nНовая\nTest · Fixture service request\nКонтакт доступен администратору: +996780348855\nПодобрать мастера\nTest\nНовая\nTest · Fixture service request\nКонтакт доступен администратору: +996780137347\nПодобрать мастера",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "admin-receipts",
+    "role": "admin",
+    "path": "/admin",
+    "state": "Чеки",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "admin-receipts.png",
+    "bottoms": [
+      "admin-receipts-bottom.png"
+    ],
+    "body": "\nПрограмма сантехников\nПилотное управление\nСводка\nАнкеты\nЗаявки\nЧеки\nПравила\n\nЗащищённый ручной workflow только для пилота. Все суммы — целые тыйыны; 100 сом = 10000.\nПринять тестовый чек\nВнешний ID чека\nНомер чека\nID магазина\nНазвание магазина\nПубличный loyalty-код\nСумма, тыйын\nВнешний ID строки\nID товара (необязательно)\nНазвание товара\nБренд (необязательно)\nПринять чек\nПринять частичный/полный возврат\nВнешний ID возврата\nВнешний ID исходного чека\nВнешний ID строки чека\nКоличество, тысячные\nСумма возврата, тыйын\nПринять возврат",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 733,
+        "total": 1721
+      }
+    ]
+  },
+  {
+    "name": "admin-rules",
+    "role": "admin",
+    "path": "/admin",
+    "state": "Правила",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "admin-rules.png",
+    "bottoms": [
+      "admin-rules-bottom.png"
+    ],
+    "body": "\nПрограмма сантехников\nПилотное управление\nСводка\nАнкеты\nЗаявки\nЧеки\nПравила\nБазовая ставка, базисные пункты (100 = 1%)\nОжидание бонусов, дней\nПериод уровней, дней\nСохранить правила\nУровни\nПрофи\n1%\nПорог: 0 сом\n• Бонусы за покупки\n• Доступ к заявкам клиентов\nЭксперт\n1.25%\nПорог: 100 000 сом\n• Повышенный бонус\n• Приоритетная подготовка заказа\n• Ранний доступ к заявкам\nМастер\n1.5%\nПорог: 300 000 сом\n• Максимальный бонус\n• Бесплатная доставка по условиям программы\n• Персональный менеджер",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 733,
+        "total": 910
+      }
+    ]
+  },
+  {
+    "name": "compact-category",
+    "role": "guest",
+    "path": "/category/all-products",
+    "state": "320x568",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "320x568",
+    "screenshot": "compact-category.png",
+    "bottoms": [
+      "compact-category-bottom.png"
+    ],
+    "body": "\nВсе товары\nВсе товары\n\n\nСортировка\nПо названию\n\n\nТовар\n10НКП\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n1197\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\n1212121\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n463-DMB2 Rosagua\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\n9631-1 Аквамарин\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA1-341 Trigor\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA6-FD-341 Trigor\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nA6-TT-341-Trigor\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAH-24 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-2701 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-8820 хром Авантехник\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAH-8820BK Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAH-903 Авантехник\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAKL-00670B Akvaline\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAN 46049 авант\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7701 Aquatec\nЦена уточняется\nУточнить наличие\nВ корзину\n\nТовар\nAQ-7702 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7703 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7705 Aquatec\nЦена уточняется\nВ наличии: 24\nВ корзину\n\nТовар\nAQ-7706 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-7707 Aquatec\nЦена уточняется\nВ наличии: 9\nВ корзину\n\nТовар\nAQ-8803B Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8803G Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804 AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804B AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804G AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8804W AQUATEC\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8808 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAQ-8811 Aquatec\nЦена уточняется\nНет в наличии\nВ корзину\n\nТовар\nAR-2001 Klipfel\nЦена уточняется\nНет в наличии\nВ корзину",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 354,
+        "total": 4246
+      }
+    ]
+  },
+  {
+    "name": "large-map",
+    "role": "guest",
+    "path": "/maps",
+    "state": "430x932",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "430x932",
+    "screenshot": "large-map.png",
+    "bottoms": [
+      "large-map-bottom.png"
+    ],
+    "body": "Магазины\nТочки продаж и самовывоза в Бишкеке\nФилиал\nАвантехник Ортосай\n\nОткрыть выбранный филиал в 2GIS\n\nАвантехник Ортосай\nБезымянная улица, 20/4, 6 ряд, 46С контейнер, Бишкек\nАктуальные часы работы — в 2GIS\nПоддержка: +996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 932,
+        "total": 1010
+      }
+    ]
+  }
+]

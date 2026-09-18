@@ -1,0 +1,771 @@
+{
+  "ALL": {
+    "direction_weight_denominator": 100,
+    "readiness": 33.43458529579333,
+    "coverage": 39.663257469553244,
+    "directions": [
+      {
+        "domain": "UI",
+        "name": "Визуальное качество UI",
+        "domain_weight": 20,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 2,
+          "BLOCKED": 12,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 8,
+          "BLOCKED": 52,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 60,
+        "readiness": 0.0,
+        "coverage": 13.333333333333334
+      },
+      {
+        "domain": "UX",
+        "name": "UX, навигация и формы",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 4,
+          "FAIL": 0,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 14,
+          "FAIL": 0,
+          "BLOCKED": 22,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 36,
+        "readiness": 38.888888888888886,
+        "coverage": 38.888888888888886
+      },
+      {
+        "domain": "CORE",
+        "name": "Основные пользовательские функции",
+        "domain_weight": 16,
+        "counts": {
+          "PASS": 11,
+          "FAIL": 1,
+          "BLOCKED": 11,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 47,
+          "FAIL": 5,
+          "BLOCKED": 51,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 103,
+        "readiness": 45.63106796116505,
+        "coverage": 50.48543689320388
+      },
+      {
+        "domain": "LOY",
+        "name": "Программа лояльности",
+        "domain_weight": 14,
+        "counts": {
+          "PASS": 13,
+          "FAIL": 1,
+          "BLOCKED": 9,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 63,
+          "FAIL": 5,
+          "BLOCKED": 41,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 109,
+        "readiness": 57.79816513761468,
+        "coverage": 62.38532110091743
+      },
+      {
+        "domain": "API",
+        "name": "Данные, API и интеграции",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 7,
+          "FAIL": 0,
+          "BLOCKED": 2,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 29,
+          "FAIL": 0,
+          "BLOCKED": 10,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 39,
+        "readiness": 74.35897435897436,
+        "coverage": 74.35897435897436
+      },
+      {
+        "domain": "REL",
+        "name": "Стабильность и восстановление",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 6,
+          "FAIL": 0,
+          "BLOCKED": 8,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 18,
+          "FAIL": 0,
+          "BLOCKED": 36,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 54,
+        "readiness": 33.333333333333336,
+        "coverage": 33.333333333333336
+      },
+      {
+        "domain": "PERF",
+        "name": "Производительность",
+        "domain_weight": 5,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 26,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 26,
+        "readiness": 0.0,
+        "coverage": 0.0
+      },
+      {
+        "domain": "SEC",
+        "name": "Безопасность и приватность",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 9,
+          "FAIL": 1,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 41,
+          "FAIL": 5,
+          "BLOCKED": 28,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 74,
+        "readiness": 55.4054054054054,
+        "coverage": 62.16216216216216
+      },
+      {
+        "domain": "A11Y",
+        "name": "Доступность и локализация",
+        "domain_weight": 4,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 4,
+          "FAIL": 0,
+          "BLOCKED": 22,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 26,
+        "readiness": 15.384615384615385,
+        "coverage": 15.384615384615385
+      },
+      {
+        "domain": "PLAY",
+        "name": "Готовность к Google Play",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 2,
+          "BLOCKED": 5,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 8,
+          "FAIL": 10,
+          "BLOCKED": 21,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 39,
+        "readiness": 20.512820512820515,
+        "coverage": 46.15384615384615
+      },
+      {
+        "domain": "APPLE",
+        "name": "Готовность к App Store",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 2,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 10,
+          "BLOCKED": 26,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 36,
+        "readiness": 0.0,
+        "coverage": 27.77777777777778
+      },
+      {
+        "domain": "OPS",
+        "name": "Эксплуатация и поддержка релиза",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 1,
+          "FAIL": 0,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 5,
+          "FAIL": 0,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 23,
+        "readiness": 21.73913043478261,
+        "coverage": 21.73913043478261
+      }
+    ]
+  },
+  "ANDROID": {
+    "direction_weight_denominator": 97,
+    "readiness": 39.42092813058748,
+    "coverage": 42.681091506730226,
+    "directions": [
+      {
+        "domain": "UI",
+        "name": "Визуальное качество UI",
+        "domain_weight": 20,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 26,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 26,
+        "readiness": 0.0,
+        "coverage": 0.0
+      },
+      {
+        "domain": "UX",
+        "name": "UX, навигация и формы",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 1,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 5,
+          "FAIL": 0,
+          "BLOCKED": 11,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 16,
+        "readiness": 31.25,
+        "coverage": 31.25
+      },
+      {
+        "domain": "CORE",
+        "name": "Основные пользовательские функции",
+        "domain_weight": 16,
+        "counts": {
+          "PASS": 10,
+          "FAIL": 1,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 44,
+          "FAIL": 5,
+          "BLOCKED": 28,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 77,
+        "readiness": 57.142857142857146,
+        "coverage": 63.63636363636363
+      },
+      {
+        "domain": "LOY",
+        "name": "Программа лояльности",
+        "domain_weight": 14,
+        "counts": {
+          "PASS": 13,
+          "FAIL": 1,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 63,
+          "FAIL": 5,
+          "BLOCKED": 28,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 96,
+        "readiness": 65.625,
+        "coverage": 70.83333333333333
+      },
+      {
+        "domain": "API",
+        "name": "Данные, API и интеграции",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 7,
+          "FAIL": 0,
+          "BLOCKED": 2,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 29,
+          "FAIL": 0,
+          "BLOCKED": 10,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 39,
+        "readiness": 74.35897435897436,
+        "coverage": 74.35897435897436
+      },
+      {
+        "domain": "REL",
+        "name": "Стабильность и восстановление",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 6,
+          "FAIL": 0,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 18,
+          "FAIL": 0,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 36,
+        "readiness": 50.0,
+        "coverage": 50.0
+      },
+      {
+        "domain": "PERF",
+        "name": "Производительность",
+        "domain_weight": 5,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 13,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 13,
+        "readiness": 0.0,
+        "coverage": 0.0
+      },
+      {
+        "domain": "SEC",
+        "name": "Безопасность и приватность",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 9,
+          "FAIL": 1,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 41,
+          "FAIL": 5,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 64,
+        "readiness": 64.0625,
+        "coverage": 71.875
+      },
+      {
+        "domain": "A11Y",
+        "name": "Доступность и локализация",
+        "domain_weight": 4,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 4,
+          "FAIL": 0,
+          "BLOCKED": 11,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 15,
+        "readiness": 26.666666666666668,
+        "coverage": 26.666666666666668
+      },
+      {
+        "domain": "PLAY",
+        "name": "Готовность к Google Play",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 2,
+          "BLOCKED": 5,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 8,
+          "FAIL": 10,
+          "BLOCKED": 21,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 39,
+        "readiness": 20.512820512820515,
+        "coverage": 46.15384615384615
+      },
+      {
+        "domain": "OPS",
+        "name": "Эксплуатация и поддержка релиза",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 1,
+          "FAIL": 0,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 5,
+          "FAIL": 0,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 23,
+        "readiness": 21.73913043478261,
+        "coverage": 21.73913043478261
+      }
+    ]
+  },
+  "IOS": {
+    "direction_weight_denominator": 97,
+    "readiness": 38.78651100132499,
+    "coverage": 42.112759495099255,
+    "directions": [
+      {
+        "domain": "UI",
+        "name": "Визуальное качество UI",
+        "domain_weight": 20,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 26,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 26,
+        "readiness": 0.0,
+        "coverage": 0.0
+      },
+      {
+        "domain": "UX",
+        "name": "UX, навигация и формы",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 1,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 5,
+          "FAIL": 0,
+          "BLOCKED": 11,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 16,
+        "readiness": 31.25,
+        "coverage": 31.25
+      },
+      {
+        "domain": "CORE",
+        "name": "Основные пользовательские функции",
+        "domain_weight": 16,
+        "counts": {
+          "PASS": 10,
+          "FAIL": 1,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 44,
+          "FAIL": 5,
+          "BLOCKED": 28,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 77,
+        "readiness": 57.142857142857146,
+        "coverage": 63.63636363636363
+      },
+      {
+        "domain": "LOY",
+        "name": "Программа лояльности",
+        "domain_weight": 14,
+        "counts": {
+          "PASS": 13,
+          "FAIL": 1,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 2
+        },
+        "weights": {
+          "PASS": 63,
+          "FAIL": 5,
+          "BLOCKED": 28,
+          "NOT TESTED": 0,
+          "N/A": 6
+        },
+        "denominator": 96,
+        "readiness": 65.625,
+        "coverage": 70.83333333333333
+      },
+      {
+        "domain": "API",
+        "name": "Данные, API и интеграции",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 7,
+          "FAIL": 0,
+          "BLOCKED": 2,
+          "NOT TESTED": 0,
+          "N/A": 1
+        },
+        "weights": {
+          "PASS": 29,
+          "FAIL": 0,
+          "BLOCKED": 10,
+          "NOT TESTED": 0,
+          "N/A": 3
+        },
+        "denominator": 39,
+        "readiness": 74.35897435897436,
+        "coverage": 74.35897435897436
+      },
+      {
+        "domain": "REL",
+        "name": "Стабильность и восстановление",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 6,
+          "FAIL": 0,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 18,
+          "FAIL": 0,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 36,
+        "readiness": 50.0,
+        "coverage": 50.0
+      },
+      {
+        "domain": "PERF",
+        "name": "Производительность",
+        "domain_weight": 5,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 0,
+          "BLOCKED": 13,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 13,
+        "readiness": 0.0,
+        "coverage": 0.0
+      },
+      {
+        "domain": "SEC",
+        "name": "Безопасность и приватность",
+        "domain_weight": 8,
+        "counts": {
+          "PASS": 9,
+          "FAIL": 1,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 41,
+          "FAIL": 5,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 64,
+        "readiness": 64.0625,
+        "coverage": 71.875
+      },
+      {
+        "domain": "A11Y",
+        "name": "Доступность и локализация",
+        "domain_weight": 4,
+        "counts": {
+          "PASS": 2,
+          "FAIL": 0,
+          "BLOCKED": 3,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 4,
+          "FAIL": 0,
+          "BLOCKED": 11,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 15,
+        "readiness": 26.666666666666668,
+        "coverage": 26.666666666666668
+      },
+      {
+        "domain": "APPLE",
+        "name": "Готовность к App Store",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 0,
+          "FAIL": 2,
+          "BLOCKED": 6,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 0,
+          "FAIL": 10,
+          "BLOCKED": 26,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 36,
+        "readiness": 0.0,
+        "coverage": 27.77777777777778
+      },
+      {
+        "domain": "OPS",
+        "name": "Эксплуатация и поддержка релиза",
+        "domain_weight": 3,
+        "counts": {
+          "PASS": 1,
+          "FAIL": 0,
+          "BLOCKED": 4,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "weights": {
+          "PASS": 5,
+          "FAIL": 0,
+          "BLOCKED": 18,
+          "NOT TESTED": 0,
+          "N/A": 0
+        },
+        "denominator": 23,
+        "readiness": 21.73913043478261,
+        "coverage": 21.73913043478261
+      }
+    ]
+  }
+}

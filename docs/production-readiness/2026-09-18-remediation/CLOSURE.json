@@ -1,0 +1,864 @@
+[
+  {
+    "id": "D01",
+    "title": "Самоназначение администратора через непроверенный телефон",
+    "severity": "P0",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "SEC",
+    "classification": "CONFIRMED LOCAL API",
+    "platform": "Общий backend → Android/iOS",
+    "preconditions": "В ADMIN_PHONE_NUMBERS есть ещё не занятый номер. В аудите только вымышленные номера.",
+    "steps": "Зарегистрировать аккаунт с allowlisted номером; отдельно сменить телефон обычного аккаунта на второй allowlisted номер; GET /admin/program.",
+    "expected": "Публичная регистрация/редактирование не повышают роль.",
+    "actual": "Оба пути дают isAdmin=true и HTTP 200 защищённого admin API без проверки владения номером.",
+    "frequency": "2/2 пути",
+    "cause": "hasAdminAccess и loadCustomerPayload доверяют совпадению введённого телефона с allowlist.",
+    "proposal": "Выдавать admin только отдельной доверенной операцией по account ID; убрать повышение по редактируемому телефону; верифицировать телефон.",
+    "acceptance": "Оба сценария возвращают 403; роль не меняется; администратор выдаёт доступ аудируемой операцией; проверить все admin mutation endpoints.",
+    "baseline_evidence": [
+      "[API результаты](evidence/api-negative-results.json)",
+      "[scripts/server/auth.ts:279](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/auth.ts:279>)",
+      "[scripts/server/auth.ts:105](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/auth.ts:105>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Удалено повышение роли по телефону/allowlist. Bound OTP, DB-admin + verified phone, audited grant/revoke, access/refresh rotation и отзыв. Все22 admin method/path защищены.",
+    "files": [
+      "scripts/server/auth.ts",
+      "scripts/server/security.ts",
+      "scripts/server/admin-roles.ts",
+      "scripts/app-server.ts",
+      "src/hooks/useAuth.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/http-security.json",
+      "evidence/ui-flows.json"
+    ],
+    "blocker": "Реальный SMS и production incident/legacy-session review отдельно BLOCKED (EX-01/EX-04); исправление уязвимости подтверждено локально.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "a135f73",
+      "f118336",
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D02",
+    "title": "Оформление ведёт на несуществующий заказ; детали существующего пустые",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "CORE",
+    "classification": "CONFIRMED WEB + LOCAL API + CODE",
+    "platform": "Общий клиент; runtime WEB, native не запущен",
+    "preconditions": "Покупатель, локальная корзина, сохранение заказа разрешено тестовым API.",
+    "steps": "Каталог → В корзину → оформление → подтвердить; затем открыть реальный ID из списка заказов.",
+    "expected": "Открыт серверный ID; номер, позиции, контакты, итог и история совпадают с API.",
+    "actual": "Заказ сохранён, но переход /orders/local-… даёт 404. Реальный ID показывает 0 товаров, «Покупатель», пустые контакты и выдуманный fallback статуса.",
+    "frequency": "2/2 сценария",
+    "cause": "unwrapOrderRecord распознаёт order, но не data; API /orders и /orders/:id возвращают {data: order}.",
+    "proposal": "Зафиксировать контракт data; валидировать обязательный id без генерации fallback успешного заказа.",
+    "acceptance": "Сквозное создание и чтение заказа/резерва сохраняет реальный ID, все поля и timeline; контрактный тест на фактический envelope.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/extra-checkout-submit.png)",
+      "[Скриншот](evidence/screenshots/customer-orders-0275844e-4ebd-45be-8609-d3121905e67c.png)",
+      "[src/lib/bazaar/adapters.ts:239](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/lib/bazaar/adapters.ts:239>)",
+      "[src/lib/api/orders.ts:38](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/lib/api/orders.ts:38>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Адаптер читает фактический data envelope, сохраняет серверный ID и поля. Убраны fabricated local IDs. Проверена потеря201 ответа, restart/retry, один заказ, очистка корзины, история и повторное открытие.",
+    "files": [
+      "src/lib/bazaar/adapters.ts",
+      "src/lib/api/orders.ts",
+      "src/lib/orders/checkoutAttempt.ts",
+      "app/checkout/index.tsx",
+      "src/hooks/useOrders.ts"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/ui-flows.json",
+      "evidence/screenshots/flow-order-confirmed.png",
+      "evidence/screenshots/flow-order-reopened.png"
+    ],
+    "blocker": "Native end-to-end остаётся в исходной physical матрице BLOCKED.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "e5d6644"
+    ]
+  },
+  {
+    "id": "D03",
+    "title": "Сервер принимает произвольные цену, количество и филиал заказа",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "API",
+    "classification": "CONFIRMED LOCAL API",
+    "platform": "Общий backend",
+    "preconditions": "Тестовый покупатель и product ID из публичного каталога.",
+    "steps": "POST /orders с quantity=999, unitPrice=0.01, storeId=not-a-real-store.",
+    "expected": "Сервер проверяет допустимый филиал/товар и рассчитывает доверенную цену; неизвестный итог маркируется предварительным.",
+    "actual": "HTTP 201, итог 9.99, 999 единиц и несуществующий филиал сохранены. В проекте заказы подтверждаются менеджером: списание реальных денег не доказано.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "parseNewOrder принимает клиентские значения; calculateTotal не обращается к каталогу/остаткам.",
+    "proposal": "Ввести серверную котировку или явно отдельную заявку без доверенного денежного итога; проверять филиалы и доступность в выбранном магазине.",
+    "acceptance": "Подменённые цена/остаток/филиал отклоняются либо нормализуются сервером; UI показывает пересчёт до подтверждения.",
+    "baseline_evidence": [
+      "[API результаты](evidence/api-negative-results.json)",
+      "[scripts/app-server.ts:319](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/app-server.ts:319>)",
+      "[scripts/server/orders.ts:201](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/orders.ts:201>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Цена/название/остаток/филиал определяются серверными offers/branches в фиксированной организации. Quote до подтверждения, проверка актуальности, транзакционные holds, запрет подмены сумм и дробных/отрицательных количеств.",
+    "files": [
+      "scripts/server/order-trust.ts",
+      "scripts/server/orders.ts",
+      "scripts/app-server.ts",
+      "scripts/db/schema.sql",
+      "src/lib/api/orders.ts",
+      "app/checkout/index.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/http-security.json",
+      "evidence/ui-flows.json",
+      "evidence/screenshots/flow-trusted-quote.png"
+    ],
+    "blocker": "Проверено на изолированном authoritative inventory fixture. Реальный POS/Bazaar adapter не подключён; production оформление не готово (EX-02).",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D04",
+    "title": "Параллельный повтор заказа возвращает SQL ошибку 500",
+    "severity": "P2",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "REL/API",
+    "classification": "CONFIRMED LOCAL API",
+    "platform": "Общий backend",
+    "preconditions": "Один покупатель и один clientRequestId.",
+    "steps": "Послать 4 одинаковых POST /orders параллельно в локальный API.",
+    "expected": "Один заказ; все корректные повторы возвращают его ID без технической ошибки.",
+    "actual": "Статусы 201/500/500/500; один заказ сохранён; в JSON раскрыто имя unique constraint. Дубля по одинаковому ключу нет.",
+    "frequency": "1 серия / 4 запроса",
+    "cause": "SELECT перед INSERT не сериализован; конфликт уникальности не преобразуется в повторное чтение.",
+    "proposal": "Обработать unique conflict атомарно и возвратить существующий заказ; скрыть SQL ошибки.",
+    "acceptance": "20 контролируемых параллельных повторов дают один ID; ни одного 5xx и деталей SQL.",
+    "baseline_evidence": [
+      "[API результаты](evidence/api-negative-results.json)",
+      "[scripts/server/orders.ts:209](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/orders.ts:209>)",
+      "[scripts/app-server.ts:239](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/app-server.ts:239>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Advisory transaction lock account+key сериализует одинаковые запросы; повторное чтение использует занятый DB client, без pool deadlock. Общий5xx ответ не раскрывает SQL.",
+    "files": [
+      "scripts/server/orders.ts",
+      "scripts/app-server.ts"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/http-security.json"
+    ],
+    "blocker": "20 параллельных HTTP повторов:1×201+19×200, один ID и одна запись; ни одного5xx.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D05",
+    "title": "Изменённый заказ под прежним ключом молча принимается",
+    "severity": "P2",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "CORE",
+    "classification": "CONFIRMED LOCAL API",
+    "platform": "Общий backend",
+    "preconditions": "Существует заказ с clientRequestId.",
+    "steps": "Повторить ключ с другой ценой и количеством.",
+    "expected": "409 conflict с понятным указанием несовпадения запроса.",
+    "actual": "200 со старым итогом 9.99; новый payload игнорируется без сообщения.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Проверяется ключ, но не отпечаток содержимого.",
+    "proposal": "Сохранять канонический hash запроса и различать одинаковый повтор и конфликт.",
+    "acceptance": "Тот же body → тот же ID; изменённый body → 409, без новой записи.",
+    "baseline_evidence": [
+      "[API результаты](evidence/api-negative-results.json)",
+      "[scripts/server/orders.ts:219](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/orders.ts:219>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Сохраняется canonical request_hash. Новый payload под прежним ключом даёт409; прежний payload возвращает прежний заказ даже после изменения данных offers.",
+    "files": [
+      "scripts/server/orders.ts",
+      "scripts/db/schema.sql",
+      "src/lib/orders/checkoutAttempt.ts"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/http-security.json"
+    ],
+    "blocker": "Legacy request_hash=NULL не угадывается: конфликт и проверка истории.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D06",
+    "title": "Нет пользовательского пути удаления аккаунта",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "SEC/PLAY/APPLE",
+    "classification": "CONFIRMED CODE + WEB",
+    "platform": "Обе платформы по общему коду",
+    "preconditions": "В приложении доступна регистрация.",
+    "steps": "Открыть профиль/о приложении; проверить маршруты API.",
+    "expected": "Доступный путь удаления аккаунта и связанных данных с описанным хранением обязательных записей.",
+    "actual": "В профиле есть только выход; deletion UI/API не найден, DELETE /profile →404. Веб-ресурс удаления владельцем не предоставлен.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Функция не реализована в проверяемой версии.",
+    "proposal": "Реализовать удаление/запрос, повторную аутентификацию, отзыв сессий, политику retention и публичную web-страницу.",
+    "acceptance": "Удаление тестового аккаунта проходит на Android/iOS и web-странице; вход старым токеном невозможен; сохранённые по обязательствам данные перечислены.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/customer-profile.png)",
+      "[Скриншот](evidence/screenshots/guest-profile-about.png)",
+      "[scripts/app-server.ts:628](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/app-server.ts:628>)"
+    ],
+    "status": "BLOCKED",
+    "change": "Удаление UI/API/web: пароль, bound OTP, текущая версия deletion policy, реальные DELETE/отзыв сессий/media adapter; чужие операции сохраняются. Проверены rollback при ошибке media, остатки, receipts/returns/rewards/audit и web cleanup.",
+    "files": [
+      "scripts/server/deletion.ts",
+      "scripts/app-server.ts",
+      "app/delete-account.tsx",
+      "src/hooks/useAuth.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/ui-flows.json",
+      "evidence/screenshots/flow-deletion-confirmation.png",
+      "evidence/screenshots/flow-deletion-complete.png"
+    ],
+    "blocker": "Нет утверждённой retention/deletion policy, реальных SMS/media/external-copy проверок и Android/iOS устройства. По исходной приёмке D06 нельзя закрыть только web.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "a135f73",
+      "f118336",
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D07",
+    "title": "В интерфейсе отсутствует доступная политика приватности",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "SEC",
+    "classification": "CONFIRMED CODE + WEB",
+    "platform": "Обе платформы по общим экранам",
+    "preconditions": "Регистрация, профиль, анкета мастера.",
+    "steps": "Искать ссылку на privacy policy в регистрации/профиле/о приложении.",
+    "expected": "Рабочая политика описывает телефоны, адреса, фото-URL, заказы, бонусы, заявки, Telegram и 2GIS.",
+    "actual": "Ссылки нет; о приложении показывает поддержку и 2GIS. Наличие текста вне репозитория не установлено.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Политика не связана с UI.",
+    "proposal": "Подготовить фактическую карту данных и опубликовать policy; добавить ссылку до сбора данных.",
+    "acceptance": "Ссылки доступны без авторизации; содержание соответствует сетевому наблюдению release и анкетам магазинов.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/guest-register.png)",
+      "[Скриншот](evidence/screenshots/guest-profile-about.png)",
+      "[app/profile/about.tsx:20](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/app/profile/about.tsx:20>)"
+    ],
+    "status": "BLOCKED",
+    "change": "Гостевые/profile/registration links и версионный reader privacy/terms/support реализованы. TEST тексты только в изолированной БД; юридические проекты вынесены отдельно.",
+    "files": [
+      "app/legal/[kind].tsx",
+      "src/components/LegalLinks.tsx",
+      "scripts/server/documents.ts",
+      "app/profile/about.tsx"
+    ],
+    "verification": [
+      "evidence/gallery.json",
+      "evidence/screenshots/guest-legal-privacy.png"
+    ],
+    "blocker": "Нужны утверждённые тексты, публичные URL, release network inventory и store privacy forms. TEST документ не является действующей policy.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "207877c"
+    ]
+  },
+  {
+    "id": "D08",
+    "title": "Согласие с правилами лояльности без доступа к самим правилам",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "LOY",
+    "classification": "CONFIRMED CODE + WEB",
+    "platform": "Общие формы",
+    "preconditions": "Анкета/регистрация сантехника.",
+    "steps": "Дойти до checkbox принятия правил.",
+    "expected": "До согласия можно открыть утверждённые правила конкретной версии.",
+    "actual": "Checkbox только меняет boolean; нет экрана/ссылки правил. README прямо называет ставки, уровни и условия пилотными.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Только даты program_consent_at/data_processing_consent_at, без версии текста.",
+    "proposal": "Утвердить правила; показать доступный текст, сохранять версию и дату согласия.",
+    "acceptance": "Пользователь читает условия до checkbox; backend хранит версию принятого документа; пилотные значения не обещаны как утверждённые.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/customer-plumber-apply-bottom.png)",
+      "[app/plumber/apply.tsx:125](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/app/plumber/apply.tsx:125>)",
+      "[app/(auth)/register.tsx:199](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/app/(auth)/register.tsx:199>)"
+    ],
+    "status": "BLOCKED",
+    "change": "Ссылки на правила до согласия; сервер требует текущие approved privacy/loyalty versions и сохраняет их вместе с согласием. Ставки/пороги/округление не изменены.",
+    "files": [
+      "scripts/server/plumbers.ts",
+      "scripts/server/documents.ts",
+      "app/(auth)/register.tsx",
+      "app/plumber/apply.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/loyalty-existing.log",
+      "evidence/gallery.json"
+    ],
+    "blocker": "Коммерческие правила и юридические условия не утверждены. Pilot settings/benefits не считаются согласованными; публикация/активация до согласования запрещена.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "207877c",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D09",
+    "title": "Выбранный филиал расходится с карточкой 2GIS",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "UI/API",
+    "classification": "CONFIRMED WEB + REAL 2GIS",
+    "platform": "Общий справочник; WEB runtime",
+    "preconditions": "Карта → Ортосай.",
+    "steps": "Сопоставить popup 2GIS и карточку Ортосай ниже.",
+    "expected": "Одна выбранная точка имеет согласованные адрес, часы и контакты.",
+    "actual": "В 2GIS адрес Орозбекова 354 и 09:00–20:00; карточка — Безымянная 20/4 и 09:00–18:00. Контакты тоже различаются.",
+    "frequency": "1/1 выбранный филиал; не экстраполируется на все 6",
+    "cause": "Связь firm ID → филиал и статические контакты требуют сверки. Истинный адрес по этому аудиту не устанавливается.",
+    "proposal": "Проверить все 6 firm IDs с владельцем справочника; хранить согласованный набор данных; открывать конкретную точку во внешнем 2GIS.",
+    "acceptance": "Все 6 вариантов, карта и внешний переход ведут к согласованному филиалу; телефон и часы утверждены.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/guest-maps.png)",
+      "[src/data/stores.ts:4](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/data/stores.ts:4>)"
+    ],
+    "status": "BLOCKED",
+    "change": "Исправлено5 ошибочных firm ID из6. Все6 внешних ссылок используют конкретный firm; адреса сверены по официальным страницам. Неутверждённые одинаковые часы убраны, общий телефон обозначен как поддержка.",
+    "files": [
+      "src/data/stores.ts",
+      "src/components/StoreCard.tsx",
+      "src/components/maps/mapSource.ts"
+    ],
+    "verification": [
+      "evidence/gallery.json",
+      "evidence/screenshots/guest-maps.png"
+    ],
+    "blocker": "Нужно подтверждение владельцем адресов/контактов/часов и native внешнего перехода. Полная исходная приёмка пока не выполнена; источники в MAP_SOURCES.md.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73"
+    ]
+  },
+  {
+    "id": "D10",
+    "title": "Popup карты обрезан; собственные плашки перекрывают виджет",
+    "severity": "P2",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "UI",
+    "classification": "CONFIRMED WEB / NATIVE RISK",
+    "platform": "WEB; общий подход в native требует повтора",
+    "preconditions": "Viewport 390×844 или 430×932.",
+    "steps": "Открыть карты, Ортосай/Мега Комфорт.",
+    "expected": "Полезные сведения и контролы помещаются; атрибуция доступна.",
+    "actual": "Popup выходит за правый край и обрезан; label и widgetCtaCover конкурируют с содержимым. Юридическое нарушение атрибуции не установлено.",
+    "frequency": "2/2 выбранные точки",
+    "cause": "Большой сторонний popup внутри узкого контейнера height=430/overflow=hidden; поверх абсолютные плашки.",
+    "proposal": "Упростить карту до маркеров, сведения показывать в собственной карточке; использовать поддержанный API провайдера; убрать накладки с обязательных подписей.",
+    "acceptance": "На 320/390/430 и native нет обрезки активных данных, атрибуция читается, жесты и fallback работают.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/guest-maps.png)",
+      "[Скриншот](evidence/screenshots/extra-map-second-store.png)",
+      "[src/components/maps/TwoGisMap.web.tsx:73](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/components/maps/TwoGisMap.web.tsx:73>)",
+      "[src/components/maps/TwoGisMap.tsx:191](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/components/maps/TwoGisMap.tsx:191>)"
+    ],
+    "status": "BLOCKED",
+    "change": "Карта на всю ширину с фиксированным viewport, отдельный selector/card, timeout/retry/external fallback; атрибуция сохранена, перекрывающие элементы удалены.",
+    "files": [
+      "src/components/maps/TwoGisMap.tsx",
+      "src/components/maps/TwoGisMap.web.tsx",
+      "app/(tabs)/maps/index.tsx"
+    ],
+    "verification": [
+      "evidence/gallery.json",
+      "evidence/screenshots/guest-maps.png",
+      "evidence/screenshots/large-map.png"
+    ],
+    "blocker": "Внешний 2GIS widget продолжает обрезать popup на узком экране. Нужна поддерживаемая responsive SDK интеграция с предоставленным ключом/координатами; native жесты/геолокация/отказ не проверены. Это не FIXED.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73"
+    ]
+  },
+  {
+    "id": "D11",
+    "title": "История лояльности показывает одну операцию вместо полного журнала",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "LOY",
+    "classification": "CONFIRMED LOCAL API + WEB",
+    "platform": "Общий backend/клиент",
+    "preconditions": "У участника 9 ledger записей.",
+    "steps": "GET /plumber/loyalty/transactions без limit; сравнить с ?limit=100; открыть Историю.",
+    "expected": "Доступны все операции через корректный default page и пагинацию.",
+    "actual": "Без limit — 1 запись, с limit=100 —9; UI limit не передаёт и пагинации не содержит.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Number(null)=0 в asNumber; limit clamp поднимает 0 до1. UI не реализует следующую страницу.",
+    "proposal": "Парсить отсутствие параметра как default30; добавить cursor/pagination и стабильный порядок.",
+    "acceptance": "9 записей видны полностью; набор >100 пролистывается без потерь и повторов; сумма журнала сверяется с балансом.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/extra-plumber-history.png)",
+      "[Сравнение ответов](evidence/history-counts.json)",
+      "[scripts/app-server.ts:684](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/app-server.ts:684>)",
+      "[scripts/server/loyalty.ts:640](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/server/loyalty.ts:640>)",
+      "[src/hooks/useProgram.ts:91](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/hooks/useProgram.ts:91>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Исправлен default limit1 из Number(null). Cursor pagination timestamp+ID без потери микросекунд, фильтры/сортировка сервера, infinite UI и Показать ещё.",
+    "files": [
+      "scripts/app-server.ts",
+      "scripts/server/loyalty.ts",
+      "src/lib/api/program.ts",
+      "src/hooks/useProgram.ts",
+      "app/plumber/history.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/http-security.json",
+      "evidence/ui-flows.json",
+      "evidence/screenshots/flow-ledger-last-page.png"
+    ],
+    "blocker": "137 реальных операций в тестовом ledger,5 страниц, нет повторов/потерь, сумма сверена с балансом. Production балансы не менялись.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "8f9d7d7",
+      "207877c",
+      "d969620",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D12",
+    "title": "Публичный каталог визуально заполнен заглушками",
+    "severity": "P2",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "UI/CORE",
+    "classification": "CONFIRMED REAL API sample + WEB replay",
+    "platform": "Проверенная выборка каталога",
+    "preconditions": "GET /products?limit=3 фактически вернул 50 товаров; snapshot использован в UI.",
+    "steps": "Сравнить поля API и карточки.",
+    "expected": "Ключевой ассортимент имеет распознаваемые фотографии, описания/категории и понятную модель цены.",
+    "actual": "В выборке 50/50 без фото, категорий, описания и положительной цены. Популярный блок показывает 2 доступных товара с «Цена уточняется». /categories возвращает404, предусмотрен fallback.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Пустые поля исходного каталога, а не доказанная ошибка загрузки фото; на весь каталог из2362 не экстраполировать.",
+    "proposal": "Подготовить согласованный release-ассортимент; при отсутствии фото компактный единый placeholder; согласовать торговлю по заявке без цены.",
+    "acceptance": "Утверждённая выборка ключевых SKU заполнена; пустые поля не занимают большую часть экрана; критерии достаточности ассортимента утверждены.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/guest-catalog.png)",
+      "[Скриншот](evidence/screenshots/guest-product-c34f7883-3475-44ed-9401-2065b7fc221b.png)",
+      "[REAL API summary](evidence/real-api-summary.json)"
+    ],
+    "status": "BLOCKED",
+    "change": "Сокращён пустой image block, исправлен error fallback и contain; global catalog sorting/pagination проверены на137 fixtures. Реальные фото/описания не выдумывались.",
+    "files": [
+      "src/components/ProductCard.tsx",
+      "app/product/[id].tsx",
+      "src/lib/bazaar/completeCatalog.ts",
+      "src/lib/bazaar/client.ts"
+    ],
+    "verification": [
+      "evidence/real-api-readonly.json",
+      "evidence/regression-suite.log",
+      "evidence/gallery.json"
+    ],
+    "blocker": "Повторный GET:50/50 товаров без фото/описания/категории/ненулевой цены; общий total2365, baseline2362. Нужны владелец каталога, доступ к source pipeline и утверждённая выборка SKU.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "f118336"
+    ]
+  },
+  {
+    "id": "D13",
+    "title": "Светлый вспомогательный текст имеет низкий контраст",
+    "severity": "P2",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "A11Y/UI",
+    "classification": "CONFIRMED token calculation + WEB",
+    "platform": "Общие токены; native восприятие не проверено",
+    "preconditions": "Обычный размер 11–13px; textSubtle на белом.",
+    "steps": "Проверить подписи/метаданные в профиле, истории, формах.",
+    "expected": "Рабочий ориентир аудита: 4.5:1 для обычного текста; ошибки не только цветом.",
+    "actual": "textSubtle #9CA3AF даёт2.539:1; основной оранжевый #E8380D с белым4.198:1. Это измерение токенов, не утверждение о полном WCAG аудите.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Палитра использует слабоконтрастный цвет для информативного мелкого текста.",
+    "proposal": "Для значимых подписей выбрать контрастный текст; отделить disabled/decorative; проверить пары с фоном.",
+    "acceptance": "Значимый обычный текст ≥4.5:1, крупный ≥3:1; исключения отдельно обоснованы и проверены на устройствах.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/customer-profile-telegram.png)",
+      "[Контраст](evidence/contrast.json)",
+      "[src/constants/theme.ts:17](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/constants/theme.ts:17>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Увеличен контраст текста primary/muted/subtle/success/warning/danger; проверено12 значимых пар, минимальная из проверенных≥4.5:1.",
+    "files": [
+      "src/constants/theme.ts",
+      "src/components/AppInput.tsx",
+      "src/components/AppButton.tsx"
+    ],
+    "verification": [
+      "evidence/contrast.json",
+      "evidence/gallery.json"
+    ],
+    "blocker": "Метод исходного критерия: расчёт токенов + web screenshots. Полные native large-font/TalkBack/VoiceOver проверки не закрыты.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "a135f73",
+      "05eea73"
+    ]
+  },
+  {
+    "id": "D14",
+    "title": "Пользователю предлагают вставлять HTTPS URL фотографии",
+    "severity": "P2",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "UX",
+    "classification": "CONFIRMED WEB",
+    "platform": "Формы мастера и заявки",
+    "preconditions": "Обычный пользователь без внешнего фотохостинга.",
+    "steps": "Открыть анкету сантехника/форму заявки.",
+    "expected": "Понятное добавление фото с устройства либо явно необязательное отсутствие фото.",
+    "actual": "Поле «HTTPS-ссылка на фото» переносит техническую задачу загрузки на пользователя.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Object storage не выбран; README называет URL пилотным решением.",
+    "proposal": "Согласовать upload/storage и retention; добавить системный picker. До этого убрать необязательное техническое поле из массового сценария.",
+    "acceptance": "Пользователь прикрепляет/удаляет фото без URL; проверены размер, отказ разрешений и ошибка загрузки.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/customer-plumber-apply-bottom.png)",
+      "[Скриншот](evidence/screenshots/extra-find-plumber-form.png)",
+      "[README.md:135](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/README.md:135>)"
+    ],
+    "status": "BLOCKED",
+    "change": "URL inputs заменены системным picker/upload/preview/removal из формы. API проверяет размер/type и ownership. Defined media adapter требует decode/re-encode/EXIF cleanup и delete.",
+    "files": [
+      "src/components/PhotoAttachment.tsx",
+      "scripts/server/media.ts",
+      "scripts/app-server.ts",
+      "app/plumber/apply.tsx",
+      "app/find-plumber/index.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/gallery.json"
+    ],
+    "blocker": "Нет подключённого реального media storage/decoder и устройства для отказа/ограниченной библиотеки. Local fake adapter не подтверждает provider readiness.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "05eea73",
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D15",
+    "title": "Русская локализация содержит технический текст и неправильные формы",
+    "severity": "P3",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "A11Y",
+    "classification": "CONFIRMED WEB + CODE",
+    "platform": "История/кабинет/admin",
+    "preconditions": "Балансы 1/3/4 и админская анкета.",
+    "steps": "Открыть кабинет/награды и admin Анкеты.",
+    "expected": "«1 бонус», «3 бонуса», переносы строки и русские статусы.",
+    "actual": "«1 бонусов», «3 бонусов», «4 бонусов»; admin показывает pending/sent и буквальные \\n.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "formatBonus всегда использует «бонусов»; JSX текст содержит литеральные escapes; нет маппинга статусов outbox.",
+    "proposal": "PluralRules/локальные словари; настоящие переносы/отдельные Text.",
+    "acceptance": "Проверены0/1/2/4/5/11/21/1.01, все статусы переведены, нет литерального \\n.",
+    "baseline_evidence": [
+      "[Скриншот](evidence/screenshots/extra-plumber-history.png)",
+      "[Скриншот](evidence/screenshots/extra-plumber-rewards.png)",
+      "[Скриншот](evidence/screenshots/admin-applications.png)",
+      "[src/lib/programFormat.ts:14](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/src/lib/programFormat.ts:14>)"
+    ],
+    "status": "FIXED & VERIFIED",
+    "change": "Склонение бонусов целыми minor units, товаров/позиций и стажа; переводы notification/reward/profile статусов, реальный newline вместо literal\\n.",
+    "files": [
+      "src/lib/programFormat.ts",
+      "src/lib/formatters.ts",
+      "src/components/OrderCard.tsx",
+      "src/components/CategoryCard.tsx",
+      "app/orders/[id].tsx",
+      "app/(tabs)/catalog/index.tsx",
+      "app/admin/index.tsx",
+      "app/(tabs)/profile/index.tsx"
+    ],
+    "verification": [
+      "evidence/regression-suite.log",
+      "evidence/gallery.json",
+      "evidence/screenshots/plumber-plumber-history.png"
+    ],
+    "blocker": "Проверены0/1/2/4/5/11/21/1.01 и видимые состояния; исходный метод CODE+WEB.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "5b8ea84",
+      "05eea73",
+      "f118336",
+      "207877c"
+    ]
+  },
+  {
+    "id": "D16",
+    "title": "Для единичного выбора фото запрошен READ_MEDIA_IMAGES",
+    "severity": "P1",
+    "release_blocker": true,
+    "blocker_reason": "Нарушает обязательный путь/безопасность/условия публикации или заданную планку владельца.",
+    "domain": "PLAY/SEC",
+    "classification": "CONFIRMED CODE/PREBUILD, release manifest BLOCKED",
+    "platform": "Android",
+    "preconditions": "Функция — выбор одного изображения товара, broad library access не обоснован.",
+    "steps": "Проверить app.json, requestMediaLibraryPermissionsAsync и сгенерированный manifest.",
+    "expected": "Минимальный системный picker без broad media access при таком сценарии.",
+    "actual": "READ_MEDIA_IMAGES явно объявлен; prebuild также содержит WRITE_SETTINGS, SYSTEM_ALERT_WINDOW и legacy storage — их финальное слияние ещё не проверено.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Разрешение запрошено конфигурацией/потоком; нужда в broad access не подтверждена.",
+    "proposal": "Удалить широкое media permission в пользу picker; проверить merged release manifest и необходимость остальных разрешений.",
+    "acceptance": "Итоговый AAB не содержит необоснованных разрешений; фото выбирается без широкого доступа; отказ не блокирует каталог.",
+    "baseline_evidence": [
+      "[Generated manifest](evidence/native-generated/AndroidManifest.xml)",
+      "[app.json:39](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/app.json:39>)",
+      "[app/image-search/index.tsx:45](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/app/image-search/index.tsx:45>)"
+    ],
+    "status": "IMPLEMENTED, NOT VERIFIED",
+    "change": "Одиночный системный picker без broad library request. Blocked media/storage/settings/overlay/audio; после анализа merged manifest также исключены unused biometric/vibration.",
+    "files": [
+      "app.json",
+      "app/image-search/index.tsx",
+      "src/components/PhotoAttachment.tsx"
+    ],
+    "verification": [
+      "evidence/android-aab-manifest.xml",
+      "evidence/android-permissions.txt",
+      "evidence/android-artifacts.json"
+    ],
+    "blocker": "Итоговый manifest/сборка проверены отдельно; выбор фото/camera denial/каталог на Android release device не выполнены. Не закрывать исходный критерий целиком.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "ce3107f",
+      "1640709",
+      "05eea73",
+      "207877c"
+    ]
+  },
+  {
+    "id": "D17",
+    "title": "Локальный rate limit обходится X-Forwarded-For",
+    "severity": "P2",
+    "release_blocker": false,
+    "blocker_reason": "Обходной путь есть; не самостоятельный запрет отправки, но остаточный риск ещё не принят.",
+    "domain": "SEC",
+    "classification": "CONFIRMED LOCAL API; PRODUCTION REACHABILITY NOT TESTED",
+    "platform": "Backend",
+    "preconditions": "Локальный endpoint напрямую; 15 неправильных входов.",
+    "steps": "Получить429, повторить с новым X-Forwarded-For.",
+    "expected": "Клиент не может сменить rate-limit identity произвольным заголовком.",
+    "actual": "После429 подмена заголовка даёт401 и обработку запроса. Поведение Railway proxy не проверялось.",
+    "frequency": "1/1 целевая проверка",
+    "cause": "Первое значение forwarded header принимается без доверенной proxy boundary; лимиты в памяти процесса.",
+    "proposal": "Доверять заголовкам только известного proxy; лимиты по аккаунту/IP в общей базе/Redis.",
+    "acceptance": "В staging spoof header не сбрасывает лимит; рестарт/несколько replicas сохраняют ограничения.",
+    "baseline_evidence": [
+      "[API результаты](evidence/api-negative-results.json)",
+      "[scripts/app-server.ts:220](</Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/scripts/app-server.ts:220>)"
+    ],
+    "status": "IMPLEMENTED, NOT VERIFIED",
+    "change": "Доверенный идентификатор — socket peer; произвольный X-Forwarded-For игнорируется. Атомарный общий DB rate limit переживает process restart и replicas.",
+    "files": [
+      "scripts/server/security.ts",
+      "scripts/app-server.ts",
+      "scripts/db/schema.sql"
+    ],
+    "verification": [
+      "evidence/http-security.json",
+      "evidence/replica-rate-limit.json"
+    ],
+    "blocker": "Два локальных процесса + restart прошли. Исходная приёмка требует staging proxy/replicas; нет доступа. За reverse proxy требуется проверить общий IP bucket/capacity, а не снова доверять заголовку.",
+    "baseline": "2026-09-18-340b960",
+    "commits": [
+      "8f9d7d7",
+      "207877c",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D18",
+    "title": "Другой rewardId под прежним ключом незаметно возвращал старую награду",
+    "severity": "P2",
+    "release_blocker": false,
+    "domain": "LOY",
+    "classification": "NEW CONFIRMED DURING REMEDIATION",
+    "platform": "Shared/client or local backend; scope stated in evidence",
+    "steps": "Same clientRequestId, different rewardId returned the first redemption.",
+    "actual": "Same clientRequestId, different rewardId returned the first redemption.",
+    "expected": "Другой rewardId →409;20 одинаковых повторов →один ID/одно списание.",
+    "acceptance": "Другой rewardId →409;20 одинаковых повторов →один ID/одно списание.",
+    "cause": "Same clientRequestId, different rewardId returned the first redemption.",
+    "status": "FIXED & VERIFIED",
+    "change": "Добавлена проверка reward_id до idempotent replay.",
+    "files": [
+      "scripts/server/loyalty.ts"
+    ],
+    "verification": [
+      "evidence/D18-before.json",
+      "evidence/regression-suite.log"
+    ],
+    "blocker": "Physical/staging gates outside the stated local/web method remain in CRITERIA.",
+    "baseline": "new",
+    "commits": [
+      "d969620"
+    ]
+  },
+  {
+    "id": "D19",
+    "title": "Состояния выбора не попадали в web accessibility API",
+    "severity": "P2",
+    "release_blocker": false,
+    "domain": "A11Y",
+    "classification": "NEW CONFIRMED DURING REMEDIATION",
+    "platform": "Shared/client or local backend; scope stated in evidence",
+    "steps": "При первом прогоне новый selector визуально закрывался, но aria-expanded отсутствовал; accessibilityState не переносится react-native-web0.21. Исходные radio/checkbox использовали тот же механизм.",
+    "actual": "При первом прогоне новый selector визуально закрывался, но aria-expanded отсутствовал; accessibilityState не переносится react-native-web0.21. Исходные radio/checkbox использовали тот же механизм.",
+    "expected": "Открытие/закрытие и checked состояния доступны в DOM; Escape сохраняет выбор.",
+    "acceptance": "Открытие/закрытие и checked состояния доступны в DOM; Escape сохраняет выбор.",
+    "cause": "При первом прогоне новый selector визуально закрывался, но aria-expanded отсутствовал; accessibilityState не переносится react-native-web0.21. Исходные radio/checkbox использовали тот же механизм.",
+    "status": "FIXED & VERIFIED",
+    "change": "Явные aria-expanded/checked/selected/busy/disabled; корректные radio semantics, подписи inputs.",
+    "files": [
+      "src/components/SelectField.tsx",
+      "src/components/AppInput.tsx",
+      "src/components/AppButton.tsx",
+      "app/checkout/index.tsx"
+    ],
+    "verification": [
+      "evidence/ui-flows.json",
+      "evidence/screenshots/flow-select-search.png"
+    ],
+    "blocker": "Physical/staging gates outside the stated local/web method remain in CRITERIA.",
+    "baseline": "new",
+    "commits": [
+      "05eea73",
+      "e5d6644"
+    ]
+  },
+  {
+    "id": "D20",
+    "title": "Параллельные изменения локальной корзины теряли количество",
+    "severity": "P2",
+    "release_blocker": false,
+    "domain": "CORE",
+    "classification": "NEW CONFIRMED DURING REMEDIATION",
+    "platform": "Shared/client or local backend; scope stated in evidence",
+    "steps": "Реальный модуль baseline c88450a:20 одновременных add дают quantity1 вместо20.",
+    "actual": "Реальный модуль baseline c88450a:20 одновременных add дают quantity1 вместо20.",
+    "expected": "20 add сохраняются; consume+add+replay вычитает отправленное один раз; clear ждёт предыдущие мутации.",
+    "acceptance": "20 add сохраняются; consume+add+replay вычитает отправленное один раз; clear ждёт предыдущие мутации.",
+    "cause": "Реальный модуль baseline c88450a:20 одновременных add дают quantity1 вместо20.",
+    "status": "FIXED & VERIFIED",
+    "change": "Хранилище сериализует read-modify-write, cart/applied key сохраняются одним значением.",
+    "files": [
+      "src/lib/cart/cartStore.ts",
+      "src/lib/cart/localCart.ts",
+      "src/hooks/useAuth.tsx"
+    ],
+    "verification": [
+      "evidence/D20-before.json",
+      "evidence/regression-suite.log"
+    ],
+    "blocker": "Physical/staging gates outside the stated local/web method remain in CRITERIA.",
+    "baseline": "new",
+    "commits": [
+      "f118336",
+      "e5d6644",
+      "ae18b5e"
+    ]
+  },
+  {
+    "id": "D21",
+    "title": "Отсутствующая API-конфигурация молча выбирала production",
+    "severity": "P2",
+    "release_blocker": false,
+    "domain": "SEC",
+    "classification": "NEW CONFIRMED DURING REMEDIATION",
+    "platform": "Shared/client or local backend; scope stated in evidence",
+    "steps": "Baseline env module без EXPO_PUBLIC_API_URL возвращал production Railway URL. Ошибка имени переменной не останавливала подключение.",
+    "actual": "Baseline env module без EXPO_PUBLIC_API_URL возвращал production Railway URL. Ошибка имени переменной не останавливала подключение.",
+    "expected": "Без config URL пустой; production build gate отклоняет missing/http/test/debug config; embedded native URL проверен.",
+    "acceptance": "Без config URL пустой; production build gate отклоняет missing/http/test/debug config; embedded native URL проверен.",
+    "cause": "Baseline env module без EXPO_PUBLIC_API_URL возвращал production Railway URL. Ошибка имени переменной не останавливала подключение.",
+    "status": "FIXED & VERIFIED",
+    "change": "Удалён implicit production fallback; добавлен EAS pre-install/ручной validator и явные build endpoints.",
+    "files": [
+      "src/lib/config/env.ts",
+      "scripts/build/verify-env.cjs",
+      "package.json"
+    ],
+    "verification": [
+      "evidence/release-env.json",
+      "evidence/android-artifacts.json"
+    ],
+    "blocker": "Physical/staging gates outside the stated local/web method remain in CRITERIA.",
+    "baseline": "new",
+    "commits": [
+      "1640709"
+    ]
+  }
+]

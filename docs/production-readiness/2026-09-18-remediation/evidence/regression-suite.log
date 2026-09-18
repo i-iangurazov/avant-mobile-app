@@ -1,0 +1,10 @@
+
+> avantehnik-mobile-app@1.0.0 check:remediation
+> tsx scripts/tests/security.ts && tsx scripts/tests/orders.ts && tsx scripts/tests/loyalty.ts && tsx scripts/tests/deletion.ts && tsx scripts/tests/media.ts && tsx scripts/tests/catalog.ts
+
+{"suite":"security","assertions":40,"status":"PASS","sms":"injected in-memory test adapter; no external traffic"}
+{"suite":"orders","assertions":28,"status":"PASS","parallelSameKey":20,"lostAck":"one server operation","inventory":"isolated authoritative fixtures; real integration not verified"}
+{"suite":"loyalty-history","checks":14,"status":"PASS","records":137,"pages":5,"source":"isolated real ledger mutations, no production data"}
+{"suite":"deletion","assertions":25,"status":"PASS","scope":"app database; external providers and retention approval remain blocked"}
+{"suite":"media","checks":6,"status":"PASS","provider":"injected fake; decoding/metadata stripping/storage integration BLOCKED"}
+{"suite":"catalog/localization","checks":22,"status":"PASS","catalog":"137 fixtures, provider pages of 50, globally sorted pages of 30"}

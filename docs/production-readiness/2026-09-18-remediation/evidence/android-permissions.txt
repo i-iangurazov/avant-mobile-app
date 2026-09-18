@@ -1,0 +1,5 @@
+package: kg.avantehnik.app
+uses-permission: name='android.permission.CAMERA'
+uses-permission: name='android.permission.INTERNET'
+permission: kg.avantehnik.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission: name='kg.avantehnik.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'

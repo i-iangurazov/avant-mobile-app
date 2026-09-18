@@ -1,0 +1,37 @@
+{
+  "status": "PASS",
+  "before": {
+    "revision": "c88450a",
+    "withoutApiConfiguration": "https://api-production-2e6d.up.railway.app"
+  },
+  "after": {
+    "withoutApiConfiguration": "",
+    "networkRequests": 0
+  },
+  "checks": [
+    {
+      "name": "missing",
+      "status": "PASS"
+    },
+    {
+      "name": "insecure",
+      "status": "PASS"
+    },
+    {
+      "name": "placeholder",
+      "status": "PASS"
+    },
+    {
+      "name": "local",
+      "status": "PASS"
+    },
+    {
+      "name": "public debug",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit HTTPS",
+      "status": "PASS"
+    }
+  ]
+}

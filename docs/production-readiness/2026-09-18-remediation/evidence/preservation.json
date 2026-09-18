@@ -1,0 +1,22 @@
+{
+  "isolatedBaseline": {
+    "files": 128,
+    "mismatches": []
+  },
+  "originalBaseline": {
+    "files": 128,
+    "mismatches": []
+  },
+  "originalAuditedSource": {
+    "files": 194,
+    "mismatches": []
+  },
+  "baselineCalculation": "exact match with original calculator in temporary copy",
+  "originalHead": "340b960bed2af4033637ab0bc35c9c60ccf076e4",
+  "originalBranch": "main",
+  "AGENTS": "No applicable AGENTS.md found during initial parent/project discovery",
+  "durableWorktree": "/Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/.worktrees/production-readiness",
+  "originalSourceAfterMove": "all194 hashes still match",
+  "testServices": "HTTP8789 and static8090 stopped; existing audit PostgreSQL cluster preserved",
+  "buildCacheCleanup": "Only dedicated temporary Gradle cache removed; artifacts retained and hashes reverified"
+}

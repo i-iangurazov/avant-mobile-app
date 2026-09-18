@@ -1,0 +1,107 @@
+{
+  "status": "PASS",
+  "platform": "web export, Chrome 390x844, isolated DB and test providers",
+  "checks": [
+    {
+      "name": "Add through catalog appears in cart",
+      "status": "PASS"
+    },
+    {
+      "name": "Select exposes expanded and checked states",
+      "status": "PASS"
+    },
+    {
+      "name": "Searchable branch select applies and closes",
+      "status": "PASS"
+    },
+    {
+      "name": "Select empty search has explicit state",
+      "status": "PASS"
+    },
+    {
+      "name": "Escape closes select and preserves chosen branch",
+      "status": "PASS"
+    },
+    {
+      "name": "Delivery address validation",
+      "status": "PASS"
+    },
+    {
+      "name": "Trusted quote is shown before submission",
+      "status": "PASS"
+    },
+    {
+      "name": "Successful server response deliberately lost",
+      "status": "PASS"
+    },
+    {
+      "name": "One server order exists after lost response",
+      "status": "PASS"
+    },
+    {
+      "name": "Retry key persisted after network failure",
+      "status": "PASS"
+    },
+    {
+      "name": "Response recovery opens actual persisted order",
+      "status": "PASS"
+    },
+    {
+      "name": "Retry after reload did not create a second order",
+      "status": "PASS"
+    },
+    {
+      "name": "Persisted attempt cleared after accepted result",
+      "status": "PASS"
+    },
+    {
+      "name": "Submitted cart cleared",
+      "status": "PASS"
+    },
+    {
+      "name": "History shows created order",
+      "status": "PASS"
+    },
+    {
+      "name": "Order can be reopened",
+      "status": "PASS"
+    },
+    {
+      "name": "UI loads all 137 real fixture ledger entries",
+      "status": "PASS"
+    },
+    {
+      "name": "UI pagination finished at five pages",
+      "status": "PASS"
+    },
+    {
+      "name": "Ledger filter has no invented rows",
+      "status": "PASS"
+    },
+    {
+      "name": "Account switch clears plumber identity",
+      "status": "PASS"
+    },
+    {
+      "name": "Revoked cached session cleared on startup",
+      "status": "PASS"
+    },
+    {
+      "name": "Deletion consent exposes checked state",
+      "status": "PASS"
+    },
+    {
+      "name": "Web deletion removes account after password and bound OTP",
+      "status": "PASS"
+    },
+    {
+      "name": "Deletion clears local session and private keys",
+      "status": "PASS"
+    },
+    {
+      "name": "No JavaScript runtime exceptions",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}
