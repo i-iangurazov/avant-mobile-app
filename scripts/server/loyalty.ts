@@ -1,3 +1,4 @@
+import { fail } from "./security";
 import { createHash, randomUUID } from "node:crypto";
 import type pg from "pg";
 import { enqueueNotification } from "./notifications";
@@ -283,9 +284,10 @@ export async function ingestReceipt(pool: pg.Pool, input: ReceiptInput, actorId?
         throw Object.assign(new Error("Чек с этим внешним ID уже принят с другим содержимым."), { statusCode: 409 });
       }
       await client.query("COMMIT");
-      return { created: false, receipt: await loadReceipt(pool, duplicate.rows[0].id) };
+      return { created: false, receipt: await loadReceipt(client, duplicate.rows[0].id) };
     }
 
+    await client.query("SELECT id FROM app_plumber_profiles WHERE id=$1 FOR UPDATE", [profile.id]);
     const config = await getLoyaltyConfig(client);
     const levelBefore = await calculateLevelProgress(client, profile.id, normalized.purchaseAt);
     const rateBps = Math.max(config.baseRateBps, levelBefore.current.bonusRateBps);
@@ -399,7 +401,7 @@ export async function ingestReceipt(pool: pg.Pool, input: ReceiptInput, actorId?
       });
     }
     await client.query("COMMIT");
-    return { created: true, receipt: await loadReceipt(pool, receiptId) };
+    return { created: true, receipt: await loadReceipt(client, receiptId) };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -412,6 +414,10 @@ export async function releasePendingBonuses(pool: pg.Pool, plumberId?: string) {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await client.query(`SELECT id FROM app_plumber_profiles
+      WHERE ($1::text IS NULL OR id=$1) AND id IN
+        (SELECT plumber_id FROM app_loyalty_transactions WHERE status='pending' AND available_at<=now())
+      ORDER BY id FOR UPDATE`, [plumberId ?? null]);
     const released = await client.query<{ id: string; plumber_id: string; amount_minor: string | number }>(
       `WITH due AS (
          SELECT id FROM app_loyalty_transactions
@@ -495,10 +501,12 @@ export async function ingestReturn(pool: pg.Pool, input: ReturnInput, actorId?: 
       `SELECT receipts.id, receipts.plumber_id, receipts.receipt_number, plumbers.account_id
        FROM app_loyalty_receipts receipts
        JOIN app_plumber_profiles plumbers ON plumbers.id = receipts.plumber_id
-       WHERE receipts.external_receipt_id = $1 FOR UPDATE OF receipts`,
+       WHERE receipts.external_receipt_id = $1`,
       [normalized.externalReceiptId]
     );
     if (!receipt.rows[0]) throw Object.assign(new Error("Исходный чек не найден."), { statusCode: 404 });
+    await client.query("SELECT id FROM app_plumber_profiles WHERE id=$1 FOR UPDATE", [receipt.rows[0].plumber_id]);
+    await client.query("SELECT id FROM app_loyalty_receipts WHERE id=$1 FOR UPDATE", [receipt.rows[0].id]);
     const returnId = randomUUID();
     await client.query(
       `INSERT INTO app_loyalty_returns (
@@ -619,28 +627,37 @@ export async function getLoyaltyBalances(database: Queryable, plumberId: string)
 export async function listLoyaltyTransactions(
   pool: pg.Pool,
   accountId: string,
-  filters: { status?: string; type?: string; limit?: number; offset?: number } = {}
+  filters: { status?: string; type?: string; limit?: number; offset?: number; cursor?: string } = {}
 ) {
   const plumber = await requireApprovedPlumber(pool, accountId);
+  let cursor: {time:string;id:string} | null = null;
+  if (filters.cursor) {
+    try { cursor=JSON.parse(Buffer.from(filters.cursor,'base64url').toString()); } catch { fail('Некорректная страница истории.'); }
+    if (!cursor || typeof cursor.time !== 'string' || !Number.isFinite(Date.parse(cursor.time)) || typeof cursor.id !== 'string') fail('Некорректная страница истории.');
+  }
+  if (filters.status && !['pending','available','spent','reversed','cancelled'].includes(filters.status)) fail('Неизвестный фильтр истории.');
+  if (filters.type && !['purchase_accrual','promotional_multiplier','manual_adjustment','reward_redemption','return_reversal','expiration'].includes(filters.type)) fail('Неизвестный вид операции.');
   const result = await pool.query<{
     id: string; transaction_type: string; status: string; balance_bucket: string;
     amount_minor: string | number; description: string; available_at: Date | string | null;
-    created_at: Date | string; receipt_number: string | null;
+    created_at: Date | string; cursor_time:string; receipt_number: string | null;
   }>(
     `SELECT transactions.id, transactions.transaction_type, transactions.status,
             transactions.balance_bucket, transactions.amount_minor, transactions.description,
-            transactions.available_at, transactions.created_at, receipts.receipt_number
+            transactions.available_at, transactions.created_at, transactions.created_at::text AS cursor_time, receipts.receipt_number
      FROM app_loyalty_transactions transactions
      LEFT JOIN app_loyalty_receipts receipts ON receipts.id = transactions.receipt_id
      WHERE transactions.plumber_id = $1
        AND ($2::text IS NULL OR transactions.status = $2)
        AND ($3::text IS NULL OR transactions.transaction_type = $3)
-     ORDER BY transactions.created_at DESC
+       AND ($6::timestamptz IS NULL OR (transactions.created_at,transactions.id) < ($6::timestamptz,$7::text))
+     ORDER BY transactions.created_at DESC, transactions.id DESC
      LIMIT $4 OFFSET $5`,
-    [plumber.id, filters.status ?? null, filters.type ?? null, Math.min(Math.max(filters.limit ?? 30, 1), 100), Math.max(filters.offset ?? 0, 0)]
+    [plumber.id, filters.status ?? null, filters.type ?? null, Math.min(Math.max(filters.limit ?? 30, 1), 100), Math.max(filters.offset ?? 0, 0), cursor?.time ?? null, cursor?.id ?? null]
   );
   return result.rows.map((row) => ({
     id: row.id,
+    cursor: Buffer.from(JSON.stringify({time:row.cursor_time,id:row.id})).toString("base64url"),
     type: row.transaction_type,
     status: row.status,
     balanceBucket: row.balance_bucket,
@@ -818,11 +835,12 @@ export async function redeemReward(pool: pg.Pool, accountId: string, rewardId: s
   try {
     await client.query("BEGIN");
     await client.query("SELECT id FROM app_plumber_profiles WHERE id = $1 FOR UPDATE", [plumber.id]);
-    const duplicate = await client.query<{ id: string; status: string; cost_minor: string | number }>(
-      "SELECT id, status, cost_minor FROM app_reward_redemptions WHERE plumber_id = $1 AND client_request_id = $2",
+    const duplicate = await client.query<{ id: string; status: string; cost_minor: string | number; reward_id: string }>(
+      "SELECT id, status, cost_minor, reward_id FROM app_reward_redemptions WHERE plumber_id = $1 AND client_request_id = $2",
       [plumber.id, requestId]
     );
     if (duplicate.rows[0]) {
+      if (duplicate.rows[0].reward_id !== rewardId) fail("Этот ключ уже использован для другой награды.",409);
       await client.query("COMMIT");
       return { created: false, id: duplicate.rows[0].id, status: duplicate.rows[0].status, costMinor: String(duplicate.rows[0].cost_minor) };
     }
@@ -875,6 +893,7 @@ export async function processRewardRedemption(
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
+    await client.query(`SELECT id FROM app_plumber_profiles WHERE id=(SELECT plumber_id FROM app_reward_redemptions WHERE id=$1) FOR UPDATE`,[redemptionId]);
     const current = await client.query<{
       status: string; plumber_id: string; reward_id: string; account_id: string; title: string;
     }>(

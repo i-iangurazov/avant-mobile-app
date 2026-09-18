@@ -1,6 +1,7 @@
+import { registerFixture as registerCustomer, assertTestDatabase } from "./tests/fixtures";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { registerCustomer, hasAdminAccess } from "./server/auth";
+import { hasAdminAccess } from "./server/auth";
 import { createPool, ensureSchema } from "./server/db";
 import {
   assignServiceRequest, createLeadReview, createServiceRequest, listLeadCandidates,
@@ -70,6 +71,7 @@ async function cleanup() {
 }
 
 async function main() {
+  assertTestDatabase(pool!);
   await ensureSchema(pool!);
   originalConfig = await getLoyaltyConfig(pool!);
   const secret = `test-secret-${run}`;

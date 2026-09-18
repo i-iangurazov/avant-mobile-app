@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   assignAdminLead,
   cancelCustomerServiceRequest,
@@ -90,10 +90,12 @@ export function usePlumberReviews() {
 
 export function useLoyaltyHistory(filters: { status?: string; type?: string } = {}) {
   const { session, user } = useAuth();
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["loyalty-history", user?.id, filters.status ?? "all", filters.type ?? "all"],
     enabled: user?.plumber?.applicationStatus === "approved",
-    queryFn: () => getLoyaltyTransactions(filters, session?.accessToken)
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({pageParam}) => getLoyaltyTransactions({...filters,cursor:pageParam,limit:30}, session?.accessToken),
+    getNextPageParam: page => page.length === 30 ? page[page.length-1].cursor : undefined
   });
 }
 

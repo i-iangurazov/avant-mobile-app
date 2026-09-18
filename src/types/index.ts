@@ -184,6 +184,7 @@ export type PlumberDashboard = {
 };
 
 export type LoyaltyTransaction = {
+  cursor?: string;
   id: string;
   type: string;
   status: "pending" | "available" | "spent" | "reversed" | "cancelled";

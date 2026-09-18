@@ -49,10 +49,12 @@ export const getPlumberQr = (accessToken?: string | null) =>
   );
 
 export const getLoyaltyTransactions = (
-  filters: { status?: string; type?: string } = {},
+  filters: { status?: string; type?: string; cursor?: string; limit?: number } = {},
   accessToken?: string | null
 ) => {
   const query = new URLSearchParams();
+  query.set("limit", String(filters.limit ?? 30));
+  if (filters.cursor) query.set("cursor", filters.cursor);
   if (filters.status) query.set("status", filters.status);
   if (filters.type) query.set("type", filters.type);
   return request<LoyaltyTransaction[]>(`/plumber/loyalty/transactions${query.size ? `?${query}` : ""}`, accessToken);
