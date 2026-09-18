@@ -5,8 +5,8 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "ios": "expo start --ios",
-    "android": "expo start --android",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit",
     "check:catalog": "tsx scripts/check-catalog.ts",
@@ -24,7 +24,11 @@
     "visual:back": "node scripts/back-button-smoke.mjs",
     "visual:cart": "node scripts/cart-flow-smoke.mjs",
     "smoke": "npm run typecheck && npm run lint && npm run check:db && npm run check:orders && npm run check:loyalty",
-    "visual:order": "node scripts/order-detail-smoke.mjs"
+    "visual:order": "node scripts/order-detail-smoke.mjs",
+    "check:remediation": "tsx scripts/tests/security.ts && tsx scripts/tests/orders.ts && tsx scripts/tests/loyalty.ts && tsx scripts/tests/deletion.ts && tsx scripts/tests/media.ts && tsx scripts/tests/catalog.ts",
+    "postinstall": "node scripts/build/patch-metro.cjs",
+    "eas-build-pre-install": "node scripts/build/verify-env.cjs",
+    "check:release-env": "node scripts/build/verify-env.cjs --required"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -51,7 +55,8 @@
     "react-native-web": "^0.21.0",
     "react-native-webview": "13.15.0",
     "tsx": "^4.23.0",
-    "zustand": "^5.0.8"
+    "zustand": "^5.0.8",
+    "expo-system-ui": "~6.0.9"
   },
   "overrides": {
     "js-yaml": "4.3.2",
@@ -59,7 +64,9 @@
     "react-dom": "19.1.0",
     "react-server-dom-webpack": "19.1.5",
     "tar": "7.5.22",
-    "uuid": "11.1.1"
+    "uuid": "11.1.1",
+    "decode-uri-component": "0.5.0",
+    "image-size": "2.0.4"
   },
   "devDependencies": {
     "@types/pg": "^8.20.0",
@@ -68,5 +75,8 @@
     "eslint": "^9.39.1",
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
+  },
+  "engines": {
+    "node": ">=22.13 <23"
   }
 }

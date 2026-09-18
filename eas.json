@@ -11,7 +11,8 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "node": "22.18.0"
     }
   },
   "submit": {

@@ -23,6 +23,8 @@ export function createPool(databaseUrl: string) {
   return new Pool({
     connectionString: databaseUrl,
     max: 8,
+    connectionTimeoutMillis: 5_000,
+    statement_timeout: 10_000,
     idleTimeoutMillis: 30_000
   });
 }

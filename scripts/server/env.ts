@@ -25,7 +25,7 @@ export function loadEnv() {
 
     const key = trimmed.slice(0, index).trim();
     const value = trimmed.slice(index + 1).trim().replace(/^['"]|['"]$/g, "");
-    if (!env[key]) {
+    if (!(key in env)) {
       env[key] = value;
     }
   }

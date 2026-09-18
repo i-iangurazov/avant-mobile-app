@@ -20,8 +20,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "kg.avantehnik.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "Авантехник использует камеру для поиска товаров по фото.",
-        "NSPhotoLibraryUsageDescription": "Авантехник использует галерею для загрузки фото товара."
+        "NSCameraUsageDescription": "Авантехник использует камеру для поиска товаров и прикрепления фото к заявке.",
+        "NSPhotoLibraryUsageDescription": "Выберите фотографию товара или анкеты, которую хотите прикрепить."
       }
     },
     "android": {
@@ -31,8 +31,16 @@
         "backgroundColor": "#FFFFFF"
       },
       "permissions": [
-        "CAMERA",
-        "READ_MEDIA_IMAGES"
+        "CAMERA"
+      ],
+      "blockedPermissions": [
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.WRITE_SETTINGS",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -40,8 +48,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Авантехник использует галерею для загрузки фото товара.",
-          "cameraPermission": "Авантехник использует камеру для поиска товаров по фото.",
+          "photosPermission": "Выберите фотографию товара или анкеты, которую хотите прикрепить.",
+          "cameraPermission": "Авантехник использует камеру для поиска товаров и прикрепления фото к заявке.",
           "microphonePermission": false
         }
       ],
