@@ -593,6 +593,7 @@ const server = createServer(async (req, res) => {
       await enforceRateLimit(req,'account-delete',5,60*60_000);
       const policy=(await listPublicDocuments(pool)).find(doc=>doc.kind==='deletion');
       const body=await readJsonBody(req);
+      if (policy && asText(body.deletionDocumentVersion,100)!==policy.version) throw Object.assign(new Error('Порядок удаления обновлён. Прочитайте его и подтвердите действие заново.'),{statusCode:409});
       sendJson(req,res,200,await deleteAccount(pool,accountId,asText(body.password,200),parsePhoneProof(body.phoneProof),authTokenSecret,
         {mode:env.ACCOUNT_DELETION_MODE || '',version:policy?.version || ''},mediaProvider(env.MEDIA_PROVIDER_URL || '',env.MEDIA_PROVIDER_TOKEN || '',env.MEDIA_PUBLIC_HOST || ''))); return;
     }

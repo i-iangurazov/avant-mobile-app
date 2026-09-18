@@ -3,7 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {writeFileSync} from 'node:fs';
 import {createPool,ensureSchema} from '../server/db';
 import {registerFixture,assertTestDatabase} from './fixtures';
-import {listLoyaltyTransactions,getLoyaltyBalances,createManualAdjustment,redeemReward} from '../server/loyalty';
+import {listLoyaltyTransactions,getLoyaltyBalances,createManualAdjustment,redeemReward,ingestReceipt,ingestReturn,releasePendingBonuses,processRewardRedemption} from '../server/loyalty';
 const pool=createPool(process.env.TEST_DATABASE_URL || '')!;
 let checks=0;
 async function main(){try{
@@ -36,6 +36,17 @@ async function main(){try{
   const repeats=await Promise.all(Array.from({length:20},()=>redeemReward(pool,account.user.id,rewards[0],key)));
   assert.equal(new Set(repeats.map(x=>x.id)).size,1);checks++;
  }
+ const beforeRace=await getLoyaltyBalances(pool,plumber);const externalId=randomUUID();
+ const receipt={externalReceiptId:externalId,receiptNumber:'fixture',storeId:'fixture',storeName:'Fixture',plumberIdentifier:account.user.plumber!.loyaltyCode,totalMinor:'100000',purchaseAt:new Date().toISOString(),source:'fixture' as const,items:[{externalLineId:'line',productName:'Fixture',quantityMilli:'1000',unitPriceMinor:'100000',lineTotalMinor:'100000'}]};
+ const returned={externalReturnId:randomUUID(),externalReceiptId:externalId,returnAt:new Date().toISOString(),source:'fixture' as const,items:[{externalLineId:'line',quantityMilli:'1000',amountMinor:'100000'}]};
+ await assert.rejects(()=>ingestReturn(pool,returned,account.user.id),(e:any)=>e.statusCode===404);checks++;
+ await ingestReceipt(pool,receipt,account.user.id);
+ await pool.query("UPDATE app_loyalty_transactions SET available_at=now()-interval '1 second' WHERE plumber_id=$1 AND status='pending'",[plumber]);await releasePendingBonuses(pool,plumber);
+ const race=await Promise.all([ingestReturn(pool,returned,account.user.id),redeemReward(pool,account.user.id,rewards[1],randomUUID())]);
+ assert.equal((await getLoyaltyBalances(pool,plumber)).availableMinor,(BigInt(beforeRace.availableMinor)-100n).toString());checks++;
+ const repeated=await Promise.all(Array.from({length:20},()=>ingestReturn(pool,returned,account.user.id)));assert.ok(repeated.every(x=>!x.created));checks++;
+ const cancellations=await Promise.all(Array.from({length:20},()=>processRewardRedemption(pool,account.user.id,race[1].id,'cancelled')));assert.equal(cancellations.filter(x=>x.changed).length,1);checks++;
+ assert.equal((await getLoyaltyBalances(pool,plumber)).availableMinor,beforeRace.availableMinor);checks++;
  console.log(JSON.stringify({suite:'loyalty-history',checks,status:'PASS',records:137,pages:5,source:'isolated real ledger mutations, no production data'}));
 }finally{await pool.end();}}
 void main().catch(e=>{console.error(e);process.exitCode=1;});
