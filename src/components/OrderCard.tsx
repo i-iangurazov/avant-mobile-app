@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
-import { formatDate, formatPrice } from "../lib/formatters";
+import { formatDate, formatPrice, pluralizeRu } from "../lib/formatters";
 import type { OrderListItem } from "../types";
 import { StatusBadge } from "./StatusBadge";
 
@@ -25,7 +25,7 @@ export function OrderCard({ order, onPress }: OrderCardProps) {
         <StatusBadge status={order.status} />
       </View>
       <View style={styles.footer}>
-        <Text style={styles.items}>{order.item_count} товаров</Text>
+        <Text style={styles.items}>{order.item_count} {pluralizeRu(order.item_count, "товар", "товара", "товаров")}</Text>
         <Text style={styles.total}>{formatPrice(order.total_amount, order.total_label ?? "Уточняется менеджером")}</Text>
         <View style={styles.more}>
           <Text style={styles.moreText}>Подробнее</Text>

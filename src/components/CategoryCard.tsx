@@ -1,3 +1,4 @@
+import { pluralizeRu } from "../lib/formatters";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
@@ -40,7 +41,7 @@ export function CategoryCard({ category, onPress }: CategoryCardProps) {
         </View>
       )}
       <Text style={styles.name} numberOfLines={2}>{category.name}</Text>
-      <Text style={styles.count}>{category.product_count ?? 0} товаров</Text>
+      <Text style={styles.count}>{category.product_count ?? 0} {pluralizeRu(category.product_count ?? 0, "товар", "товара", "товаров")}</Text>
     </Pressable>
   );
 }

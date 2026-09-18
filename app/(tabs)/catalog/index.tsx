@@ -10,7 +10,7 @@ import { assets } from "../../../src/constants/assets";
 import { colors, radius, shadows, spacing, typography } from "../../../src/constants/theme";
 import { useAddToCart, useCategories, usePopularProducts } from "../../../src/hooks/useCatalog";
 import { useToast } from "../../../src/hooks/useToast";
-import { friendlyError } from "../../../src/lib/formatters";
+import { friendlyError, pluralizeRu } from "../../../src/lib/formatters";
 import type { Product } from "../../../src/types";
 
 export default function CatalogScreen() {
@@ -102,7 +102,7 @@ export default function CatalogScreen() {
           <Text style={styles.sectionTitle}>Все товары</Text>
           <Pressable accessibilityRole="button" onPress={openAllProducts} style={styles.sectionAction}>
             <Text style={styles.sectionActionText}>
-              {allProducts?.product_count ? `${allProducts.product_count} товаров` : "Открыть"}
+              {allProducts?.product_count ? `${allProducts.product_count} ${pluralizeRu(allProducts.product_count, "товар", "товара", "товаров")}` : "Открыть"}
             </Text>
             <Ionicons name="chevron-forward" size={15} color={colors.primary} />
           </Pressable>
