@@ -26,11 +26,16 @@ const ext=randomUUID();const receipt=await ingestReceipt(pool,{externalReceiptId
 const returned=await ingestReturn(pool,{externalReturnId:randomUUID(),externalReceiptId:ext,returnAt:new Date().toISOString(),source:'fixture',items:[{externalLineId:'line',quantityMilli:'500',amountMinor:'50000'}]},other.user.id);
 const reward=randomUUID();await pool.query("INSERT INTO app_rewards(id,title,description,cost_minor,availability_count) VALUES($1,'Fixture','Fixture',50,2)",[reward]);await redeemReward(pool,id,reward,randomUUID());
 const mediaId=randomUUID();await pool.query('INSERT INTO app_uploaded_media(id,account_id,provider_id,url) VALUES($1,$2,$1,$3)',[mediaId,id,'https://media.fixture.invalid/'+mediaId]);let removed='';const media={upload:async()=>{throw Error('unused');},remove:async(asset:string)=>{removed=asset;}};
-let code='';const challenge=await createPhoneChallenge(pool,secret,async m=>{code=m.code;},'delete',phone,id);const proof={challengeId:challenge.challengeId,code};
+let code='';const challenge=await createPhoneChallenge(pool,secret,async m=>{code=m.code;},'delete',phone,id);let proof={challengeId:challenge.challengeId,code};
 const policy={mode:'erase-all',version:'fixture-v1'};
 await assert.rejects(()=>deleteAccount(pool,id,'wrong',proof,secret,policy),(e:any)=>e.statusCode===401);
 await assert.rejects(()=>deleteAccount(pool,id,'test-password',proof,secret,{mode:'',version:''}),(e:any)=>e.statusCode===503);
 await assert.rejects(()=>deleteAccount(pool,id,'test-password',{...proof,code:'wrong'},secret,policy),(e:any)=>e.statusCode===400);
+await assert.rejects(()=>deleteAccount(pool,id,'test-password',proof,secret,policy,{...media,remove:async()=>{throw Error('fixture media unavailable');}}),/fixture media unavailable/);
+assert.equal(Number((await pool.query('SELECT count(*) FROM app_customers WHERE id=$1',[id])).rows[0].count),1);
+assert.equal(Number((await pool.query('SELECT count(*) FROM app_orders WHERE customer_id=$1',[id])).rows[0].count),1);
+assert.equal(Number((await pool.query('SELECT reserved_quantity FROM app_order_offers WHERE organization_id=$1 AND branch_id=$2',[org,branch])).rows[0].reserved_quantity),4);
+const retryChallenge=await createPhoneChallenge(pool,secret,async m=>{code=m.code;},'delete',phone,id);proof={challengeId:retryChallenge.challengeId,code};
 assert.equal((await deleteAccount(pool,id,'test-password',proof,secret,policy,media)).deleted,true);
 await assert.rejects(()=>requireSession(pool,account.session.accessToken,secret),(e:any)=>e.statusCode===401);
 await assert.rejects(()=>refreshSession(pool,account.session.refreshToken,secret),(e:any)=>e.statusCode===401);
@@ -44,6 +49,6 @@ assert.equal(Number((await pool.query('SELECT availability_count FROM app_reward
 assert.equal(Number((await pool.query('SELECT count(*) FROM app_uploaded_media WHERE account_id=$1',[id])).rows[0].count),0);
 assert.equal(Number((await pool.query("SELECT count(*) FROM app_admin_audit_log WHERE entity_id=ANY($1::text[])",[[(receipt.receipt as {id:string}).id,returned.returnId]])).rows[0].count),0);
 assert.equal(Number((await pool.query("SELECT count(*) FROM app_service_request_events WHERE metadata::text LIKE $1",['%'+plumber+'%'])).rows[0].count),0);
-console.log(JSON.stringify({suite:'deletion',assertions:21,status:'PASS',scope:'app database; external providers and retention approval remain blocked'}));
+console.log(JSON.stringify({suite:'deletion',assertions:25,status:'PASS',scope:'app database; external providers and retention approval remain blocked'}));
 }finally{await pool.end();}}
 void main().catch(e=>{console.error(e);process.exitCode=1;});

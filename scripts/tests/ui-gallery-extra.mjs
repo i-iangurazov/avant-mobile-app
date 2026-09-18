@@ -1,0 +1,33 @@
+import{spawn}from'node:child_process';import{writeFileSync,readFileSync,mkdirSync}from'node:fs';import{setTimeout as wait}from'node:timers/promises';
+const out=process.cwd()+'/docs/production-readiness/2026-09-18-remediation/evidence';mkdirSync(out+'/screenshots',{recursive:true});
+const sessions=JSON.parse(readFileSync('/private/tmp/avantehnik-remediation-sessions.json'));const base='http://127.0.0.1:8090';const port=9363;
+const chrome=spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',['--headless=new','--disable-gpu','--no-first-run','--disable-background-networking','--disable-sync','--remote-debugging-port='+port,'--user-data-dir=/private/tmp/remediation-extra-chrome','about:blank'],{stdio:'ignore'});
+let targets;for(let n=0;n<60;n++){try{targets=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();break;}catch{}await wait(250);}
+const ws=new WebSocket(targets.find(x=>x.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));let id=1;const pending=new Map();let errors=[];ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id){pending.get(m.id)?.(m);pending.delete(m.id);}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.exception?.description||m.params.exceptionDetails.text);});
+const send=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}));});const ev=async expression=>(await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result?.result?.value;
+const click=async text=>ev(`Array.from(document.querySelectorAll('[role="button"],button,[role="tab"]')).find(x=>x.innerText.trim()===${JSON.stringify(text)})?.click()`);
+const gallery=[];
+async function capture(name,role,path,state='default'){
+ await wait(450);
+ const body=await ev('document.body.innerText');const fonts=await ev("document.fonts.check('16px ionicons')");
+ const scroll=await ev(`(()=>{const a=Array.from(document.querySelectorAll('*')).filter(e=>e.scrollHeight>e.clientHeight+20&&e.clientHeight>150&&['auto','scroll'].includes(getComputedStyle(e).overflowY));return a.map(e=>({height:e.clientHeight,total:e.scrollHeight}));})()`);
+ const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});writeFileSync(out+'/screenshots/'+name+'.png',Buffer.from(shot.result.data,'base64'));
+ let bottoms=[];if(scroll?.length){await ev(`Array.from(document.querySelectorAll('*')).filter(e=>e.scrollHeight>e.clientHeight+20&&e.clientHeight>150&&['auto','scroll'].includes(getComputedStyle(e).overflowY)).forEach(e=>e.scrollTop=e.scrollHeight)`);await wait(300);const s=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});writeFileSync(out+'/screenshots/'+name+'-bottom.png',Buffer.from(s.result.data,'base64'));bottoms.push(name+'-bottom.png');}
+ gallery.push({name,role,path,state,platform:'WEB EXPORT + LOCAL API + MOCK catalog/Telegram',viewport:await ev('window.innerWidth+"x"+window.innerHeight'),screenshot:name+'.png',bottoms,body,fonts,errors:[...errors],scroll});errors=[];console.log(name);
+}
+async function nav(path){await send('Page.navigate',{url:base+path});await wait(path==='/maps'?5500:1100);await ev('document.fonts.ready.then(()=>true)');}
+async function role(r){await nav('/welcome');await ev(`localStorage.removeItem('avantehnik.app-session.v1');localStorage.removeItem('avantehnik:cart:v1');${r==='guest'?'':`localStorage.setItem('avantehnik.app-session.v1',${JSON.stringify(JSON.stringify(sessions[r]))});`}`);}
+
+const fill=async(label,value)=>{await ev(`(()=>{const x=Array.from(document.querySelectorAll('input,textarea')).find(x=>x.getAttribute('aria-label')===${JSON.stringify(label)}||x.placeholder===${JSON.stringify(label)});if(!x)throw Error('Missing field');const p=x.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(p,'value').set.call(x,${JSON.stringify(value)});x.dispatchEvent(new Event('input',{bubbles:true}));})()`);await wait(500);};
+try{
+ await send('Runtime.enable');await send('Page.enable');await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+ await role('guest');await nav('/');await capture('extra-root','guest','/','root redirect');
+ await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'dark'}]});await nav('/login');await capture('extra-login-dark','guest','/login','system dark web');await send('Emulation.setEmulatedMedia',{features:[]});
+ await nav('/category/all-products');await click('В корзину');await capture('extra-add-toast','guest','/category/all-products','add toast');
+ await nav('/category/all-products');await ev(`document.querySelector('[role=combobox]').click()`);await capture('extra-sort-open','guest','/category/all-products','sort selector open');await ev(`Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.innerText.includes('Сначала дороже')).click()`);await wait(350);await capture('extra-sort-selected','guest','/category/all-products','sort selected');
+ await fill('Поиск по товарам','НетТакогоТовара');await capture('extra-category-empty','guest','/category/all-products','empty search');await fill('Поиск по товарам','10НКП');await capture('extra-category-search','guest','/category/all-products','search result');
+ await role('customer');await nav('/find-plumber');await click('Создать заявку');await capture('extra-find-plumber-form','customer','/find-plumber','expanded form');
+ await role('plumber');for(const label of ['Все','Ожидает','Начислено','Использовано','Возвраты']){await nav('/plumber/history');await ev(`Array.from(document.querySelectorAll('[role=radio]')).find(x=>x.innerText===${JSON.stringify(label)}).click()`);await wait(450);await capture('extra-history-'+({'Все':'all','Ожидает':'pending','Начислено':'available','Использовано':'spent','Возвраты':'returns'})[label],'plumber','/plumber/history','filter '+label);}
+ await role('guest');await send('Emulation.setDeviceMetricsOverride',{width:320,height:568,deviceScaleFactor:1,mobile:true});await nav('/maps');await ev(`document.querySelector('[role=combobox]').click()`);await capture('extra-map-selector-compact','guest','/maps','320x568 six branches scroll');
+ await role('admin');await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await nav('/admin');await click('Анкеты');await capture('extra-experience-labels','admin','/admin','localized experience');
+}finally{writeFileSync(out+'/gallery-extra.json',JSON.stringify(gallery,null,2));ws.close();chrome.kill('SIGTERM');}

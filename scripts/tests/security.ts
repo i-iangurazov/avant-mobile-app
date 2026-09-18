@@ -71,6 +71,8 @@ try {
  await rejects(()=>requireSession(pool,encoded+'.'+createHmac('sha256',secret).update(encoded).digest('base64url'),secret),401);
  await pool.query("UPDATE app_sessions SET expires_at=now()-interval '1 second' WHERE id=$1",[expired.sid]);
  await rejects(()=>refreshSession(pool,signedIn.session.refreshToken,secret),401);
+ const resent1=await proof('password_reset',phone,id);const resent2=await proof('password_reset',phone,id);assert.notEqual(resent1.challengeId,resent2.challengeId);assertions++;
+ await consumePhoneProof(pool,secret,'password_reset',phone,id,resent2);await rejects(()=>consumePhoneProof(pool,secret,'password_reset',phone,id,resent2),400);
  const identity=randomUUID();
  await rateLimit(pool,'test',identity,2,60000); await rateLimit(pool,'test',identity,2,60000);
  await rejects(()=>rateLimit(pool,'test',identity,2,60000),429);

@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';import pg from 'pg';import{execFileSync}from'node:child_process';import{readFileSync,writeFileSync,unlinkSync}from'node:fs';import{createHash}from'node:crypto';
+const url=process.env.TEST_DATABASE_URL;if(url!=='postgresql://audit@127.0.0.1:55448/remediation')throw Error('Isolated DB only');
+const bin=process.env.TEST_PG_BIN||'/opt/homebrew/opt/postgresql@16/bin/';const base=url.replace(/remediation$/,'');const db=new pg.Pool({connectionString:url});const name='remediation_recovery_'+Date.now();const dump='/private/tmp/'+name+'.dump';let copy;
+try{
+ const snapshot=await db.connect();await snapshot.query('BEGIN ISOLATION LEVEL REPEATABLE READ');const snapshotId=(await snapshot.query('SELECT pg_export_snapshot() id')).rows[0].id;
+ const tables=(await snapshot.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(x=>x.tablename);const counts={};for(const table of tables)counts[table]=(await snapshot.query(`SELECT count(*)::int n FROM "${table}"`)).rows[0].n;
+ execFileSync(bin+'pg_dump',['--format=custom','--no-owner','--no-privileges','--snapshot='+snapshotId,'--file='+dump,url]);await snapshot.query('COMMIT');snapshot.release();
+ await db.query(`CREATE DATABASE ${name}`);copy=new pg.Pool({connectionString:base+name});execFileSync(bin+'pg_restore',['--no-owner','--no-privileges','--dbname='+base+name,dump]);
+ for(const table of tables)assert.equal((await copy.query(`SELECT count(*)::int n FROM "${table}"`)).rows[0].n,counts[table],table);
+ await copy.end();copy=undefined;await db.query(`DROP DATABASE ${name}`);
+ await db.query(`CREATE DATABASE ${name}`);copy=new pg.Pool({connectionString:base+name});const schema=execFileSync('git',['show','c88450a:scripts/db/schema.sql'],{encoding:'utf8'});await copy.query(schema);
+ await copy.query("INSERT INTO app_customers(id,name,phone,password_hash) VALUES('migration-test','Fixture','+996700000099','fixture-existing-hash')");
+ const migration=readFileSync('scripts/db/migrations/20260918-production-readiness.sql','utf8');await copy.query(migration);await copy.query(migration);
+ const account=(await copy.query("SELECT name,password_hash,phone_verified_at FROM app_customers WHERE id='migration-test'")).rows[0];assert.equal(account.name,'Fixture');assert.equal(account.password_hash,'fixture-existing-hash');assert.equal(account.phone_verified_at,null);assert.equal((await copy.query("SELECT count(*)::int n FROM app_account_roles WHERE role='admin'")).rows[0].n,0);
+ writeFileSync('docs/production-readiness/2026-09-18-remediation/evidence/database-recovery.json',JSON.stringify({status:'PASS',scope:'isolated local database, production recovery NOT tested',backupFormat:'pg_dump custom, consistent exported snapshot',restoredTables:tables.length,rowCounts:counts,migrationSha256:createHash('sha256').update(migration).digest('hex'),migrationChecks:['baseline dirty snapshot schema migrates','second application succeeds','existing customer/hash preserved','phone remains unverified','no admin grants']},null,2));console.log('Local backup/restore and additive migration passed.');
+}finally{if(copy)await copy.end();await db.query(`DROP DATABASE IF EXISTS ${name}`);await db.end();try{unlinkSync(dump);}catch{}}

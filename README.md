@@ -66,7 +66,10 @@ Server-only values:
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
 - `TELEGRAM_BOT_USERNAME` for the one-tap secure Telegram linking flow
-- `ADMIN_PHONE_NUMBERS` for initial protected pilot administrators
+- `SMS_PROVIDER_URL` / `SMS_PROVIDER_TOKEN` for server-bound phone verification
+- `APP_ORGANIZATION_ID` / `DELIVERY_BRANCH_ID` for trusted inventory context
+- `MEDIA_PROVIDER_URL` / `MEDIA_PROVIDER_TOKEN` / `MEDIA_PUBLIC_HOST` for owned attachments
+- `ACCOUNT_DELETION_MODE`, enabled only after approved retention/deletion policy
 - `TELEGRAM_WEBHOOK_URL` when not hosted on Railway
 - optional `TELEGRAM_WEBHOOK_SECRET`
 - `BAZAAR_API_BASE_URL` and `BAZAAR_API_TOKEN` only for the current read-only catalog
@@ -75,7 +78,9 @@ Never expose database, Telegram, auth, or catalog secrets with an `EXPO_PUBLIC_`
 
 On Railway, the server derives the webhook URL from `RAILWAY_PUBLIC_DOMAIN` and registers it at startup. Other hosts must provide the full HTTPS URL ending in `/telegram/webhook`.
 
-## Production checks
+## Local checks before production review
+
+Use a disposable local database and isolated adapters. These commands can write fixtures or apply schema; they are not production preflight commands. Reviewed migration, backup, rollout and rollback steps are in [the remediation deployment plan](docs/production-readiness/2026-09-18-remediation/DEPLOYMENT.md).
 
 ```bash
 npm run typecheck
@@ -130,9 +135,9 @@ The protected 1C/POS boundary and unresolved production decisions are documented
 ### Important pre-production decisions
 
 - Confirm financial thresholds, benefits, reward values, pending period, and promotion/exclusion policy. Seeded values are editable pilot defaults, not approved commercial terms.
-- Set `ADMIN_PHONE_NUMBERS` and `TELEGRAM_BOT_USERNAME` on the API service. Keep every server secret free of the `EXPO_PUBLIC_` prefix.
+- Review existing privileged accounts, then use audited database roles by verified account ID. `ADMIN_PHONE_NUMBERS` is ignored and never grants access. Coordinate auth v2 migration and session revocation using the deployment plan; configure `TELEGRAM_BOT_USERNAME` separately.
 - Provide the bot username and start a private chat before linking. The admin group chat ID used for order operations is not a customer account link.
-- Provide a production object-storage/upload policy for plumber and customer photos. The MVP accepts validated HTTPS URLs and deliberately does not invent a storage provider.
+- Connect and verify the media adapter for system-picker uploads, decoding, metadata stripping, ownership and deletion. Client-supplied external URLs are not proof of attachment ownership.
 - The current customer catalogue remains a read-only legacy Bazaar source. Orders, reservations, loyalty, accounts, and leads never write to Bazaar. Removing Bazaar entirely requires AVANT's replacement catalogue/inventory API or a data migration plan; disabling it now would break the existing catalogue, search, filters, and product pages.
 - Review and approve the account-deletion flow, program rules/privacy wording, store-console privacy answers, screenshots, reviewer account, and support/privacy-policy URLs before App Store or Google Play submission.
 
@@ -143,3 +148,7 @@ The loyalty integration check refuses any database whose hostname is not localho
 ```bash
 DATABASE_URL=postgresql://avantehnik:avantehnik_dev_password@127.0.0.1:5438/avantehnik npm run check:loyalty
 ```
+
+## Production readiness remediation
+
+The immutable baseline and the [remediation report](docs/production-readiness/2026-09-18-remediation/REPORT.md) distinguish local/API/web evidence from unverified native release and external-service gates. Both stores remain NO-GO. No production deployment is part of these changes.
