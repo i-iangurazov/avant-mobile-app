@@ -24,9 +24,16 @@ async function main() {
     const result = await checkDatabase(pool);
     console.log(`  reachable: ${result.reachable ? "yes" : "no"}`);
     console.log(`  app_customers table: ${result.customersTable ? "present" : "missing"}`);
+    console.log(`  app_orders table: ${result.ordersTable ? "present" : "missing"}`);
+    console.log(`  app_order_items table: ${result.orderItemsTable ? "present" : "missing"}`);
+    console.log(`  app_order_status_events table: ${result.statusEventsTable ? "present" : "missing"}`);
+    console.log(`  app_plumber_profiles table: ${result.plumbersTable ? "present" : "missing"}`);
+    console.log(`  app_loyalty_transactions table: ${result.loyaltyTable ? "present" : "missing"}`);
+    console.log(`  app_service_requests table: ${result.serviceRequestsTable ? "present" : "missing"}`);
+    console.log(`  app_notification_outbox table: ${result.notificationsTable ? "present" : "missing"}`);
 
-    if (!result.customersTable) {
-      console.error("Database check failed: app_customers table is missing.");
+    if (!result.customersTable || !result.ordersTable || !result.orderItemsTable || !result.statusEventsTable || !result.plumbersTable || !result.loyaltyTable || !result.serviceRequestsTable || !result.notificationsTable) {
+      console.error("Database check failed: one or more app tables are missing.");
       process.exit(1);
     }
 
@@ -36,7 +43,18 @@ async function main() {
   }
 }
 
+const describeError = (error: unknown): string => {
+  if (error instanceof AggregateError) {
+    return error.errors.map(describeError).filter(Boolean).join("; ") || "connection failed";
+  }
+  if (error instanceof Error) {
+    const code = "code" in error && typeof error.code === "string" ? ` (${error.code})` : "";
+    return `${error.message || error.name}${code}`;
+  }
+  return String(error);
+};
+
 void main().catch((error) => {
-  console.error("Database check failed:", error instanceof Error ? error.message : error);
+  console.error("Database check failed:", describeError(error));
   process.exit(1);
 });

@@ -38,8 +38,8 @@ export default function LoginScreen() {
 
     try {
       setLoading(true);
-      await signIn(normalizedPhone, password);
-      router.replace("/catalog");
+      const account = await signIn(normalizedPhone, password);
+      router.replace(account.plumber?.applicationStatus === "approved" ? "/plumber-home" : "/catalog");
     } catch (error) {
       Alert.alert("Не удалось войти", friendlyError(error instanceof Error ? error.message : undefined));
     } finally {

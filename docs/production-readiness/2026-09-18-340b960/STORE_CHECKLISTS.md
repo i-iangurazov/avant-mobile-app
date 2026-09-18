@@ -1,0 +1,36 @@
+# Публикация: проверка требований 18 сентября 2026
+
+**Google Play: NO-GO. App Store: NO-GO.** Основания: D01/D02 и обязательные D06/D07; для Google также D16. Отдельно BLOCKED нативные архивы, подписи и консоли. Отправки на review и публикации не выполнялись. TestFlight/internal track: пригодность не подтверждена, загрузок не было.
+
+Источники открыты заново на дату аудита. Требования магазинов отделены от внутренней планки95%/90%/UI95%. Условия чужого аккаунта разработчика не предполагаются.
+
+## Google Play
+
+|Применимость|Требование и официальный источник|Состояние / доказательство|Действие до отправки|
+|---|---|---|---|
+|Новое обычное Android приложение|С31.08.2026 target Android16/API36+. [Target API](https://support.google.com/googleplay/android-developer/answer/11926878?hl=en)|BLOCKED для AAB; installed RN0.81.5 versions catalog задаёт min24/target36/compile36. Prebuild следует catalog.|Проверить effective target подписанного AAB. Возможное продление до01.11.2026 относится только к реально предоставленному статусу консоли. Не путать min24 с target36.|
+|Новое приложение|AAB, Play App Signing, постоянный package ID. [App setup](https://support.google.com/googleplay/android-developer/answer/9859152?hl=en)|BLOCKED: kg.avantehnik.app,1.0.0, generated versionCode1; EAS autoIncrement. Keystore/console неизвестны; Java отсутствует.|Сборка фиксированного commit, manifest, установка внутреннего трека; подпись и upgrade path.|
+|Native RN/Expo libraries|Применимая совместимость16KB. [Android16KB](https://developer.android.com/guide/practices/page-sizes)|BLOCKED: нет AAB/APK, ELF/ZIP alignment и16KB runtime не проверены. Версия RN/NDK сама по себе не доказательство.|Проверить все .so, ZIP alignment, установить на16KB окружение; сохранить логи.|
+|Аккаунт, телефон, адрес, заказы, бонусы, заявки, фото, Telegram|Data safety и фактическая privacy policy. [User Data](https://support.google.com/googleplay/android-developer/answer/10144311?hl=en)|FAIL in-app policy D07; формы консоли BLOCKED.|Сверить данные/передачи/retention с release network trace, опубликовать policy, заполнить декларацию.|
+|Регистрация есть|Путь удаления в приложении и web-ресурс. [Account deletion](https://support.google.com/googleplay/android-developer/answer/13327111?hl=en)|FAIL D06: только logout. Внешний ресурс неизвестен.|Удаляющая процедура, URL без повторной установки; проверить удаление/обоснованное retention.|
+|Выбор одиночного фото товара|Broad READ_MEDIA_IMAGES допускается лишь когда минимального picker недостаточно. [Restricted permissions](https://support.google.com/googleplay/android-developer/answer/16935362?hl=en)|FAIL D16: разрешение явно запрошено; сценарий — единичный выбор.|Picker; ревизия merged manifest, включая WRITE_SETTINGS/legacy storage/SYSTEM_ALERT_WINDOW. RECORD_AUDIO содержит tools:node=remove — не считать активным.|
+|Тип аккаунта неизвестен|Для personal accounts после13.11.2023 —12 opt-in testers непрерывно14д до заявки на production access. [Testing](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en)|BLOCKED: тип, дата создания и production access неизвестны.|Владелец показывает account type/date/gate; тест обязателен только если аккаунт подпадает. Внутренний трек не заменяет закрытый14д тест.|
+|Всем по применимости|App access, возрастной рейтинг, target audience, ads declaration, listing. [App setup](https://support.google.com/googleplay/android-developer/answer/9859152?hl=en)|BLOCKED: формы/договора/assets неизвестны. В коде рекламного SDK не найдено — это не заполненная декларация.|Русский язык, контакты, release screenshots, reviewer покупатель и approved plumber; admin только по необходимости. OTP сейчас нет.|
+|Физические товары; payment SDK нет|[Payments, physical goods](https://support.google.com/googleplay/android-developer/answer/9858738?hl=en).|N/A для тестов IAP/sandbox текущего релиза. Физические товары не требуют автоматически Play Billing.|Зафиксировать, что заказ/резерв не списывает деньги; будущие платежи вернуть в scope.|
+
+## App Store
+
+|Применимость|Требование и официальный источник|Состояние / доказательство|Действие до отправки|
+|---|---|---|---|
+|Загрузка iOS build|С28.04.2026 Xcode26+ с iOS26SDK+. [Upcoming requirements](https://developer.apple.com/news/upcoming-requirements/)|BLOCKED: Xcode отсутствует; generated deployment target15.1 не является SDK загрузки.|Подписанный архив с допустимым SDK, install/TestFlight. Стабильная iOS27 не отменяет опубликованный минимум SDK26.|
+|App ID/signing|Provisioning, entitlements, capabilities и bundle ID.|BLOCKED: kg.avantehnik.app; local CFBundleVersion1; remote EAS build number неизвестен.|Подтвердить team/profiles/signing и effective entitlements IPA.|
+|SDK и требуемые API|Privacy manifests/required-reason APIs и SDK signatures где применимо. [SDK requirements](https://developer.apple.com/support/third-party-SDK-requirements/)|BLOCKED: Pods не устанавливались; архив/агрегированный PrivacyInfo не анализировался. Отсутствие app файла не означает отсутствие manifests в Pods.|Privacy report архива, проверка SDK и обоснований API.|
+|Сбор данных|App Privacy, policy и purpose strings. [Review Guidelines5.1](https://developer.apple.com/app-store/review/guidelines/)|FAIL D07; camera/photo descriptions есть, runtime refusal/limited library BLOCKED.|Policy, network/SDK inventory, App Privacy; минимальный Photos picker.|
+|Регистрация|Удаление аккаунта в приложении. [Review Guidelines5.1.1(v)](https://developer.apple.com/app-store/review/guidelines/)|FAIL D06.|Deletion flow, retention, отзыв сессий.|
+|Review access/работоспособность|Рабочий вход и основные пути. [Review Guidelines2.1](https://developer.apple.com/app-store/review/guidelines/)|FAIL D02; reviewer доступ BLOCKED.|Исправить заказы, стабильные customer/plumber credentials, инструкции без ожидания ручного approve.|
+|Отзывы клиентов|UGC moderation/reporting/blocking по применимости. [Review Guidelines1.2](https://developer.apple.com/app-store/review/guidelines/)|NOT TESTED: backend moderation есть; путь жалобы/блокировки неизвестен.|Согласовать модерацию и поддержку.|
+|Метаданные|Актуальная возрастная анкета, screenshots, support. [Upcoming requirements](https://developer.apple.com/news/upcoming-requirements/)|BLOCKED: консоль недоступна; новые вопросы рейтинга действуют с31.01.2026.|Анкета, review notes, support URL и screenshots release. Галерея web аудита не store screenshots.|
+|ATT/social login|ATT при tracking; Apple login при стороннем primary login по применимости. [Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)|По CODE REVIEW ads/tracking SDK и social primary login не найдены; Telegram связывает уведомления. Runtime disclosures BLOCKED.|Не добавлять ATT/Apple login автоматически; подтвердить отсутствие tracking в release.|
+|Физические товары и резерв без оплаты|IAP не нужен автоматически. [Review Guidelines3.1.3(e)](https://developer.apple.com/app-store/review/guidelines/)|N/A для IAP текущей модели.|При изменении модели пересмотреть правила.|
+
+Договоры, production access и signing не подтверждены — BLOCKED, а не доказательство их отсутствия. Production GET health200 относится к неизвестной deployed версии; его структура отличается от нового app-server. Без release SHA нельзя считать новый backend развёрнутым.

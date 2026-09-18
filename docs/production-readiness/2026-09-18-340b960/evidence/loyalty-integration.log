@@ -1,0 +1,5 @@
+
+> avantehnik-mobile-app@1.0.0 check:loyalty
+> tsx scripts/check-loyalty.ts
+
+Loyalty integration check passed: 29 assertions across auth, QR, ledger, returns, levels, rewards, leads, reviews, authorization and Telegram retry safety.

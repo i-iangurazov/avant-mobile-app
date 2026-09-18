@@ -1,13 +1,14 @@
 import { Platform } from "react-native";
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
+const productionApiUrl = "https://api-production-2e6d.up.railway.app";
 
 export const appName = process.env.EXPO_PUBLIC_APP_NAME || "Авантехник";
 
-export const bazaarProxyBaseUrl = trimTrailingSlash(
+export const apiBaseUrl = trimTrailingSlash(
   (Platform.OS === "web"
-    ? process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL
-    : process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL) || ""
+    ? process.env.EXPO_PUBLIC_API_URL_WEB || process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL
+    : process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL) || productionApiUrl
 );
 
 export const whatsAppBusinessPhone =
@@ -25,4 +26,4 @@ export const imageSearchEndpoint = trimTrailingSlash(process.env.EXPO_PUBLIC_IMA
 
 export const debugApiErrors = process.env.EXPO_PUBLIC_DEBUG_API_ERRORS === "true";
 
-export const hasBazaarApiConfig = Boolean(bazaarProxyBaseUrl);
+export const hasApiConfig = Boolean(apiBaseUrl);

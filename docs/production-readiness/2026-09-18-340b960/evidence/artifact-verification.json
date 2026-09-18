@@ -1,0 +1,7 @@
+{
+  "criterion_count": 147,
+  "defect_count": 17,
+  "missing_local_links": [],
+  "secret_value_matches": [],
+  "scope": "report artifacts only; compared local private env secret values without displaying"
+}

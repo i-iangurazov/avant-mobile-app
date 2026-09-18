@@ -12,8 +12,9 @@ import { useProfile } from "../../../src/hooks/useProfile";
 import { friendlyError } from "../../../src/lib/formatters";
 import { openWhatsApp } from "../../../src/lib/whatsapp";
 
-const actions = [
+const baseActions = [
   { title: "Редактировать профиль", icon: "create-outline", route: "/profile/edit" },
+  { title: "Telegram-уведомления", icon: "paper-plane-outline", route: "/profile/telegram" },
   { title: "Поддержка", icon: "chatbubble-ellipses-outline" },
   { title: "О приложении", icon: "information-circle-outline", route: "/profile/about" }
 ];
@@ -31,7 +32,7 @@ export default function ProfileScreen() {
     }
   };
 
-  const onAction = (action: (typeof actions)[number]) => {
+  const onAction = (action: (typeof baseActions)[number]) => {
     if (action.route) {
       router.push(action.route as never);
       return;
@@ -109,8 +110,14 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        <Pressable accessibilityRole="button" onPress={() => router.push(user.plumber?.applicationStatus === "approved" ? "/plumber-home" : "/plumber/apply")} style={styles.programCard}><View style={styles.programIcon}><Ionicons name={user.plumber?.applicationStatus === "approved" ? "shield-checkmark" : "construct-outline"} size={26} color={colors.surface} /></View><View style={styles.userInfo}><Text style={styles.programTitle}>{user.plumber?.applicationStatus === "approved" ? "Кабинет сантехника" : user.plumber ? "Анкета сантехника" : "Стать сантехником"}</Text><Text style={styles.programText}>{user.plumber?.applicationStatus === "approved" ? `${user.plumber.loyaltyCode} · бонусы, QR и заявки` : user.plumber ? `Статус: ${user.plumber.applicationStatus}` : "Один аккаунт для покупок и программы лояльности"}</Text></View><Ionicons name="chevron-forward" size={20} color={colors.surface} /></Pressable>
+
+        {user.plumber?.applicationStatus === "approved" ? <View style={styles.actions}>{[{ title: "История бонусов", icon: "receipt-outline", route: "/plumber/history" }, { title: "Награды", icon: "gift-outline", route: "/plumber/rewards" }, { title: "Акции и обучение", icon: "school-outline", route: "/plumber/content" }, { title: "Отзывы клиентов", icon: "star-outline", route: "/plumber/reviews" }].map((action) => <Pressable key={action.title} accessibilityRole="button" onPress={() => router.push(action.route as never)} style={({ pressed }) => [styles.action, pressed && styles.pressed]}><View style={styles.actionIcon}><Ionicons name={action.icon as never} size={20} color={colors.secondary} /></View><Text style={styles.actionText}>{action.title}</Text><Ionicons name="chevron-forward" size={18} color={colors.textSubtle} /></Pressable>)}</View> : null}
+
+        {user.isAdmin ? <Pressable accessibilityRole="button" onPress={() => router.push("/admin")} style={styles.adminCard}><Ionicons name="settings-outline" size={24} color={colors.primary} /><View style={styles.userInfo}><Text style={styles.adminTitle}>Управление программой</Text><Text style={styles.adminText}>Анкеты, чеки, заявки и настройки</Text></View><Ionicons name="chevron-forward" size={19} color={colors.primary} /></Pressable> : null}
+
         <View style={styles.actions}>
-          {actions.map((action) => (
+          {baseActions.map((action) => (
             <Pressable
               key={action.title}
               accessibilityRole="button"
@@ -200,6 +207,13 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     ...shadows.card
   },
+  programCard: { marginHorizontal: spacing.lg, marginBottom: spacing.lg, backgroundColor: colors.secondary, borderRadius: radius.xl, padding: spacing.lg, flexDirection: "row", alignItems: "center", gap: spacing.md, ...shadows.card },
+  programIcon: { width: 52, height: 52, borderRadius: radius.lg, backgroundColor: "rgba(255,255,255,.16)", alignItems: "center", justifyContent: "center" },
+  programTitle: { color: colors.surface, fontSize: typography.subheading, fontWeight: "900" },
+  programText: { color: "#D8EBFF", fontSize: typography.tiny, lineHeight: 16, marginTop: 3 },
+  adminCard: { marginHorizontal: spacing.lg, marginBottom: spacing.lg, backgroundColor: colors.primarySoft, borderWidth: 1, borderColor: "#FFD0C5", borderRadius: radius.xl, padding: spacing.lg, flexDirection: "row", alignItems: "center", gap: spacing.md },
+  adminTitle: { color: colors.primary, fontSize: typography.body, fontWeight: "900" },
+  adminText: { color: colors.textMuted, fontSize: typography.tiny, marginTop: 3 },
   action: {
     minHeight: 58,
     paddingHorizontal: spacing.lg,

@@ -1,0 +1,247 @@
+[
+  {
+    "name": "extra-cart-real-add",
+    "role": "customer",
+    "path": "/cart",
+    "state": "added from catalog",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-cart-real-add.png",
+    "bottoms": [],
+    "body": "Корзина\nТовары: 1\n\nAQ-7705 Aquatec\n\nЦена уточняется\n\n\nТовары: 1\nДоставка: уточняется\nИтого\nуточняется менеджером\nОформить заказ\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-cart-restored",
+    "role": "customer",
+    "path": "/cart",
+    "state": "reload",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-cart-restored.png",
+    "bottoms": [],
+    "body": "Корзина\nТовары: 1\n\nAQ-7705 Aquatec\n\nЦена уточняется\n\n\nТовары: 1\nДоставка: уточняется\nИтого\nуточняется менеджером\nОформить заказ\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-checkout-with-cart",
+    "role": "customer",
+    "path": "/checkout",
+    "state": "default",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-checkout-with-cart.png",
+    "bottoms": [
+      "extra-checkout-with-cart-bottom.png"
+    ],
+    "body": "\nОформление заказа\nМенеджер подтвердит наличие и цену\nИмя\nТелефон\nСпособ получения\nСамовывоз\nДоставка\nМагазин для самовывоза\nАвантехник Ортосай\nБезымянная улица, 20/4, 6 ряд, 46С контейнер, Бишкек\nАвантехник Мега Комфорт\nУлица Ибраимова, 66, 3 ряд, 73, 76 бутик, Бишкек\nАвантехник Баткен базар\nУлица Льва Толстого, 19, 1 этаж, 46-48 контейнер, Бишкек\nАвантехник Табылга\nТабылга, проспект Жибек-Жолу, 150, 1 этаж, Б16, Б17 бутик, Бишкек\nАвантехник Курулуш Гранд\nУлица Орозбекова, 354, 1 этаж, Бишкек\nАвантехник Дордой\nУлица Евразия, 4, 7 контейнер, Бишкек\nКомментарий\nПодтвердить заказ",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 779,
+        "total": 986
+      }
+    ]
+  },
+  {
+    "name": "extra-checkout-submit",
+    "role": "customer",
+    "path": "/orders/local-1789716111577",
+    "state": "post submit",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-checkout-submit.png",
+    "bottoms": [],
+    "body": "\nОшибка загрузки\nЗаказ не найден.\nПовторить",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-find-plumber-form",
+    "role": "customer",
+    "path": "/find-plumber",
+    "state": "form",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-find-plumber-form.png",
+    "bottoms": [
+      "extra-find-plumber-form-bottom.png"
+    ],
+    "body": "\nНайти сантехника\nТолько проверенные мастера\n\nБезопасный подбор\nСначала заявку видит администратор. Телефон и точный адрес откроются только назначенному мастеру после принятия.\nСкрыть форму\nНовая заявка\nВид работ\nМонтаж сантехники\nОтопление\nВодоснабжение\nКанализация\nРемонт\nКонсультация\nЧто нужно сделать\nРайон\nТочный адрес (необязательно)\nЖелаемые дата и время (необязательно)\nТелефон\nHTTPS-ссылка на фото (необязательно)\n\nСогласен передать описание, район и после принятия — контакт назначенному сантехнику.\nОтправить заявку\nМои заявки\n\nЗаявок пока нет",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 779,
+        "total": 1325
+      }
+    ]
+  },
+  {
+    "name": "extra-register-plumber",
+    "role": "guest",
+    "path": "/register",
+    "state": "plumber form",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-register-plumber.png",
+    "bottoms": [],
+    "body": "\nСоздать аккаунт\nОдин аккаунт для покупок и программы мастеров\nТип аккаунта\n\nПокупатель\nКаталог, корзина и заказы\n\nСантехник\nБонусы, QR и заявки клиентов\nИмя и фамилия\nТелефон\nАдрес\nПароль\nПовторите пароль\nСоздать аккаунт\nУже есть аккаунт?\nВойти",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-plumber-home",
+    "role": "plumber",
+    "path": "/plumber-home",
+    "state": "populated loyalty fixtures",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-plumber-home.png",
+    "bottoms": [
+      "extra-plumber-home-bottom.png"
+    ],
+    "body": "РАБОЧИЙ КАБИНЕТ\nAudit plumber\n\nПодтверждён\n\nДоступно\n4 бонусов\nПрофи\n\nОжидает: 1,01 бонусов\n502 сом за 90 дней\nДо «Эксперт»: 99 498 сом\n\nНаличие\n\nМой QR\n\nНаграды\n\nЗаявки\n\n0\nАктивные резервы\n\n0\nНовые заявки\n\n—\n0 отзывов\nПоследние покупки\nВся история\n\nЧек №Audit-1\nМагазин Авантехник · 18.09.2026\n1 000 сом\n\nЧек №Audit-1\nМагазин Авантехник · 18.09.2026\n0 сом\n\nЧек №Audit-1\nМагазин Авантехник · 18.09.2026\n0,01 сом\n\nЧек №Audit-1\nМагазин Авантехник · 18.09.2026\n0,99 сом\n\nЧек №Audit-1\nМагазин Авантехник · 18.09.2026\n1 сом\nАкции для мастеров\nВсе материалы\n×3\nAudit x3\nдо 19.09.2026\n\nГлавная\n\nНаличие\n\nРезервы\n\nЗаявки\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 1237
+      }
+    ]
+  },
+  {
+    "name": "extra-plumber-history",
+    "role": "plumber",
+    "path": "/plumber/history",
+    "state": "populated loyalty fixtures",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-plumber-history.png",
+    "bottoms": [],
+    "body": "\nИстория бонусов\nВсе операции можно проверить\nВсе\nОжидает\nНачислено\nИспользовано\nВозвраты\n\nНачисление по чеку №Audit-1\nЧек №Audit-1 · 18.09.2026\nСтанет доступно 02.10.2026\n1 бонусов\nОжидает",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-plumber-rewards",
+    "role": "plumber",
+    "path": "/plumber/rewards",
+    "state": "populated loyalty fixtures",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-plumber-rewards.png",
+    "bottoms": [],
+    "body": "\nНаграды\nДоступно: 4 бонусов\n\nТестовая награда\nТестовые данные аудита\n3 бонусов\nОбменять бонусы",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-history-returns",
+    "role": "plumber",
+    "path": "/plumber/history",
+    "state": "returns filter",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-history-returns.png",
+    "bottoms": [],
+    "body": "\nИстория бонусов\nВсе операции можно проверить\nВсе\nОжидает\nНачислено\nИспользовано\nВозвраты\nЗагружаем операции...",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-reward-action",
+    "role": "plumber",
+    "path": "/plumber/rewards",
+    "state": "attempted reward action",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-reward-action.png",
+    "bottoms": [],
+    "body": "\nНаграды\nДоступно: 4 бонусов\n\nТестовая награда\nТестовые данные аудита\n3 бонусов\nОбменять бонусы",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-map-second-store",
+    "role": "guest",
+    "path": "/maps",
+    "state": "second store",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-map-second-store.png",
+    "bottoms": [
+      "extra-map-second-store-bottom.png"
+    ],
+    "body": "Магазины\nТочки продаж и самовывоза в Бишкеке\nОртосай\nМега Комфорт\nБаткен базар\nТабылга\nКурулуш Гранд\nДордой\n\nАвантехник Мега Комфорт\n\nТочка продаж\n\nАвантехник Ортосай\nБезымянная улица, 20/4, 6 ряд, 46С контейнер, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nАвантехник Мега Комфорт\nУлица Ибраимова, 66, 3 ряд, 73, 76 бутик, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nАвантехник Баткен базар\nУлица Льва Толстого, 19, 1 этаж, 46-48 контейнер, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nАвантехник Табылга\nТабылга, проспект Жибек-Жолу, 150, 1 этаж, Б16, Б17 бутик, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nАвантехник Курулуш Гранд\nУлица Орозбекова, 354, 1 этаж, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nАвантехник Дордой\nУлица Евразия, 4, 7 контейнер, Бишкек\n9:00 - 18:00\n+996500991966\n\nОткрыть в 2GIS\n\nПозвонить\n\nНаписать в WhatsApp\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 2146
+      }
+    ]
+  },
+  {
+    "name": "extra-catalog-network-error",
+    "role": "guest",
+    "path": "/catalog",
+    "state": "blocked local API",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-catalog-network-error.png",
+    "bottoms": [
+      "extra-catalog-network-error-bottom.png"
+    ],
+    "body": "Каталог\n\nБишкек\n\nВсё для ванной, отопления и ремонта\nСантехника, трубы, фитинги, фильтры и инструменты для ремонта\nВсе товары\nКатегории\n\nОшибка загрузки\nНет соединения. Проверьте интернет.\nПовторить\nВсе товары\nОткрыть\n\n\nОшибка загрузки\nНет соединения. Проверьте интернет.\nПовторить\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": [
+      {
+        "height": 844,
+        "total": 955
+      }
+    ]
+  },
+  {
+    "name": "extra-catalog-retry",
+    "role": "guest",
+    "path": "/catalog",
+    "state": "retry",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-catalog-retry.png",
+    "bottoms": [],
+    "body": "Каталог\n\nБишкек\n\nВсё для ванной, отопления и ремонта\nСантехника, трубы, фитинги, фильтры и инструменты для ремонта\nВсе товары\nВсе товары\n50 товаров\n\n\nОшибка загрузки\nНет соединения. Проверьте интернет.\nПовторить\n\nКаталог\n\nКорзина\n\nКарты\n\nЗаказы\n\nПрофиль",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  },
+  {
+    "name": "extra-login-dark-system",
+    "role": "guest",
+    "path": "/login",
+    "state": "system dark (web only)",
+    "platform": "WEB EXPORT + LOCAL API + MOCK catalog/Telegram",
+    "viewport": "390x844",
+    "screenshot": "extra-login-dark-system.png",
+    "bottoms": [],
+    "body": "\nВход в аккаунт\nВведите телефон и пароль\nТелефон\nПароль\nЗабыли пароль?\nВойти\nНет аккаунта?\nЗарегистрироваться",
+    "fonts": true,
+    "errors": [],
+    "scroll": []
+  }
+]

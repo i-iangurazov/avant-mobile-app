@@ -1,6 +1,6 @@
 import type * as ImagePicker from "expo-image-picker";
 import type { Product } from "../../types";
-import { bazaarProxyBaseUrl, imageSearchEnabled, imageSearchEndpoint } from "../config/env";
+import { apiBaseUrl, imageSearchEnabled, imageSearchEndpoint } from "../config/env";
 import { normalizeApiError } from "../errors/normalizeApiError";
 import { adaptProducts } from "../bazaar/adapters";
 
@@ -17,7 +17,7 @@ export async function requestImageSearch(asset: ImagePicker.ImagePickerAsset): P
     };
   }
 
-  const endpoint = imageSearchEndpoint || (bazaarProxyBaseUrl ? `${bazaarProxyBaseUrl}/image-search` : "");
+  const endpoint = imageSearchEndpoint || (apiBaseUrl ? `${apiBaseUrl}/image-search` : "");
 
   if (!endpoint) {
     return {

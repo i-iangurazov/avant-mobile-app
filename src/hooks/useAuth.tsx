@@ -11,29 +11,25 @@ import {
   useState
 } from "react";
 import { Platform } from "react-native";
-import { loginCustomer, registerCustomer } from "../lib/bazaar/client";
-import type { BazaarCustomer, BazaarCustomerSession } from "../lib/bazaar/types";
+import { getCustomerProfile, loginCustomer, registerCustomer } from "../lib/api/account";
+import type { AppCustomer, AppCustomerSession, RegisterCustomerPayload } from "../lib/api/types";
 import { friendlyError, normalizePhone } from "../lib/formatters";
 
-type SignUpPayload = {
-  name: string;
-  phone: string;
-  address: string;
-  password: string;
-};
+type SignUpPayload = RegisterCustomerPayload;
 
 type AuthContextValue = {
-  session: BazaarCustomerSession | null;
-  user: BazaarCustomer | null;
+  session: AppCustomerSession | null;
+  user: AppCustomer | null;
   isLoading: boolean;
-  signIn: (phone: string, password: string) => Promise<void>;
+  signIn: (phone: string, password: string) => Promise<AppCustomer>;
   signUp: (payload: SignUpPayload) => Promise<{ needsLogin: boolean }>;
-  updateSessionUser: (user: BazaarCustomer) => Promise<void>;
+  updateSessionUser: (user: AppCustomer) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const AUTH_STORAGE_KEY = "avantehnik.bazaar-session.v1";
+const AUTH_STORAGE_KEY = "avantehnik.app-session.v1";
+const LEGACY_AUTH_STORAGE_KEY = "avantehnik.bazaar-session.v1";
 
 const storage = {
   async getItem(key: string) {
@@ -58,13 +54,13 @@ const storage = {
   }
 };
 
-const parseSession = (value: string | null): BazaarCustomerSession | null => {
+const parseSession = (value: string | null): AppCustomerSession | null => {
   if (!value) {
     return null;
   }
 
   try {
-    const parsed = JSON.parse(value) as BazaarCustomerSession;
+    const parsed = JSON.parse(value) as AppCustomerSession;
     return parsed?.user?.id ? parsed : null;
   } catch {
     return null;
@@ -73,17 +69,32 @@ const parseSession = (value: string | null): BazaarCustomerSession | null => {
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
-  const [session, setSession] = useState<BazaarCustomerSession | null>(null);
+  const [session, setSession] = useState<AppCustomerSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    storage
-      .getItem(AUTH_STORAGE_KEY)
-      .then((storedSession) => {
+    Promise.all([storage.getItem(AUTH_STORAGE_KEY), storage.getItem(LEGACY_AUTH_STORAGE_KEY)])
+      .then(async ([storedSession, legacySession]) => {
+        const sessionToRestore = storedSession || legacySession;
+        const restored = parseSession(sessionToRestore);
         if (mounted) {
-          setSession(parseSession(storedSession));
+          setSession(restored);
+        }
+        if (!storedSession && legacySession) {
+          await storage.setItem(AUTH_STORAGE_KEY, legacySession);
+          await storage.removeItem(LEGACY_AUTH_STORAGE_KEY);
+        }
+        if (restored?.accessToken) {
+          try {
+            const refreshedUser = await getCustomerProfile(restored);
+            const refreshed = { ...restored, user: refreshedUser };
+            if (mounted) setSession(refreshed);
+            await storage.setItem(AUTH_STORAGE_KEY, JSON.stringify(refreshed));
+          } catch {
+            // Keep the cached session for offline startup; authenticated requests still enforce server access.
+          }
         }
       })
       .finally(() => {
@@ -97,7 +108,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  const persistSession = useCallback(async (nextSession: BazaarCustomerSession | null) => {
+  const persistSession = useCallback(async (nextSession: AppCustomerSession | null) => {
     setSession(nextSession);
 
     if (nextSession) {
@@ -105,6 +116,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     } else {
       await storage.removeItem(AUTH_STORAGE_KEY);
     }
+    await storage.removeItem(LEGACY_AUTH_STORAGE_KEY);
   }, []);
 
   const signIn = useCallback(
@@ -116,6 +128,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         });
         await persistSession(nextSession);
         void queryClient.invalidateQueries();
+        return nextSession.user;
       } catch (error) {
         throw new Error(friendlyError(error instanceof Error ? error.message : undefined));
       }
@@ -124,13 +137,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signUp = useCallback(
-    async ({ name, phone, address, password }: SignUpPayload) => {
+    async ({ name, phone, address, password, accountType, plumberApplication }: SignUpPayload) => {
       try {
         const nextSession = await registerCustomer({
           name,
           phone: normalizePhone(phone),
           address,
-          password
+          password,
+          accountType,
+          plumberApplication
         });
         await persistSession(nextSession);
         void queryClient.invalidateQueries();
@@ -143,7 +158,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const updateSessionUser = useCallback(
-    async (user: BazaarCustomer) => {
+    async (user: AppCustomer) => {
       if (!session) {
         return;
       }

@@ -1,0 +1,319 @@
+{
+  "auditReportVersion": 2,
+  "vulnerabilities": {
+    "@expo/cli": {
+      "name": "@expo/cli",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@expo/metro",
+        "@expo/metro-config"
+      ],
+      "effects": [
+        "expo"
+      ],
+      "range": "0.25.0-canary-20250612-338ef55 - 55.0.24 || 56.0.0-canary-20260128-67ce8d5 - 56.0.0-canary-20260506-964f25d",
+      "nodes": [
+        "node_modules/expo/node_modules/@expo/cli"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/metro": {
+      "name": "@expo/metro",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "metro",
+        "metro-config",
+        "metro-transform-worker"
+      ],
+      "effects": [
+        "@expo/cli",
+        "@expo/metro-config",
+        "expo"
+      ],
+      "range": "<=55.1.1 || 56.0.0-rc.0 - 56.0.1",
+      "nodes": [
+        "node_modules/@expo/metro"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "@expo/metro-config": {
+      "name": "@expo/metro-config",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "@expo/metro"
+      ],
+      "effects": [
+        "@expo/cli"
+      ],
+      "range": "0.21.0-canary-20250630-547cd82 - 55.0.16 || 56.0.0-canary-20260212-4f61309 - 56.0.0-canary-20260506-964f25d",
+      "nodes": [
+        "node_modules/@expo/metro-config"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "@react-navigation/core": {
+      "name": "@react-navigation/core",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "query-string"
+      ],
+      "effects": [],
+      "range": "<=7.22.0 || 8.0.0-alpha.0 - 8.0.0-alpha.9",
+      "nodes": [
+        "node_modules/@react-navigation/core"
+      ],
+      "fixAvailable": true
+    },
+    "decode-uri-component": {
+      "name": "decode-uri-component",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1147955,
+          "name": "decode-uri-component",
+          "dependency": "decode-uri-component",
+          "title": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
+          "url": "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr",
+          "severity": "moderate",
+          "cwe": [
+            "CWE-400",
+            "CWE-405",
+            "CWE-407",
+            "CWE-1176"
+          ],
+          "cvss": {
+            "score": 0,
+            "vectorString": null
+          },
+          "range": "<=0.4.2"
+        }
+      ],
+      "effects": [
+        "query-string"
+      ],
+      "range": "<=0.4.2",
+      "nodes": [
+        "node_modules/decode-uri-component"
+      ],
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "5.1.11",
+        "isSemVerMajor": true
+      }
+    },
+    "expo": {
+      "name": "expo",
+      "severity": "high",
+      "isDirect": true,
+      "via": [
+        "@expo/cli",
+        "@expo/metro",
+        "@expo/metro-config"
+      ],
+      "effects": [],
+      "range": "52.0.0-canary-20240625-2333e70 - 52.0.0-canary-20241018-f71b3e0 || 54.0.0-canary-20250611-f0afe80 - 55.0.15 || 56.0.0-canary-20260212-4f61309 - 56.0.0-preview.13",
+      "nodes": [
+        "node_modules/expo"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "expo-router": {
+      "name": "expo-router",
+      "severity": "moderate",
+      "isDirect": true,
+      "via": [
+        "query-string"
+      ],
+      "effects": [],
+      "range": "1.2.2 - 3.1.2 || >=5.2.0-canary-20250611-f0afe80",
+      "nodes": [
+        "node_modules/expo-router",
+        "node_modules/expo/node_modules/expo-router"
+      ],
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "5.1.11",
+        "isSemVerMajor": true
+      }
+    },
+    "image-size": {
+      "name": "image-size",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        {
+          "source": 1138808,
+          "name": "image-size",
+          "dependency": "image-size",
+          "title": "image-size: ICNS parser allows denial of service through an infinite loop",
+          "url": "https://github.com/advisories/GHSA-w3rx-r6r6-pgpr",
+          "severity": "high",
+          "cwe": [
+            "CWE-835"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=2.0.2"
+        },
+        {
+          "source": 1138809,
+          "name": "image-size",
+          "dependency": "image-size",
+          "title": "image-size: JXL and HEIF parsers allow denial of service through infinite loops",
+          "url": "https://github.com/advisories/GHSA-5p2g-fcmc-qvqq",
+          "severity": "high",
+          "cwe": [
+            "CWE-835"
+          ],
+          "cvss": {
+            "score": 7.5,
+            "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+          },
+          "range": "<=2.0.2"
+        }
+      ],
+      "effects": [
+        "metro"
+      ],
+      "range": "<=2.0.2",
+      "nodes": [
+        "node_modules/image-size"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "metro": {
+      "name": "metro",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "image-size",
+        "metro-config",
+        "metro-transform-worker"
+      ],
+      "effects": [
+        "@expo/metro",
+        "metro-config",
+        "metro-transform-worker"
+      ],
+      "range": "0.22.1 - 0.83.7 || 0.84.0 - 0.84.4 || 0.85.0 - 0.87.0",
+      "nodes": [
+        "node_modules/@react-native/metro-config/node_modules/metro",
+        "node_modules/metro"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "metro-config": {
+      "name": "metro-config",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "metro"
+      ],
+      "effects": [
+        "metro"
+      ],
+      "range": "<=0.83.7 || 0.84.0 - 0.84.4 || 0.85.0 - 0.87.0",
+      "nodes": [
+        "node_modules/@react-native/metro-config/node_modules/metro-config",
+        "node_modules/metro-config"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "metro-transform-worker": {
+      "name": "metro-transform-worker",
+      "severity": "high",
+      "isDirect": false,
+      "via": [
+        "metro"
+      ],
+      "effects": [
+        "@expo/metro",
+        "metro"
+      ],
+      "range": "0.60.0 - 0.83.7 || 0.84.0 - 0.84.4 || 0.85.0 - 0.87.0",
+      "nodes": [
+        "node_modules/@react-native/metro-config/node_modules/metro-transform-worker",
+        "node_modules/metro-transform-worker"
+      ],
+      "fixAvailable": {
+        "name": "expo",
+        "version": "57.0.23",
+        "isSemVerMajor": true
+      }
+    },
+    "query-string": {
+      "name": "query-string",
+      "severity": "moderate",
+      "isDirect": false,
+      "via": [
+        "decode-uri-component"
+      ],
+      "effects": [
+        "@react-navigation/core",
+        "expo-router"
+      ],
+      "range": "5.0.0 - 9.4.1",
+      "nodes": [
+        "node_modules/query-string"
+      ],
+      "fixAvailable": {
+        "name": "expo-router",
+        "version": "5.1.11",
+        "isSemVerMajor": true
+      }
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 4,
+      "high": 8,
+      "critical": 0,
+      "total": 12
+    },
+    "dependencies": {
+      "prod": 763,
+      "dev": 234,
+      "optional": 135,
+      "peer": 69,
+      "peerOptional": 0,
+      "total": 1104
+    }
+  }
+}

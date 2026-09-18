@@ -16,7 +16,8 @@ export default function SplashScreen() {
       return;
     }
     didNavigate.current = true;
-    router.replace(session ? "/catalog" : "/welcome");
+    const approvedPlumber = session?.user.plumber?.applicationStatus === "approved";
+    router.replace(session ? (approvedPlumber ? "/plumber-home" : "/catalog") : "/welcome");
   }, [isLoading, session]);
 
   return (

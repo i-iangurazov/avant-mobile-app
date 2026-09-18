@@ -1,171 +1,145 @@
 # Авантехник Mobile
 
-Expo React Native app for the Авантехник mobile commerce experience in Bishkek. UI language is Russian. Catalog, products, checkout, and orders are wired through the Bazaar API layer in `src/lib/bazaar`.
+Expo React Native commerce app for Авантехник in Bishkek. The interface is in Russian.
 
-## Install
+## Runtime architecture
+
+- Customer registration, login, profiles, orders, order items, and order status history are stored in the app Postgres database.
+- A new order is sent to the configured Telegram admin group with inline status buttons.
+- Telegram status changes are authenticated by Telegram's webhook secret, restricted to the configured chat, persisted to Postgres, and shown in the app on its next automatic refresh.
+- Orders are not read from or written to Bazaar. The server does not expose any Bazaar order route.
+- The product/category catalog is still read-only from the existing Bazaar catalog API. The proxy rejects every non-GET catalog request. A separate catalog source is required before the app can have zero Bazaar runtime dependency.
+- The cart remains local to the device until checkout.
+
+Supported order flow:
+
+`Заказ создан → Подтверждён → Собирается → Готов к выдаче / В пути → Завершён`
+
+An administrator can cancel a non-terminal order from Telegram. Every change produces an audit event.
+
+## Install and run
 
 ```bash
 npm install
 cp .env.example .env
-```
-
-Fill `.env` with real local values. Never commit a real Bazaar token.
-
-## Run
-
-```bash
-npm run start
-npm run ios
-npm run android
-```
-
-For Expo Web:
-
-```bash
-npm run start -- --web
-```
-
-## Local Bazaar Proxy
-
-For local testing without exposing `BAZAAR_API_TOKEN` in the Expo bundle:
-
-```bash
 npm run dev:all
 ```
 
-This starts Docker Postgres, the Bazaar/app proxy, and Expo together. It also passes the proxy URLs to Expo automatically. If you already use another database, set `SKIP_DB_START=1` and point `DATABASE_URL` at that database.
-
-For Expo Web with the local proxy:
+`dev:all` starts the project Postgres container, the Avantehnik app server, and Expo. For a database that is already running:
 
 ```bash
-npm run dev:all -- --web
+SKIP_DB_START=1 npm run dev:all
 ```
 
 Manual mode:
 
 ```bash
 npm run db:up
-npm run dev:proxy
+npm run dev:server
 npm run start
 ```
 
-Then set the mobile app to the proxy URL:
+Expo Go needs the computer's LAN address, while Expo Web can use loopback:
 
 ```bash
-EXPO_PUBLIC_BAZAAR_PROXY_URL=http://YOUR_COMPUTER_LAN_IP:8787
-EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB=http://127.0.0.1:8787
+EXPO_PUBLIC_API_URL=http://YOUR_COMPUTER_LAN_IP:8787
+EXPO_PUBLIC_API_URL_WEB=http://127.0.0.1:8787
 ```
 
-Use your Mac LAN IP for Expo Go on a phone, for example `http://192.168.x.x:8787`. Use `http://127.0.0.1:8787` for Expo Web on the same Mac. The phone and Mac must be on the same Wi-Fi. For production, use the deployed HTTPS proxy.
-
-Current Railway production proxy:
-
-```bash
-EXPO_PUBLIC_BAZAAR_PROXY_URL=https://api-production-2e6d.up.railway.app
-```
+The app temporarily accepts the old `EXPO_PUBLIC_BAZAAR_PROXY_URL` variable so already-configured builds can migrate safely. New environments should use `EXPO_PUBLIC_API_URL`.
 
 ## Environment
 
 Public mobile values:
 
 - `EXPO_PUBLIC_APP_NAME`
+- `EXPO_PUBLIC_API_URL`
+- `EXPO_PUBLIC_API_URL_WEB` for local web development
 - `EXPO_PUBLIC_WHATSAPP_BUSINESS_PHONE`
-- `NEXT_PUBLIC_WHATSAPP_BUSINESS_PHONE` as an optional alias
 - `EXPO_PUBLIC_2GIS_SEARCH_URL`
-- `EXPO_PUBLIC_BAZAAR_PROXY_URL` - public URL of your secure Bazaar proxy
-- `EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB` - optional local browser override
+- optional image-search settings
 
-Server-side/check values:
+Server-only values:
 
-- `BAZAAR_API_BASE_URL`
-- `BAZAAR_API_TOKEN`
 - `DATABASE_URL`
 - `AUTH_TOKEN_SECRET`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+- `TELEGRAM_BOT_USERNAME` for the one-tap secure Telegram linking flow
+- `ADMIN_PHONE_NUMBERS` for initial protected pilot administrators
+- `TELEGRAM_WEBHOOK_URL` when not hosted on Railway
+- optional `TELEGRAM_WEBHOOK_SECRET`
+- `BAZAAR_API_BASE_URL` and `BAZAAR_API_TOKEN` only for the current read-only catalog
 
-Expo only guarantees `EXPO_PUBLIC_*` variables inside the mobile bundle. Direct mobile calls to Bazaar with a private `BAZAAR_API_TOKEN` are not a secure production architecture because any token available to the app can be extracted from the bundle. Set `EXPO_PUBLIC_BAZAAR_PROXY_URL` to a secure proxy that stores `BAZAAR_API_TOKEN` server-side.
+Never expose database, Telegram, auth, or catalog secrets with an `EXPO_PUBLIC_` prefix. Local `.env` files are gitignored. The same server-only values must be configured in Railway; adding them only to a local `.env` does not configure production.
 
-Customer login, registration, and profile are handled by the Avantehnik app backend using Postgres. The mobile app never connects to Postgres directly.
+On Railway, the server derives the webhook URL from `RAILWAY_PUBLIC_DOMAIN` and registers it at startup. Other hosts must provide the full HTTPS URL ending in `/telegram/webhook`.
 
-## Bazaar API Layer
-
-Central files:
-
-- `src/lib/bazaar/client.ts`
-- `src/lib/bazaar/endpoints.ts`
-- `src/lib/bazaar/adapters.ts`
-- `src/lib/bazaar/types.ts`
-- `src/lib/errors/normalizeApiError.ts`
-
-Current endpoint assumptions:
-
-- Products: `GET /products`
-- Product detail: `GET /products?id=:id`
-- Categories: `GET /categories`; if Bazaar returns 404, the app builds storefront categories from real Bazaar `/products?search=...` results and uses live `total` counts
-- Login: `POST /auth/login`, app backend/Postgres
-- Registration: `POST /auth/register`, app backend/Postgres
-- Profile: `GET/PATCH /profile`, app backend/Postgres
-- Orders: `GET/POST /orders`, Bazaar API. Order creation uses the official `POST /orders` schema:
-  - `externalId`
-  - `customerName`
-  - `customerPhone`
-  - `customerAddress`
-  - `comment`
-  - `lines[].productId`
-  - `lines[].qty`
-
-If an order endpoint is not found, the app reports that explicitly instead of faking success.
-
-## 2GIS
-
-`src/components/maps/TwoGisMap.tsx` embeds the 2GIS firmsonmap widget with `react-native-webview`. If WebView fails, the map card shows retry and “Открыть в 2GIS”. Store cards use the six real Bishkek addresses in `src/data/stores.ts`.
-
-## What Is Local
-
-- Cart is persisted locally with AsyncStorage as a temporary basket.
-- Photo search currently accepts camera/gallery input and offers WhatsApp support. Automatic visual matching is disabled unless `EXPO_PUBLIC_IMAGE_SEARCH_ENABLED=true` and a real `EXPO_PUBLIC_IMAGE_SEARCH_URL` recognition endpoint is configured.
-- Store addresses are static business data.
-
-No production catalog, product, or order screen uses local JSON fixtures as a data source.
-
-Real Taobao/Pinduoduo-style image search still requires:
-
-- real product photos in the catalog
-- an image-recognition/vector-search backend endpoint
-- product-image embeddings or a commercial vision API
-- server-side API keys and storage for uploaded images
-- a response that returns matching Bazaar product IDs
-
-## Checks
+## Production checks
 
 ```bash
 npm run typecheck
 npm run lint
-npm run check:bazaar
 npm run check:db
-npm run smoke
+npm run check:orders
+npm run check:loyalty
+npm run check:telegram
+npm run check:catalog
 ```
 
-`check:bazaar` reads `.env`, prints only sanitized status, and does not create orders. `check:db` verifies the app customer database and creates the schema if needed.
+- `check:db` applies the idempotent schema and verifies account, order, plumber, loyalty, lead, and notification tables.
+- `check:orders` creates and removes isolated QA records, mocks Telegram delivery, and verifies ownership, totals, buttons, transitions, and audit history.
+- `check:loyalty` runs only against localhost and validates registration/application statuses, secure QR identifiers, receipt/return idempotency, integer bonus calculations, levels, concurrent reward redemption, lead privacy/acceptance, reviews, authorization, and Telegram retry safety.
+- `check:telegram` validates the bot and admin chat without sending a message.
+- `check:catalog` performs read-only product/category requests.
 
-## EAS Build
+After deployment, `/health` must return HTTP 200 with `ok: true`. A production server refuses to start with a placeholder auth secret or without Telegram/webhook configuration.
 
-`app.json` contains:
+## EAS release
 
-- App name: `Авантехник`
-- iOS bundle id: `kg.avantehnik.app`
-- Android package: `kg.avantehnik.app`
-- Camera/photo permissions for image search
-- Icon and splash assets
-
-Build later with:
+The identifiers are `kg.avantehnik.app` for both iOS and Android. Production build numbers auto-increment.
 
 ```bash
-npm install -g eas-cli
-eas login
 eas build --platform ios --profile production
 eas build --platform android --profile production
 eas submit --platform ios
 eas submit --platform android
 ```
 
-Before a real production submission, deploy a secure server-side Bazaar proxy or get a public customer-safe Bazaar API credential.
+Before submission, also confirm the App Store/Google Play privacy policy, support URL, screenshots, data-safety answers, account-deletion policy, and reviewer test credentials. Those store-console assets are not contained in this repository.
+
+## Plumber loyalty program
+
+The customer application now uses one identity with additive customer, plumber, and admin capabilities. A new user can select `Покупатель` or `Сантехник`; an existing customer can submit the same plumber application without creating another account. Pending, rejected, and suspended profiles keep all customer functionality, while the professional workspace is limited to approved plumbers.
+
+The pilot includes:
+
+- administrator verification with status history and audit records;
+- a professional five-tab navigation, dashboard, level progress, secure QR/loyalty code, history, rewards, content, reviews, and Telegram preferences;
+- an auditable integer ledger with pending/available/spent/reversed states, configurable 1% base rate, x2/x3 rules, exclusions, configurable 14-day pending period, idempotent receipt ingestion, and partial/full return reversal;
+- configurable rolling levels (`Профи`, `Эксперт`, `Мастер`), stored in database configuration rather than application constants;
+- safe reward redemption with row locking, balance revalidation, idempotency, and administrator processing;
+- customer plumber requests with controlled administrator assignment, privacy-gated contact details, atomic exclusive acceptance, status history, and one review per completed request;
+- plumber reservations that reuse the existing cart, product, store, order, and Telegram order flow and explicitly remain separate from payment;
+- retry-safe, deduplicated Telegram notification outbox and a short-lived one-time account-link token. Telegram outages never roll back a purchase, receipt, lead, or reward operation.
+
+No Telegram Mini App or separate plumber authentication system is used.
+
+The protected 1C/POS boundary and unresolved production decisions are documented in [`docs/pos-1c-contract.md`](docs/pos-1c-contract.md). Until AVANT provides a real POS/1C API, administrators can use the protected one-line manual receipt/return pilot form. It is not a substitute for the production integration.
+
+### Important pre-production decisions
+
+- Confirm financial thresholds, benefits, reward values, pending period, and promotion/exclusion policy. Seeded values are editable pilot defaults, not approved commercial terms.
+- Set `ADMIN_PHONE_NUMBERS` and `TELEGRAM_BOT_USERNAME` on the API service. Keep every server secret free of the `EXPO_PUBLIC_` prefix.
+- Provide the bot username and start a private chat before linking. The admin group chat ID used for order operations is not a customer account link.
+- Provide a production object-storage/upload policy for plumber and customer photos. The MVP accepts validated HTTPS URLs and deliberately does not invent a storage provider.
+- The current customer catalogue remains a read-only legacy Bazaar source. Orders, reservations, loyalty, accounts, and leads never write to Bazaar. Removing Bazaar entirely requires AVANT's replacement catalogue/inventory API or a data migration plan; disabling it now would break the existing catalogue, search, filters, and product pages.
+- Review and approve the account-deletion flow, program rules/privacy wording, store-console privacy answers, screenshots, reviewer account, and support/privacy-policy URLs before App Store or Google Play submission.
+
+### Local loyalty check
+
+The loyalty integration check refuses any database whose hostname is not localhost:
+
+```bash
+DATABASE_URL=postgresql://avantehnik:avantehnik_dev_password@127.0.0.1:5438/avantehnik npm run check:loyalty
+```

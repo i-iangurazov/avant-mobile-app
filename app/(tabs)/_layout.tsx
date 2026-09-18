@@ -20,10 +20,12 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colors.background }
       }}
     >
+      <Tabs.Screen name="plumber-home" options={{ title: "Главная" }} />
       <Tabs.Screen name="catalog" options={{ title: "Каталог" }} />
       <Tabs.Screen name="cart" options={{ title: "Корзина" }} />
       <Tabs.Screen name="maps" options={{ title: "Карты" }} />
       <Tabs.Screen name="orders" options={{ title: "Заказы" }} />
+      <Tabs.Screen name="leads" options={{ title: "Заявки" }} />
       <Tabs.Screen name="profile" options={{ title: "Профиль" }} />
     </Tabs>
   );

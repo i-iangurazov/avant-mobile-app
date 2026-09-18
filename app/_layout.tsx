@@ -21,6 +21,15 @@ export default function RootLayout() {
             <Stack.Screen name="orders/[id]" />
             <Stack.Screen name="profile/edit" />
             <Stack.Screen name="profile/about" />
+            <Stack.Screen name="profile/telegram" />
+            <Stack.Screen name="plumber/apply" />
+            <Stack.Screen name="plumber/qr" />
+            <Stack.Screen name="plumber/history" />
+            <Stack.Screen name="plumber/rewards" />
+            <Stack.Screen name="plumber/content" />
+            <Stack.Screen name="plumber/reviews" />
+            <Stack.Screen name="find-plumber/index" />
+            <Stack.Screen name="admin/index" />
             <Stack.Screen name="image-search/index" />
           </Stack>
         </SafeAreaProvider>

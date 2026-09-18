@@ -5,17 +5,18 @@ import type { FulfillmentMethod } from "../types";
 import { useAuth } from "./useAuth";
 
 export function useOrders() {
-  const { user } = useAuth();
+  const { session, user } = useAuth();
 
   return useQuery({
-    queryKey: ["orders", user?.id, user?.phone],
+    queryKey: ["orders", user?.id],
     enabled: Boolean(user?.id),
-    queryFn: () => fetchOrders({ phone: user?.phone ?? null })
+    queryFn: () => fetchOrders(session?.accessToken),
+    refetchInterval: 15_000
   });
 }
 
 export function useOrder(orderId?: string) {
-  const { user } = useAuth();
+  const { session, user } = useAuth();
 
   return useQuery({
     queryKey: ["order", orderId, user?.id],
@@ -25,13 +26,14 @@ export function useOrder(orderId?: string) {
         throw new Error("Заказ не найден.");
       }
 
-      return fetchOrder(orderId);
-    }
+      return fetchOrder(orderId, session?.accessToken);
+    },
+    refetchInterval: 10_000
   });
 }
 
 export function useCreateOrderFromCart() {
-  const { user } = useAuth();
+  const { session, user } = useAuth();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -40,8 +42,12 @@ export function useCreateOrderFromCart() {
       customerPhone: string;
       deliveryMethod: FulfillmentMethod;
       storeId?: string | null;
+      storeName?: string | null;
+      storeAddress?: string | null;
       deliveryAddress?: string | null;
       comment?: string | null;
+      orderKind?: "order" | "reservation";
+      projectNote?: string | null;
     }) => {
       const items = await getLocalCartItems();
 
@@ -52,7 +58,7 @@ export function useCreateOrderFromCart() {
       const order = await createOrder({
         ...payload,
         items
-      });
+      }, session?.accessToken);
 
       return {
         ...order,

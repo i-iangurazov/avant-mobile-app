@@ -63,14 +63,14 @@ export const normalizePhone = (phone: string) => {
   }
 
   if (digits.startsWith("996")) {
-    return `+${digits.slice(0, 12)}`;
+    return `+${digits}`;
   }
 
   if (digits.startsWith("0")) {
-    return `+996${digits.slice(1, 10)}`;
+    return `+996${digits.slice(1)}`;
   }
 
-  return `+996${digits.slice(0, 9)}`;
+  return digits.length === 9 ? `+996${digits}` : `+${digits}`;
 };
 
 export const formatKyrgyzPhoneInput = (value: string) => {

@@ -1,4 +1,5 @@
-import { router } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,7 +13,7 @@ import { useCart } from "../../src/hooks/useCart";
 import { useCreateOrderFromCart } from "../../src/hooks/useOrders";
 import { useProfile } from "../../src/hooks/useProfile";
 import { useStores } from "../../src/hooks/useStores";
-import { friendlyError, normalizePhone } from "../../src/lib/formatters";
+import { friendlyError, isValidKyrgyzPhone, normalizePhone, phoneValidationMessage } from "../../src/lib/formatters";
 import { safeBack } from "../../src/lib/navigation/safeBack";
 import { openWhatsApp } from "../../src/lib/whatsapp";
 import type { FulfillmentMethod } from "../../src/types";
@@ -20,6 +21,7 @@ import type { FulfillmentMethod } from "../../src/types";
 type FieldErrors = Partial<Record<"name" | "phone" | "address" | "store", string>>;
 
 export default function CheckoutScreen() {
+  const params = useLocalSearchParams<{ mode?: string }>();
   const profile = useProfile();
   const stores = useStores();
   const cart = useCart();
@@ -31,6 +33,7 @@ export default function CheckoutScreen() {
   const [address, setAddress] = useState("");
   const [comment, setComment] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const isReservation = params.mode === "reservation";
 
   useEffect(() => {
     if (profile.data) {
@@ -47,9 +50,13 @@ export default function CheckoutScreen() {
   }, [storeId, stores.data]);
 
   const submit = async () => {
+    if (isReservation && profile.data?.plumber?.applicationStatus !== "approved") {
+      Alert.alert("Резерв недоступен", "Быстрый резерв доступен после подтверждения анкеты сантехника.");
+      return;
+    }
     const nextErrors: FieldErrors = {
       name: name.trim() ? undefined : "Введите имя",
-      phone: phone.trim() ? undefined : "Введите телефон",
+      phone: !phone.trim() ? "Введите телефон" : !isValidKyrgyzPhone(phone) ? phoneValidationMessage : undefined,
       store: method === "pickup" && !storeId ? "Выберите магазин для самовывоза" : undefined,
       address: method === "delivery" && !address.trim() ? "Введите адрес доставки" : undefined
     };
@@ -65,16 +72,21 @@ export default function CheckoutScreen() {
     }
 
     try {
+      const selectedStore = stores.data?.find((store) => store.id === storeId);
       const result = await createOrder.mutateAsync({
         customerName: name.trim(),
         customerPhone: normalizePhone(phone),
         deliveryMethod: method,
         storeId: method === "pickup" ? storeId : null,
+        storeName: method === "pickup" ? selectedStore?.name ?? null : null,
+        storeAddress: method === "pickup" ? selectedStore?.address ?? null : null,
         deliveryAddress: method === "delivery" ? address.trim() : null,
-        comment: comment.trim() || null
+        comment: comment.trim() || null,
+        orderKind: isReservation ? "reservation" : "order",
+        projectNote: isReservation ? comment.trim() || null : null
       });
 
-      Alert.alert("Заказ оформлен", "Заказ оформлен. Менеджер свяжется с вами для подтверждения.");
+      Alert.alert(isReservation ? "Резерв создан" : "Заказ оформлен", isReservation ? "Это резерв, а не оплата. Менеджер проверит остатки и подтвердит готовность к самовывозу." : "Заказ оформлен. Менеджер свяжется с вами для подтверждения.");
       router.replace({ pathname: "/orders/[id]", params: { id: result.order_id } });
     } catch (error) {
       Alert.alert("Не удалось оформить заказ", friendlyError(error instanceof Error ? error.message : undefined), [
@@ -117,7 +129,7 @@ export default function CheckoutScreen() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
-        <ScreenHeader title="Оформление заказа" subtitle="Менеджер подтвердит наличие и цену" onBack={() => safeBack("/cart")} />
+        <ScreenHeader title={isReservation ? "Быстрый резерв" : "Оформление заказа"} subtitle={isReservation ? "Резерв не является оплатой" : "Менеджер подтвердит наличие и цену"} onBack={() => safeBack("/cart")} />
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <AppInput label="Имя" placeholder="Ваше имя" value={name} onChangeText={setName} error={errors.name} />
           <AppInput
@@ -131,10 +143,12 @@ export default function CheckoutScreen() {
           <View style={styles.segmentBlock}>
             <Text style={styles.label}>Способ получения</Text>
             <View style={styles.segment}>
-              {[
+              {(isReservation ? [
+                ["pickup", "Самовывоз"]
+              ] : [
                 ["pickup", "Самовывоз"],
                 ["delivery", "Доставка"]
-              ].map(([value, label]) => (
+              ]).map(([value, label]) => (
                 <Pressable
                   key={value}
                   accessibilityRole="button"
@@ -176,14 +190,15 @@ export default function CheckoutScreen() {
           )}
 
           <AppInput
-            label="Комментарий"
-            placeholder="Удобное время, детали доставки"
+            label={isReservation ? "Проект / клиент (необязательно)" : "Комментарий"}
+            placeholder={isReservation ? "Например: объект на ул. Киевской" : "Удобное время, детали доставки"}
             value={comment}
             onChangeText={setComment}
             multiline
             style={styles.commentInput}
           />
-          <AppButton title="Подтвердить заказ" onPress={() => void submit()} loading={createOrder.isPending} />
+          {isReservation ? <View style={styles.reservationNotice}><Ionicons name="information-circle-outline" size={20} color={colors.secondary} /><Text style={styles.reservationNoticeText}>Товары будут отложены только после подтверждения менеджером. Оплата выполняется отдельно.</Text></View> : null}
+          <AppButton title={isReservation ? "Отправить резерв" : "Подтвердить заказ"} onPress={() => void submit()} loading={createOrder.isPending} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -271,5 +286,7 @@ const styles = StyleSheet.create({
     minHeight: 92,
     textAlignVertical: "top",
     paddingTop: spacing.md
-  }
+  },
+  reservationNotice: { flexDirection: "row", gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.secondarySoft },
+  reservationNoticeText: { flex: 1, color: colors.textMuted, fontSize: typography.small, lineHeight: 19 }
 });

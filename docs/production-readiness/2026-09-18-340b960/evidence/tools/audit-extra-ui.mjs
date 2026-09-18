@@ -1,0 +1,31 @@
+import{spawn}from'node:child_process';import{writeFileSync,readFileSync,mkdirSync}from'node:fs';import{setTimeout as wait}from'node:timers/promises';
+const out='/Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/docs/production-readiness/2026-09-18-340b960/evidence';mkdirSync(out+'/screenshots',{recursive:true});
+const sessions=JSON.parse(readFileSync('/private/tmp/audit-sessions.json'));const base='http://127.0.0.1:8089';const port=9351;
+const chrome=spawn('/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',['--headless=new','--disable-gpu','--no-first-run','--disable-background-networking','--disable-sync','--remote-debugging-port='+port,'--user-data-dir=/private/tmp/audit-extra-chrome','about:blank'],{stdio:'ignore'});
+let targets;for(let n=0;n<60;n++){try{targets=await(await fetch('http://127.0.0.1:'+port+'/json/list')).json();break;}catch{}await wait(250);}
+const ws=new WebSocket(targets.find(x=>x.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));let id=1;const pending=new Map();let errors=[];ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id){pending.get(m.id)?.(m);pending.delete(m.id);}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails.exception?.description||m.params.exceptionDetails.text);});
+const send=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}));});const ev=async expression=>(await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result?.result?.value;
+const click=async text=>ev(`Array.from(document.querySelectorAll('[role="button"],button')).find(x=>x.innerText.trim()===${JSON.stringify(text)})?.click()`);
+const gallery=[];
+async function capture(name,role,path,state='default'){
+ const body=await ev('document.body.innerText');const fonts=await ev("document.fonts.check('16px ionicons')");
+ const scroll=await ev(`(()=>{const a=Array.from(document.querySelectorAll('*')).filter(e=>e.scrollHeight>e.clientHeight+20&&e.clientHeight>150&&['auto','scroll'].includes(getComputedStyle(e).overflowY));return a.map(e=>({height:e.clientHeight,total:e.scrollHeight}));})()`);
+ const shot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});writeFileSync(out+'/screenshots/'+name+'.png',Buffer.from(shot.result.data,'base64'));
+ let bottoms=[];if(scroll?.length){await ev(`Array.from(document.querySelectorAll('*')).filter(e=>e.scrollHeight>e.clientHeight+20&&e.clientHeight>150&&['auto','scroll'].includes(getComputedStyle(e).overflowY)).forEach(e=>e.scrollTop=e.scrollHeight)`);await wait(300);const s=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});writeFileSync(out+'/screenshots/'+name+'-bottom.png',Buffer.from(s.result.data,'base64'));bottoms.push(name+'-bottom.png');}
+ gallery.push({name,role,path,state,platform:'WEB EXPORT + LOCAL API + MOCK catalog/Telegram',viewport:'390x844',screenshot:name+'.png',bottoms,body,fonts,errors:[...errors],scroll});errors=[];console.log(name);
+}
+async function nav(path){await send('Page.navigate',{url:base+path});await wait(path==='/maps'?5500:1100);await ev('document.fonts.ready.then(()=>true)');}
+async function role(r){await nav('/welcome');await ev(`localStorage.removeItem('avantehnik.app-session.v1');localStorage.removeItem('avantehnik:cart:v1');${r==='guest'?'':`localStorage.setItem('avantehnik.app-session.v1',${JSON.stringify(JSON.stringify(sessions[r]))});`}`);}
+try {
+ await send('Runtime.enable');await send('Page.enable');await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+ await role('customer');await nav('/catalog');await click('В корзину');await wait(350);await nav('/cart');await capture('extra-cart-real-add','customer','/cart','added from catalog');await send('Page.reload');await wait(1100);await capture('extra-cart-restored','customer','/cart','reload');
+ await nav('/checkout');await capture('extra-checkout-with-cart','customer','/checkout');await click('Подтвердить заказ');await wait(1200);await capture('extra-checkout-submit','customer',await ev('location.pathname'),'post submit');
+ await nav('/find-plumber');await click('Создать заявку');await capture('extra-find-plumber-form','customer','/find-plumber','form');
+ await role('guest');await nav('/register');await ev(`Array.from(document.querySelectorAll('[role="button"]')).find(x=>x.innerText.includes('Сантехник'))?.click()`);await capture('extra-register-plumber','guest','/register','plumber form');
+ await role('plumber');for(const path of ['/plumber-home','/plumber/history','/plumber/rewards']){await nav(path);await capture('extra-'+path.slice(1).replaceAll('/','-'),'plumber',path,'populated loyalty fixtures');}
+ await nav('/plumber/history');await click('Возвраты');await capture('extra-history-returns','plumber','/plumber/history','returns filter');await nav('/plumber/rewards');await click('Получить');await wait(350);await capture('extra-reward-action','plumber','/plumber/rewards','attempted reward action');
+ await role('guest');await nav('/maps');await click('Мега Комфорт');await wait(4500);await capture('extra-map-second-store','guest','/maps','second store');
+ await nav('/login');const ax=await send('Accessibility.getFullAXTree');writeFileSync(out+'/login-ax.json',JSON.stringify(ax.result.nodes.filter(n=>!n.ignored).map(n=>({role:n.role?.value,name:n.name?.value,properties:n.properties})),null,2));
+ await send('Network.enable');await send('Network.setBlockedURLs',{urls:['*127.0.0.1:8788*']});await nav('/catalog');await wait(1800);await capture('extra-catalog-network-error','guest','/catalog','blocked local API');await send('Network.setBlockedURLs',{urls:[]});await click('Повторить');await wait(1000);await capture('extra-catalog-retry','guest','/catalog','retry');
+ await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'dark'}]});await nav('/login');await capture('extra-login-dark-system','guest','/login','system dark (web only)');
+} finally {writeFileSync(out+'/gallery-extra.json',JSON.stringify(gallery,null,2));ws.close();chrome.kill('SIGTERM');}

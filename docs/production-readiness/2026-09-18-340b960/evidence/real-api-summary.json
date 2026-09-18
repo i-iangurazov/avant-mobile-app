@@ -1,0 +1,33 @@
+{
+  "source": "REAL API, 3 safe GET only, no auth/mutations",
+  "base_url": "https://api-production-2e6d.up.railway.app",
+  "health": {
+    "status": 200,
+    "ms": 1651,
+    "response": {
+      "ok": true,
+      "bazaarBaseUrl": "present",
+      "bazaarToken": "present",
+      "database": "present"
+    }
+  },
+  "categories": {
+    "status": 404,
+    "content_type": "text/html",
+    "bytes": 329301,
+    "ms": 2090
+  },
+  "products": {
+    "status": 200,
+    "ms": 677,
+    "requested": "/products?limit=3",
+    "returned_count": 50,
+    "total": 2362,
+    "images_nonempty": 0,
+    "categories_nonempty": 0,
+    "descriptions_nonempty": 0,
+    "positive_prices": 0,
+    "negative_stock_first_item": -11
+  },
+  "limit": "single sample per endpoint; not performance statistics; deployed version unknown"
+}

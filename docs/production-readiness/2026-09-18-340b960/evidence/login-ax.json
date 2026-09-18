@@ -1,0 +1,493 @@
+[
+  {
+    "role": "RootWebArea",
+    "name": "Авантехник",
+    "properties": [
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      },
+      {
+        "name": "url",
+        "value": {
+          "type": "string",
+          "value": "http://127.0.0.1:8089/login"
+        }
+      }
+    ]
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "button",
+    "name": "",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "button",
+    "name": "Забыли пароль?",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "role": "button",
+    "name": "Войти",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Вход в аккаунт",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Введите телефон и пароль",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "textbox",
+    "name": "+996 700 000 000",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      },
+      {
+        "name": "editable",
+        "value": {
+          "type": "token",
+          "value": "plaintext"
+        }
+      },
+      {
+        "name": "settable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      },
+      {
+        "name": "multiline",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "readonly",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "required",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      }
+    ]
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "textbox",
+    "name": "Ваш пароль",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      },
+      {
+        "name": "editable",
+        "value": {
+          "type": "token",
+          "value": "plaintext"
+        }
+      },
+      {
+        "name": "settable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      },
+      {
+        "name": "multiline",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "readonly",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      },
+      {
+        "name": "required",
+        "value": {
+          "type": "boolean",
+          "value": false
+        }
+      }
+    ]
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "button",
+    "name": "Зарегистрироваться",
+    "properties": [
+      {
+        "name": "invalid",
+        "value": {
+          "type": "token",
+          "value": "false"
+        }
+      },
+      {
+        "name": "focusable",
+        "value": {
+          "type": "booleanOrUndefined",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Вход в аккаунт",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Введите телефон и пароль",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Телефон",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": [
+      {
+        "name": "editable",
+        "value": {
+          "type": "token",
+          "value": "plaintext"
+        }
+      }
+    ]
+  },
+  {
+    "role": "StaticText",
+    "name": "Пароль",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": [
+      {
+        "name": "editable",
+        "value": {
+          "type": "token",
+          "value": "plaintext"
+        }
+      }
+    ]
+  },
+  {
+    "role": "StaticText",
+    "name": "Забыли пароль?",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Нет аккаунта?",
+    "properties": []
+  },
+  {
+    "role": "generic",
+    "name": "",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Телефон",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Пароль",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Забыли пароль?",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Войти",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Нет аккаунта?",
+    "properties": []
+  },
+  {
+    "role": "StaticText",
+    "name": "Зарегистрироваться",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Войти",
+    "properties": []
+  },
+  {
+    "role": "InlineTextBox",
+    "name": "Зарегистрироваться",
+    "properties": []
+  }
+]

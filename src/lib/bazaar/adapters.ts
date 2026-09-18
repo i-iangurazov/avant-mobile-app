@@ -412,6 +412,8 @@ export function adaptOrder(value: unknown): OrderListItem {
     itemsCount,
     totalAmount,
     totalLabel,
+    orderKind: readString(record, ["order_kind", "orderKind"], "order") === "reservation" ? "reservation" : "order",
+    projectNote: readNullableString(record, ["project_note", "projectNote"]),
     raw: value
   };
 
@@ -421,7 +423,9 @@ export function adaptOrder(value: unknown): OrderListItem {
     created_at: createdAt,
     item_count: itemsCount,
     total_amount: totalAmount,
-    total_label: totalLabel
+    total_label: totalLabel,
+    order_kind: order.orderKind,
+    project_note: order.projectNote
   };
 }
 
@@ -495,6 +499,8 @@ export function adaptOrderDetail(value: unknown): OrderDetail {
       : readNullableString(record, ["delivery_address", "deliveryAddress", "address"]),
     store_id: readNullableString(record, ["store_id", "storeId"]),
     comment: readNullableString(record, ["comment", "note"]),
+    order_kind: readString(record, ["order_kind", "orderKind"], "order") === "reservation" ? "reservation" : "order",
+    project_note: readNullableString(record, ["project_note", "projectNote"]),
     store: storeRecord
       ? {
           id: readString(storeRecord, ["id", "uuid"], "store"),

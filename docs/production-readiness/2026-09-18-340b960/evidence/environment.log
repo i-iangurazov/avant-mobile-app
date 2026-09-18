@@ -1,0 +1,12 @@
+ProductName:		macOS
+ProductVersion:		26.3.1
+ProductVersionExtra:	(a)
+BuildVersion:		25D771280a
+v22.18.0
+Google Chrome 153.0.8010.48
+postgres (PostgreSQL) 16.11 (Homebrew)
+No adb/Android SDK; Xcode not installed (CommandLineTools only); no physical device attached/tested.
+Generated native config: iOS min 15.1 build 1; Android RN catalog min24 target36 compile36 versionCode1. No signed binary.
+
+Resolved installed versions: expo54.0.37, react-native0.81.5, react19.1.0, pg8.22.0.
+Runtime discrepancy: shell node -v reported22.18.0; failed initial sandbox Metro process printed24.7.0. Runtime pinning for future reproducible builds remains unverified.

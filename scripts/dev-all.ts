@@ -17,9 +17,9 @@ const getLanIp = () => {
 };
 
 const lanIp = process.env.DEV_LAN_IP || getLanIp();
-const proxyPort = process.env.BAZAAR_PROXY_PORT || "8787";
-const proxyUrl = process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL || `http://${lanIp}:${proxyPort}`;
-const proxyUrlWeb = process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB || `http://127.0.0.1:${proxyPort}`;
+const serverPort = process.env.APP_SERVER_PORT || process.env.BAZAAR_PROXY_PORT || "8787";
+const serverUrl = process.env.EXPO_PUBLIC_API_URL || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL || `http://${lanIp}:${serverPort}`;
+const serverUrlWeb = process.env.EXPO_PUBLIC_API_URL_WEB || process.env.EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB || `http://127.0.0.1:${serverPort}`;
 const expoArgs = ["expo", "start", "--clear", ...process.argv.slice(2)];
 const children: ChildProcess[] = [];
 
@@ -65,20 +65,20 @@ process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
 const main = async () => {
-  console.log(`Using Bazaar proxy URL for Expo Go: ${proxyUrl}`);
-  console.log(`Using Bazaar proxy URL for Expo Web: ${proxyUrlWeb}`);
+  console.log(`Using app server URL for Expo Go: ${serverUrl}`);
+  console.log(`Using app server URL for Expo Web: ${serverUrlWeb}`);
 
-  const numericProxyPort = Number(proxyPort);
-  if (!Number.isFinite(numericProxyPort) || numericProxyPort <= 0) {
-    console.error(`Invalid BAZAAR_PROXY_PORT: ${proxyPort}`);
+  const numericServerPort = Number(serverPort);
+  if (!Number.isFinite(numericServerPort) || numericServerPort <= 0) {
+    console.error(`Invalid APP_SERVER_PORT: ${serverPort}`);
     process.exit(1);
   }
 
-  if (!(await isPortAvailable(numericProxyPort))) {
-    console.error(`Port ${proxyPort} is already in use.`);
-    console.error(`Run: lsof -i :${proxyPort}`);
+  if (!(await isPortAvailable(numericServerPort))) {
+    console.error(`Port ${serverPort} is already in use.`);
+    console.error(`Run: lsof -i :${serverPort}`);
     console.error("Stop the old dev server with Ctrl-C, or run: kill <PID>");
-    console.error(`Alternative: BAZAAR_PROXY_PORT=8788 npm run dev:all -- --web`);
+    console.error(`Alternative: APP_SERVER_PORT=8788 npm run dev:all -- --web`);
     process.exit(1);
   }
 
@@ -95,18 +95,18 @@ const main = async () => {
     }
   }
 
-  console.log("Starting Bazaar proxy and Expo...");
+  console.log("Starting Avantehnik app server and Expo...");
 
-  start("bazaar-proxy", "npx", ["tsx", "scripts/bazaar-proxy.ts"], {
+  start("app-server", "npx", ["tsx", "scripts/app-server.ts"], {
     ...process.env,
-    BAZAAR_PROXY_HOST: process.env.BAZAAR_PROXY_HOST || "0.0.0.0",
-    BAZAAR_PROXY_PORT: proxyPort
+    APP_SERVER_HOST: process.env.APP_SERVER_HOST || "0.0.0.0",
+    APP_SERVER_PORT: serverPort
   });
 
   start("expo", "npx", expoArgs, {
     ...process.env,
-    EXPO_PUBLIC_BAZAAR_PROXY_URL: proxyUrl,
-    EXPO_PUBLIC_BAZAAR_PROXY_URL_WEB: proxyUrlWeb
+    EXPO_PUBLIC_API_URL: serverUrl,
+    EXPO_PUBLIC_API_URL_WEB: serverUrlWeb
   });
 };
 

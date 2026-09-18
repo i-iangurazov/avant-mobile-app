@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProfileFromBazaar, updateProfileInBazaar } from "../lib/bazaar/client";
+import { useEffect } from "react";
+import { getCustomerProfile, updateCustomerProfile } from "../lib/api/account";
 import { friendlyError, normalizePhone } from "../lib/formatters";
 import type { UserProfile } from "../types";
 import { useAuth } from "./useAuth";
 
 export function useProfile() {
-  const { session } = useAuth();
+  const { session, user, updateSessionUser } = useAuth();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["profile", session?.user.id, session?.user.phone],
     enabled: Boolean(session?.user.id),
     queryFn: async () => {
@@ -15,9 +16,20 @@ export function useProfile() {
         throw new Error("Войдите в аккаунт.");
       }
 
-      return getProfileFromBazaar(session);
+      return getCustomerProfile(session);
     }
   });
+
+  useEffect(() => {
+    if (!query.data || !user) return;
+    const currentStatus = user.plumber?.applicationStatus ?? null;
+    const freshStatus = query.data.plumber?.applicationStatus ?? null;
+    if (currentStatus !== freshStatus || user.isAdmin !== query.data.isAdmin || user.name !== query.data.name || user.phone !== query.data.phone) {
+      void updateSessionUser(query.data);
+    }
+  }, [query.data, updateSessionUser, user]);
+
+  return query;
 }
 
 export function useUpdateProfile() {
@@ -31,7 +43,7 @@ export function useUpdateProfile() {
       }
 
       try {
-        const profile = await updateProfileInBazaar({
+        const profile = await updateCustomerProfile({
           name: payload.name,
           phone: normalizePhone(payload.phone),
           address: payload.address

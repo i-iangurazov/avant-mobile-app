@@ -1,0 +1,141 @@
+[
+  {
+    "id": "base_plus_x3",
+    "before": {
+      "pendingMinor": "0",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "0"
+    },
+    "expectedPending": "2200",
+    "actual": {
+      "pendingMinor": "2200",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "0"
+    }
+  },
+  {
+    "id": "receipt_exact_repeat",
+    "created": false,
+    "actual": {
+      "pendingMinor": "2200",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "0"
+    }
+  },
+  {
+    "id": "receipt_changed_repeat",
+    "status": 409,
+    "error": "Чек с этим внешним ID уже принят с другим содержимым.",
+    "expected": 409
+  },
+  {
+    "id": "partial_return",
+    "expectedPending": "1300",
+    "actual": {
+      "pendingMinor": "1300",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "900"
+    }
+  },
+  {
+    "id": "return_exact_repeat",
+    "expectedPending": "1300",
+    "actual": {
+      "pendingMinor": "1300",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "900"
+    }
+  },
+  {
+    "id": "full_promo_return",
+    "expectedPending": "400",
+    "actual": {
+      "pendingMinor": "400",
+      "availableMinor": "0",
+      "spentMinor": "0",
+      "reversedMinor": "1800"
+    }
+  },
+  {
+    "id": "release_boundary",
+    "expectedAvailable": "400",
+    "actual": {
+      "pendingMinor": "0",
+      "availableMinor": "400",
+      "spentMinor": "0",
+      "reversedMinor": "1800"
+    },
+    "note": "clock boundary simulated by SQL; 14-day waiting not elapsed in reality"
+  },
+  {
+    "id": "redemption_race",
+    "statuses": [
+      "fulfilled",
+      "rejected"
+    ],
+    "expectedAvailable": "100",
+    "actual": {
+      "pendingMinor": "0",
+      "availableMinor": "100",
+      "spentMinor": "300",
+      "reversedMinor": "1800"
+    }
+  },
+  {
+    "id": "cancel_reward_twice",
+    "expectedAvailable": "400",
+    "actual": {
+      "pendingMinor": "0",
+      "availableMinor": "400",
+      "spentMinor": "0",
+      "reversedMinor": "1800"
+    }
+  },
+  {
+    "id": "tiny_0",
+    "purchaseMinor": "0",
+    "expectedDelta": "0",
+    "actualDelta": "0"
+  },
+  {
+    "id": "tiny_1",
+    "purchaseMinor": "1",
+    "expectedDelta": "0",
+    "actualDelta": "0"
+  },
+  {
+    "id": "tiny_99",
+    "purchaseMinor": "99",
+    "expectedDelta": "0",
+    "actualDelta": "0"
+  },
+  {
+    "id": "tiny_100",
+    "purchaseMinor": "100",
+    "expectedDelta": "1",
+    "actualDelta": "1"
+  },
+  {
+    "id": "excluded",
+    "expectedDelta": "0",
+    "actualDelta": "0"
+  },
+  {
+    "id": "base_zero_level_floor",
+    "baseRateBps": 0,
+    "levelRateBps": 100,
+    "actualPendingDelta": "100",
+    "classification": "requirement question: max(base,level) retains 1%"
+  },
+  {
+    "id": "return_before_receipt",
+    "status": 404,
+    "error": "Исходный чек не найден.",
+    "note": "no persistent retry queue at ingestion; integration replay policy required"
+  }
+]

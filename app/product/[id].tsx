@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -98,6 +98,7 @@ export default function ProductDetailScreen() {
         <View style={styles.info}>
           <Text style={styles.title}>{currentProduct.name}</Text>
           <Text style={styles.price}>{formatPrice(currentProduct.price, currentProduct.price_label ?? "Цена уточняется")}</Text>
+          <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: "/find-plumber", params: { productId: currentProduct.id } })} style={styles.plumberHelp}><View style={styles.plumberHelpIcon}><Ionicons name="construct-outline" size={22} color={colors.secondary} /></View><View style={styles.plumberHelpCopy}><Text style={styles.plumberHelpTitle}>Нужен сантехник?</Text><Text style={styles.plumberHelpText}>Отправьте заявку проверенному мастеру</Text></View><Ionicons name="chevron-forward" size={19} color={colors.secondary} /></Pressable>
 
           <View style={styles.tabs}>
             {[
@@ -235,6 +236,11 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontWeight: "900"
   },
+  plumberHelp: { flexDirection: "row", alignItems: "center", gap: spacing.sm, borderRadius: radius.lg, backgroundColor: colors.secondarySoft, borderWidth: 1, borderColor: colors.secondarySoftBorder, padding: spacing.md },
+  plumberHelpIcon: { width: 40, height: 40, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  plumberHelpCopy: { flex: 1 },
+  plumberHelpTitle: { color: colors.secondary, fontSize: typography.small, fontWeight: "900" },
+  plumberHelpText: { color: colors.textMuted, fontSize: typography.tiny, marginTop: 2 },
   tabs: {
     flexDirection: "row",
     backgroundColor: colors.surfaceMuted,

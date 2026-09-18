@@ -1,0 +1,22 @@
+# Roadmap исправлений
+
+Оценки S/M/L предварительные: S — локальное изменение/проверка; M — несколько слоёв; L — контракт/интеграция/инфраструктура. Это не сроки и не согласованный бюджет. Все задачи ниже предложены; продуктовый код в аудите не исправлялся. Остаточный риск владельцем не принят.
+
+|Порядок / задача|Defect/risk IDs|Зависимости|Ответственный профиль|Результат и критерий приёмки|Сложность / неопределённость|
+|---|---|---|---|---|---|
+|1. Закрыть публичное повышение admin|D01|Нет|Backend/security|Role assignment по доверенному account ID; регистрация/смена телефона никогда не повышают роль; negative API suite проходит.|M; bootstrap текущих admin и миграция неизвестны.|
+|2. Установить доверенную модель заказа|D03,Q04|Владелец каталога/остатков|Backend+product owner|Цена/филиал/наличие валидируются сервером, заявка с неизвестной ценой явно отделена; подмена отклоняется.|L; наличие надёжного inventory API неизвестно.|
+|3. Исправить контракт заказа|D02|Можно параллельно задачам1/2|Mobile+backend|POST/GET envelope един; реальный ID, состав/контакты/итог/timeline совпадают; checkout не ведёт в404.|S–M; затрагивает резервы и order screens.|
+|4. Безопасный retry оформления|D04,D05,R01|3|Backend+mobile+QA|Стабильный key на попытку; timeout после commit, повторы и конкуренция дают один заказ; changed payload409; нет SQL leak.|M; хранение pending attempt и kill/restart усложняют проверку.|
+|5. Подготовить правила и privacy/deletion|D06,D07,D08,R03,Q01,Q03|Решения владельца/обязательное retention|Product owner+privacy counsel+backend+mobile|Читаемые правила версии; policy; удаление с отзывом токенов; web deletion URL; support recovery; store declarations соответствуют данным.|L; согласования/retention/история бонусов.|
+|6. Закрыть полноту журнала лояльности|D11|Нет|Backend+mobile|Default page30, стабильная пагинация; >100 операций видны; баланс сверяется; фильтры не скрывают остальное без указания.|M; миграция не ожидается, UI pagination нужна.|
+|7. Согласовать production POS/бонусы|Q01,Q02,LOY-11/12/13/15|1,5,6|Владелец программы+1C/POS+backend+QA|Версионированный M2M контракт; скидки, возвраты, out-of-order, сверка и concurrency проходят staging.|L; внешняя интеграция пока не определена.|
+|8. Исправить справочник/компонент карты|D09,D10|Сверка6 филиалов|Mobile+контент-менеджер|Фирма/адрес/часы/контакты согласованы; selected point открывается во внешнем2GIS; нет обрезки/накладок на атрибуцию; fallback/жесты проверены native.|M; provider widget ограничения.|
+|9. Подготовить каталог и сортировку|D12,R02|2; выбран release ассортимент|Контент+backend+mobile|Ключевые SKU с фото/описанием/ценовой моделью; глобальная сортировка между страницами; поиск/пагинация на реальном API.|L; качество upstream данных неизвестно.|
+|10. Упростить и согласовать формы|D14,UX-02|Upload policy из5|Product designer+mobile|Один стиль chips/radio/segmented, понятные selected/disabled; без технических URL фото; длинные значения/клавиатура/back проходят.|M; object storage пока не выбран.|
+|11. Контраст и локализация|D13,D15|Визуальные правила|Designer+mobile+QA|Текст контрастен;1/2/5 и дробные бонусы правильно склоняются; статусы русские; нет literal escapes.|S–M; VoiceOver/TalkBack потребуют устройств.|
+|12. Разрешения и hardening|D16,D17,R03,R05,R06,R07|1,5|Mobile+security+release|Picker с минимальными permissions; доверенная proxy chain; session revocation; dependency remediation; тема и401 восстановление native.|M; reachable dependency cases и подписанный manifest пока неизвестны.|
+|13. Воспроизводимая release-инфраструктура|OPS-01..05,R04|Нужные доступы|Release+SRE|Чистый commit, SHA/build/API matrix, Java/Android SDK/Xcode, signed builds, symbols/crash monitoring, backup restore, support/runbook/rollout controls.|L; кабинеты/signing/CI не проверены.|
+|14. Финальная регрессия Android/iOS отдельно|Все открытые IDs|1–13|Mobile QA+release owner|Полная mandatory матрица, устройства min/current, install/upgrade, performance/accessibility, REAL API/POS/Telegram sandbox; пересчёт только по новой сборке.|L; физические устройства и staging нужны.|
+
+После исправлений сохранить новый audit folder с commit/build, прежними defect IDs и change log scope. Code fix не закрывает native acceptance. Для GO TO SUBMISSION нужны100% покрытия обязательных критериев, отсутствие P0/P1/прочих blockers, ≥95% общий, ≥90% каждый домен, UI≥95%, подтверждённые release сборки и store checklist. Принятие оставшихся P2/P3 — отдельное реальное решение владельца. Публикация/отправка этим roadmap не разрешены.

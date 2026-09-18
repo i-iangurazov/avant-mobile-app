@@ -1,25 +1,14 @@
-import type { CartItemWithProduct, Category, OrderDetail, OrderListItem, Product } from "../../types";
-import { bazaarProxyBaseUrl } from "../config/env";
+import type { Category, Product } from "../../types";
+import { apiBaseUrl } from "../config/env";
 import { normalizeApiError } from "../errors/normalizeApiError";
-import { normalizePhone } from "../formatters";
 import {
   adaptCategories,
-  adaptOrder,
-  adaptOrderDetail,
-  adaptOrders,
   adaptProduct,
   adaptProducts,
   deriveCategoriesFromProducts
 } from "./adapters";
 import { BAZAAR_ENDPOINTS } from "./endpoints";
-import type {
-  BazaarCustomer,
-  BazaarCustomerSession,
-  BazaarQueryParams,
-  LoginCustomerPayload,
-  RegisterCustomerPayload,
-  UpdateCustomerProfilePayload
-} from "./types";
+import type { BazaarQueryParams } from "./types";
 
 type BazaarClientConfig = {
   baseUrl: string;
@@ -51,16 +40,6 @@ export type ProductPageResult = {
   hasMore: boolean;
 };
 
-export type BazaarCreateOrderPayload = {
-  customerName: string;
-  customerPhone: string;
-  deliveryMethod: "pickup" | "delivery";
-  storeId?: string | null;
-  deliveryAddress?: string | null;
-  comment?: string | null;
-  items: CartItemWithProduct[];
-};
-
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
 const toQueryString = (params?: BazaarQueryParams) => {
@@ -78,29 +57,6 @@ const toQueryString = (params?: BazaarQueryParams) => {
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === "object" && !Array.isArray(value);
-
-const read = (record: Record<string, unknown>, keys: string[]) => {
-  for (const key of keys) {
-    const value = record[key];
-    if (value !== undefined && value !== null && value !== "") {
-      return value;
-    }
-  }
-  return undefined;
-};
-
-const readRecord = (record: Record<string, unknown>, keys: string[]) => {
-  const value = read(record, keys);
-  return isRecord(value) ? value : null;
-};
-
-const readString = (record: Record<string, unknown>, keys: string[], fallback = "") => {
-  const value = read(record, keys);
-  return value === undefined ? fallback : String(value);
-};
-
-const explicitMissingEndpointMessage = (name: string) =>
-  `Серверный endpoint для ${name} не настроен. Требуется подтвердить backend-маршрут для этого действия.`;
 
 const DEFAULT_PRODUCTS_PAGE_SIZE = 100;
 
@@ -164,39 +120,6 @@ const productMatchesQuery = (product: Product, query: Pick<ProductQuery, "inStoc
   return true;
 };
 
-const adaptCustomerSession = (
-  payload: unknown,
-  fallback: { phone: string; name?: string; address?: string | null }
-): BazaarCustomerSession => {
-  const root = isRecord(payload) ? payload : {};
-  const data = readRecord(root, ["data"]) ?? root;
-  const sessionRecord = readRecord(data, ["session", "auth", "token"]) ?? data;
-  const userRecord = readRecord(data, ["user", "customer", "profile", "client"]) ?? data;
-  const accessToken = readString(sessionRecord, ["accessToken", "access_token", "token", "jwt"], "");
-  const refreshToken = readString(sessionRecord, ["refreshToken", "refresh_token"], "");
-  const id =
-    readString(userRecord, ["id", "uuid", "customer_id", "customerId", "user_id", "phone"], "") ||
-    fallback.phone;
-
-  const user: BazaarCustomer = {
-    id,
-    name: readString(userRecord, ["name", "full_name", "fullName"], fallback.name || "Покупатель"),
-    phone: readString(userRecord, ["phone", "phone_number", "phoneNumber"], fallback.phone),
-    address: readString(userRecord, ["address", "delivery_address", "deliveryAddress"], fallback.address || "")
-  };
-
-  if (!user.phone && !accessToken) {
-    throw new Error("Сервер авторизации вернул неподдерживаемый формат ответа.");
-  }
-
-  return {
-    accessToken: accessToken || null,
-    refreshToken: refreshToken || null,
-    user,
-    raw: payload
-  };
-};
-
 export class BazaarApiError extends Error {
   status: number;
   payload: unknown;
@@ -226,12 +149,12 @@ export class BazaarClient {
 
   async request<T>(path: string, init: RequestInit = {}) {
     if (!this.baseUrl) {
-      throw new Error("Не настроен сервер приложения. Укажите EXPO_PUBLIC_BAZAAR_PROXY_URL.");
+      throw new Error("Не настроен сервер приложения. Укажите EXPO_PUBLIC_API_URL.");
     }
 
     if (!this.usesProxy && !this.token) {
       throw new Error(
-        "Не настроен доступ к серверу приложения. Запустите backend proxy и укажите EXPO_PUBLIC_BAZAAR_PROXY_URL."
+        "Не настроен доступ к серверу приложения. Запустите backend и укажите EXPO_PUBLIC_API_URL."
       );
     }
 
@@ -289,21 +212,6 @@ export class BazaarClient {
     return this.request<unknown>(BAZAAR_ENDPOINTS.product(id));
   }
 
-  async getOrdersRaw(params?: BazaarQueryParams) {
-    return this.request<unknown>(`${BAZAAR_ENDPOINTS.orders}${toQueryString(params)}`);
-  }
-
-  async getOrderRaw(id: string) {
-    return this.request<unknown>(BAZAAR_ENDPOINTS.order(id));
-  }
-
-  async createOrderRaw(payload: unknown) {
-    return this.request<unknown>(BAZAAR_ENDPOINTS.orders, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
-  }
-
   private parseJson(text: string) {
     try {
       return JSON.parse(text) as unknown;
@@ -332,7 +240,7 @@ export class BazaarClient {
 }
 
 export const bazaarClient = new BazaarClient({
-  baseUrl: bazaarProxyBaseUrl,
+  baseUrl: apiBaseUrl,
   usesProxy: true
 });
 
@@ -504,164 +412,4 @@ export async function getProductById(productId: string): Promise<Product> {
 
 export async function searchProducts(search: string): Promise<Product[]> {
   return getProducts({ search, sort: "name" });
-}
-
-export async function getOrders(query?: { phone?: string | null }): Promise<OrderListItem[]> {
-  try {
-    const payload = await bazaarClient.getOrdersRaw({ phone: query?.phone ?? undefined });
-    const orders = adaptOrders(payload);
-    const requestedPhone = query?.phone ? normalizePhone(query.phone) : "";
-
-    if (!requestedPhone) {
-      return orders;
-    }
-
-    const detailedOrders = await Promise.all(
-      orders.map(async (order) => {
-        try {
-          return await getOrderById(order.id);
-        } catch (error) {
-          if (__DEV__) {
-            console.warn("Could not load order detail for user filter", order.id, error);
-          }
-          return null;
-        }
-      })
-    );
-
-    return detailedOrders.filter((order): order is OrderDetail =>
-      Boolean(order && normalizePhone(order.customer_phone) === requestedPhone)
-    );
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("orders list"));
-    }
-    throw new Error(normalizeApiError(error));
-  }
-}
-
-export async function getOrderById(orderId: string): Promise<OrderDetail> {
-  try {
-    const payload = await bazaarClient.getOrderRaw(orderId);
-    return adaptOrderDetail(payload);
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("order detail"));
-    }
-    throw new Error(normalizeApiError(error));
-  }
-}
-
-export async function createOrder(payload: BazaarCreateOrderPayload): Promise<OrderListItem> {
-  const lines = payload.items
-    .filter((item) => item.product_id)
-    .map((item) => ({
-      productId: item.product_id,
-      qty: Math.max(1, Math.floor(Number(item.quantity) || 1))
-    }));
-
-  if (!lines.length) {
-    throw new Error("Корзина пуста.");
-  }
-
-  const orderPayload = {
-    externalId: `AVANTEHNIK-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-    customerName: payload.customerName,
-    customerPhone: payload.customerPhone,
-    customerAddress: payload.deliveryMethod === "delivery"
-      ? payload.deliveryAddress ?? undefined
-      : undefined,
-    comment: [
-      payload.deliveryMethod === "pickup" ? "Самовывоз" : "Доставка",
-      payload.storeId ? `Магазин: ${payload.storeId}` : null,
-      payload.deliveryAddress ? `Адрес: ${payload.deliveryAddress}` : null,
-      payload.comment
-    ].filter(Boolean).join(". "),
-    lines
-  };
-
-  try {
-    const response = await bazaarClient.createOrderRaw(orderPayload);
-    return adaptOrder(response);
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("order creation"));
-    }
-    throw new Error(normalizeApiError(error, "Не удалось оформить заказ. Менеджер поможет уточнить наличие."));
-  }
-}
-
-export async function loginCustomer(payload: LoginCustomerPayload) {
-  try {
-    const response = await bazaarClient.request<unknown>(BAZAAR_ENDPOINTS.login, {
-      method: "POST",
-      body: JSON.stringify({
-        phone: payload.phone,
-        password: payload.password
-      })
-    });
-    return adaptCustomerSession(response, { phone: payload.phone });
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("login"));
-    }
-    throw new Error(normalizeApiError(error));
-  }
-}
-
-export async function registerCustomer(payload: RegisterCustomerPayload) {
-  try {
-    const response = await bazaarClient.request<unknown>(BAZAAR_ENDPOINTS.register, {
-      method: "POST",
-      body: JSON.stringify({
-        name: payload.name,
-        phone: payload.phone,
-        address: payload.address,
-        password: payload.password
-      })
-    });
-    return adaptCustomerSession(response, payload);
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("registration"));
-    }
-    throw new Error(normalizeApiError(error));
-  }
-}
-
-export async function getProfileFromBazaar(session: BazaarCustomerSession): Promise<BazaarCustomer> {
-  try {
-    const response = await bazaarClient.request<unknown>(BAZAAR_ENDPOINTS.profile, {
-      headers: session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : undefined
-    });
-    return adaptCustomerSession(response, session.user).user;
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      return session.user;
-    }
-    throw new Error(normalizeApiError(error));
-  }
-}
-
-export async function updateProfileInBazaar(
-  payload: UpdateCustomerProfilePayload,
-  accessToken?: string | null
-): Promise<BazaarCustomer> {
-  try {
-    const response = await bazaarClient.request<unknown>(BAZAAR_ENDPOINTS.profile, {
-      method: "PATCH",
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
-      body: JSON.stringify({
-        name: payload.name,
-        phone: payload.phone,
-        address: payload.address
-      })
-    });
-    return adaptCustomerSession(response, payload).user;
-  } catch (error) {
-    if (isMissingEndpoint(error)) {
-      throw new Error(explicitMissingEndpointMessage("profile update"));
-    }
-    throw new Error(normalizeApiError(error));
-  }
 }

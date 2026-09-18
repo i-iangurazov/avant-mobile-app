@@ -1,0 +1,9 @@
+{
+  "local_api_8788": "stopped",
+  "static_export_8089": "stopped",
+  "metro_8088": "stopped",
+  "isolated_postgres_55448": "stopped",
+  "initial_sandbox_metro": "exited ERR_SOCKET_BAD_PORT under restricted bind; not a product defect",
+  "production_mutations": false,
+  "store_uploads": false
+}

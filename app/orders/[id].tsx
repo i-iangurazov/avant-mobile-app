@@ -91,7 +91,10 @@ export default function OrderDetailScreen() {
 
   const currentOrder = order.data;
   const currentStatus = currentOrder.status as OrderStatus;
-  const currentStatusIndex = Math.max(0, statusSteps.indexOf(currentStatus));
+  const orderStatusSteps = statusSteps.filter((step) =>
+    currentOrder.delivery_method === "pickup" ? step !== "on_the_way" : step !== "ready_for_pickup"
+  );
+  const currentStatusIndex = Math.max(0, orderStatusSteps.indexOf(currentStatus));
   const title = cleanOrderTitle(currentOrder.order_number);
   const selectedStore = resolveStore(currentOrder.store?.name) ?? currentOrder.store;
   const itemsCount = currentOrder.item_count || currentOrder.order_items.reduce((sum, item) => sum + item.quantity, 0);
@@ -130,7 +133,7 @@ export default function OrderDetailScreen() {
             <Text style={styles.cardSubtitle}>{statusLabels[currentStatus] ?? "Заказ создан"}</Text>
           </View>
           <View style={styles.timeline}>
-            {statusSteps.map((step, index) => {
+            {orderStatusSteps.map((step, index) => {
               const active = index <= currentStatusIndex && currentStatus !== "cancelled";
               const current = index === currentStatusIndex;
               return (
@@ -139,7 +142,7 @@ export default function OrderDetailScreen() {
                     <View style={[styles.stepMarker, active && styles.stepMarkerActive]}>
                       {active ? <Ionicons name="checkmark" size={14} color={colors.surface} /> : null}
                     </View>
-                    {index < statusSteps.length - 1 ? (
+                    {index < orderStatusSteps.length - 1 ? (
                       <View style={[styles.stepLine, active && !current && styles.stepLineActive]} />
                     ) : null}
                   </View>

@@ -2,14 +2,17 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
+import { useAuth } from "../hooks/useAuth";
 
-type RouteName = "catalog" | "cart" | "maps" | "orders" | "profile";
+type RouteName = "plumber-home" | "catalog" | "cart" | "maps" | "orders" | "leads" | "profile";
 
 const tabMeta: Record<RouteName, { label: string; icon: string }> = {
+  "plumber-home": { label: "Главная", icon: "briefcase-outline" },
   catalog: { label: "Каталог", icon: "grid-outline" },
   cart: { label: "Корзина", icon: "cart-outline" },
   maps: { label: "Карты", icon: "location-outline" },
   orders: { label: "Заказы", icon: "receipt-outline" },
+  leads: { label: "Заявки", icon: "people-outline" },
   profile: { label: "Профиль", icon: "person-outline" }
 };
 
@@ -27,18 +30,26 @@ type BottomTabBarProps = {
 
 export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const isApprovedPlumber = user?.plumber?.applicationStatus === "approved";
+  const visibleRoutes: RouteName[] = isApprovedPlumber
+    ? ["plumber-home", "catalog", "orders", "leads", "profile"]
+    : ["catalog", "cart", "maps", "orders", "profile"];
+  const routes = visibleRoutes
+    .map((name) => state.routes.find((route) => route.name === name))
+    .filter((route): route is { key: string; name: string } => Boolean(route));
 
   return (
     <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
       <View style={styles.bar}>
-        {state.routes.map((route, index) => {
+        {routes.map((route) => {
           const routeName = route.name as RouteName;
           const meta = tabMeta[routeName];
           if (!meta) {
             return null;
           }
 
-          const focused = state.index === index;
+          const focused = state.routes[state.index]?.name === route.name;
           const options = descriptors[route.key]?.options ?? {};
 
           const onPress = () => {
@@ -72,7 +83,9 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
                 size={22}
                 color={focused ? colors.primary : colors.textSubtle}
               />
-              <Text style={[styles.label, focused && styles.labelActive]}>{meta.label}</Text>
+              <Text style={[styles.label, focused && styles.labelActive]}>
+                {isApprovedPlumber && routeName === "catalog" ? "Наличие" : isApprovedPlumber && routeName === "orders" ? "Резервы" : meta.label}
+              </Text>
             </Pressable>
           );
         })}

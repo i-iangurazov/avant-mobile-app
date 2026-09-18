@@ -10,12 +10,14 @@ import { ProductImagePlaceholder } from "../../../src/components/ProductImagePla
 import { QuantityStepper } from "../../../src/components/QuantityStepper";
 import { colors, radius, shadows, spacing, typography } from "../../../src/constants/theme";
 import { useCart, useCartMutations } from "../../../src/hooks/useCart";
+import { useAuth } from "../../../src/hooks/useAuth";
 import { formatPrice, friendlyError } from "../../../src/lib/formatters";
 import type { CartItemWithProduct } from "../../../src/types";
 
 export default function CartScreen() {
   const insets = useSafeAreaInsets();
   const cart = useCart();
+  const { user } = useAuth();
   const { updateQuantity, removeItem } = useCartMutations();
   const items = cart.data?.items ?? [];
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -101,6 +103,7 @@ export default function CartScreen() {
               <Text style={styles.totalValue}>уточняется менеджером</Text>
             </View>
             <AppButton title="Оформить заказ" onPress={() => router.push("/checkout")} />
+            {user?.plumber?.applicationStatus === "approved" ? <AppButton title="Быстрый резерв для объекта" variant="secondary" onPress={() => router.push({ pathname: "/checkout", params: { mode: "reservation" } })} /> : null}
           </View>
         </>
       ) : null}

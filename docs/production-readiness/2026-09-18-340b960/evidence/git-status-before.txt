@@ -1,0 +1,65 @@
+ M .env.example
+ M README.md
+ M app.json
+ M app/(auth)/login.tsx
+ M app/(auth)/register.tsx
+ M app/(tabs)/_layout.tsx
+ M app/(tabs)/cart/index.tsx
+ M app/(tabs)/orders/index.tsx
+ M app/(tabs)/profile/index.tsx
+ M app/_layout.tsx
+ M app/checkout/index.tsx
+ M app/index.tsx
+ M app/orders/[id].tsx
+ M app/product/[id].tsx
+ M package-lock.json
+ M package.json
+ M railway.json
+ D scripts/bazaar-proxy.ts
+ D scripts/check-bazaar.ts
+ M scripts/check-db.ts
+ M scripts/db/schema.sql
+ M scripts/dev-all.ts
+ M scripts/server/auth.ts
+ M scripts/server/db.ts
+ M src/components/BottomTabBar.tsx
+ M src/constants/theme.ts
+ M src/hooks/useAuth.tsx
+ M src/hooks/useOrders.ts
+ M src/hooks/useProfile.ts
+ M src/lib/api/imageSearch.ts
+ M src/lib/api/orders.ts
+ M src/lib/bazaar/adapters.ts
+ M src/lib/bazaar/client.ts
+ M src/lib/bazaar/endpoints.ts
+ M src/lib/bazaar/types.ts
+ M src/lib/config/env.ts
+ M src/lib/formatters.ts
+ M src/types/index.ts
+?? app/(tabs)/leads/
+?? app/(tabs)/plumber-home/
+?? app/admin/
+?? app/find-plumber/
+?? app/plumber/
+?? app/profile/telegram.tsx
+?? docs/
+?? scripts/app-server.ts
+?? scripts/check-catalog.ts
+?? scripts/check-loyalty.ts
+?? scripts/check-orders.ts
+?? scripts/check-telegram.ts
+?? scripts/plumber-ui-smoke.mjs
+?? scripts/server/leads.ts
+?? scripts/server/loyalty.ts
+?? scripts/server/notifications.ts
+?? scripts/server/orders.ts
+?? scripts/server/plumbers.ts
+?? scripts/server/program-content.ts
+?? scripts/server/telegram.ts
+?? src/hooks/useProgram.ts
+?? src/lib/api/account.ts
+?? src/lib/api/client.ts
+?? src/lib/api/program.ts
+?? src/lib/api/types.ts
+?? src/lib/programFormat.ts
+?? tsconfig.server.json

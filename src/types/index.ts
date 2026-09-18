@@ -50,6 +50,8 @@ export type AppOrder = {
   itemsCount: number;
   totalAmount?: number | null;
   totalLabel?: string | null;
+  orderKind?: "order" | "reservation";
+  projectNote?: string | null;
   raw?: unknown;
 };
 
@@ -93,8 +95,146 @@ export type UserProfile = {
   name: string;
   phone: string;
   address?: string | null;
+  accountType?: "customer" | "plumber";
+  roles?: ("customer" | "plumber" | "admin")[];
+  isAdmin?: boolean;
+  plumber?: PlumberProfile | null;
   created_at?: string | null;
   updated_at?: string | null;
+};
+
+export type PlumberApplicationStatus = "pending" | "approved" | "rejected" | "suspended";
+
+export type PlumberProfile = {
+  id: string;
+  accountId: string;
+  publicId: string;
+  loyaltyCode: string;
+  applicationStatus: PlumberApplicationStatus;
+  fullName: string;
+  phone: string;
+  city: string;
+  workingDistricts: string[];
+  specializations: string[];
+  experienceYears: number;
+  profilePhotoUrl?: string | null;
+  description?: string | null;
+  isAvailableForLeads: boolean;
+  notificationPreferences: Record<string, boolean>;
+  telegram: {
+    connected: boolean;
+    username?: string | null;
+    notificationsEnabled: boolean;
+  };
+  rating?: number | null;
+  reviewsCount: number;
+  rejectionReason?: string | null;
+  suspensionReason?: string | null;
+  verifiedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LoyaltyLevel = {
+  id: string;
+  code: string;
+  name: string;
+  sortOrder: number;
+  thresholdMinor: string;
+  bonusRateBps: number;
+  benefits: string[];
+  isActive: boolean;
+};
+
+export type PlumberDashboard = {
+  plumber: PlumberProfile;
+  qr: { payload: string; loyaltyCode: string };
+  balances: {
+    pendingMinor: string;
+    availableMinor: string;
+    spentMinor: string;
+    reversedMinor: string;
+  };
+  level: {
+    rollingPeriodDays: number;
+    eligiblePurchaseMinor: string;
+    current: LoyaltyLevel;
+    next: LoyaltyLevel | null;
+    remainingMinor: string;
+    progressPercent: number;
+    levels: LoyaltyLevel[];
+  };
+  recentPurchases: {
+    id: string;
+    receiptNumber: string;
+    storeName?: string | null;
+    totalMinor: string;
+    purchaseAt: string;
+  }[];
+  activeReservationsCount: number;
+  newLeadsCount: number;
+  promotions: {
+    id: string;
+    title: string;
+    description: string;
+    imageUrl?: string | null;
+    multiplier: number;
+    endsAt: string;
+  }[];
+};
+
+export type LoyaltyTransaction = {
+  id: string;
+  type: string;
+  status: "pending" | "available" | "spent" | "reversed" | "cancelled";
+  balanceBucket: "pending" | "available" | "none";
+  amountMinor: string;
+  description: string;
+  receiptNumber?: string | null;
+  availableAt?: string | null;
+  createdAt: string;
+};
+
+export type LoyaltyReward = {
+  id: string;
+  title: string;
+  imageUrl?: string | null;
+  description: string;
+  costMinor: string;
+  availabilityCount?: number | null;
+  conditions?: string | null;
+};
+
+export type ProgramContent = {
+  id: string;
+  type: "promotion" | "new_product" | "training" | "master_day" | "material";
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  location?: string | null;
+  capacity?: number | null;
+  registrationStatus?: string | null;
+};
+
+export type ServiceRequest = {
+  id: string;
+  serviceType: string;
+  description: string;
+  district: string;
+  preferredAt?: string | null;
+  relatedProductIds: string[];
+  relatedOrderId?: string | null;
+  status: "new" | "viewed" | "accepted" | "declined" | "in_progress" | "completed" | "cancelled" | "expired";
+  assignedAt?: string | null;
+  acceptedAt?: string | null;
+  completedAt?: string | null;
+  expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
+  contact?: { phone: string; address?: string | null; photoUrls: string[] } | null;
+  assignedPlumber?: { id: string; name?: string | null; loyaltyCode?: string | null } | null;
 };
 
 export type CartItemWithProduct = {
@@ -111,6 +251,8 @@ export type OrderListItem = AppOrder & {
   item_count: number;
   total_amount?: number | null;
   total_label?: string | null;
+  order_kind?: "order" | "reservation";
+  project_note?: string | null;
 };
 
 export type OrderItem = {

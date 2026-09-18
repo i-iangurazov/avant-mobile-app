@@ -1,0 +1,110 @@
+[
+  {
+    "id": "admin_self_registration",
+    "status": 201,
+    "isAdmin": true,
+    "adminEndpointStatus": 200,
+    "expected": 403
+  },
+  {
+    "id": "admin_via_profile_phone",
+    "status": 200,
+    "isAdmin": true,
+    "adminEndpointStatus": 200,
+    "expected": 403
+  },
+  {
+    "id": "ordinary_admin_denied",
+    "status": 403,
+    "expected": 403
+  },
+  {
+    "id": "pending_denied",
+    "status": 403,
+    "expected": 403
+  },
+  {
+    "id": "approve_plumber",
+    "status": 200
+  },
+  {
+    "id": "untrusted_order_price_stock_store",
+    "status": 201,
+    "total": "9.99",
+    "store": {
+      "id": "not-a-real-store",
+      "name": "Imaginary store",
+      "address": ""
+    },
+    "quantity": 999,
+    "expected": "server quote, validated stock/store"
+  },
+  {
+    "id": "order_same_retry",
+    "status": 200
+  },
+  {
+    "id": "order_changed_retry",
+    "status": 200,
+    "total": "9.99",
+    "expected": 409
+  },
+  {
+    "id": "order_isolation",
+    "status": 404,
+    "expected": 404
+  },
+  {
+    "id": "concurrent_order_retry",
+    "statuses": [
+      201,
+      500,
+      500,
+      500
+    ],
+    "errors": [
+      "duplicate key value violates unique constraint \"app_orders_customer_id_client_request_id_key\"",
+      "duplicate key value violates unique constraint \"app_orders_customer_id_client_request_id_key\"",
+      "duplicate key value violates unique constraint \"app_orders_customer_id_client_request_id_key\""
+    ],
+    "uniqueOrders": 1
+  },
+  {
+    "id": "catalog_write_denied",
+    "status": 405,
+    "expected": 405
+  },
+  {
+    "id": "delete_account_absent",
+    "status": 404,
+    "expected": "working deletion route"
+  },
+  {
+    "id": "login",
+    "status": 200,
+    "matchingUser": true
+  },
+  {
+    "id": "rate_limit_spoof",
+    "normal": [
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      401,
+      429,
+      429
+    ],
+    "spoofed": 401,
+    "expected": 429
+  }
+]

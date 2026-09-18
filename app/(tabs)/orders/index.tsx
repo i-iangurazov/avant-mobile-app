@@ -24,8 +24,8 @@ export default function OrdersScreen() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
       <View style={styles.header}>
-        <Text style={styles.title}>Мои заказы</Text>
-        <Text style={styles.subtitle}>{orders.data?.length ?? 0} заказов</Text>
+        <Text style={styles.title}>{user?.plumber?.applicationStatus === "approved" ? "Заказы и резервы" : "Мои заказы"}</Text>
+        <Text style={styles.subtitle}>{orders.data?.length ?? 0} операций</Text>
       </View>
       {!user ? (
         <EmptyState

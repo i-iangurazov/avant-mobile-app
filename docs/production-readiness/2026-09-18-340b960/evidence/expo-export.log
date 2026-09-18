@@ -1,0 +1,77 @@
+Starting Metro Bundler
+| (node:95901) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95903) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95904) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95906) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:95905) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Web ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 22.4% (176/372)
+iOS ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓░░░░░░░░░░░░░ 21.0% ( 72/273)
+Android ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  2.3% ( 32/210)
+Web ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.0% (640/720)
+iOS ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.7% (688/862)
+Android ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.5% (724/881)
+Web Bundled 9585ms ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js (895 modules)
+iOS ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.7% (1452/1454)
+Android ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.5% (1420/1438)
+iOS Bundled 11040ms ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js (1454 modules)
+Android Bundled 12253ms ../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/entry.js (1450 modules)
+
+› Assets (59):
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676fd56f6bdc51.ttf (390 kB)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf (390 kB)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.0a328cd9c1afd0afe8e3b1ec5165b1b4.png (653 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/back-icon-mask.png (653 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/back-icon.35ba0eaec5a4f5ed12ca16fabeae451d.png (207 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/back-icon.png (8 variations | 359 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.c94f6478e7ae0cdd9f15de1fcb9e5e55.png (4 variations | 425 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/clear-icon.png (4 variations | 425 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/close-icon.808e1b1b9b53114ec2838071a7e6daa7.png (4 variations | 235 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/close-icon.png (4 variations | 235 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/search-icon.286d67d3f74808a60a78d3ebf1a5fb57.png (928 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/@react-navigation/elements/lib/module/assets/search-icon.png (7 variations | 592 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/arrow_down.017bc6ba3fc25503e5eb5e53826d48a8.png (9.46 kB)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/arrow_down.png (9.46 kB)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/error.d1ea1496f9057eb392d5bbf3732a61b7.png (469 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/error.png (469 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/file.19eeb73b9593a38f8e9f418337fc7d10.png (138 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/file.png (138 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/forward.d8b800c443b8972542883e0b9de2bdc6.png (188 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/forward.png (188 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/pkg.ab19f4cbc543357183a20571f68380a3.png (364 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/pkg.png (364 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/sitemap.412dd9275b6b48ad28f5e3d81bb1f626.png (465 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/sitemap.png (465 B)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/unmatched.20e71bdf79e3a97bf55fd9e164041578.png (4.75 kB)
+../../../Users/ilias_iangurazov/Commercial/Avantehnik Mobile App/node_modules/expo-router/assets/unmatched.png (4.75 kB)
+src/imports/avant-icon.ff93474276a330363424ad750d8d3761.png (466 kB)
+src/imports/avant-icon.png (466 kB)
+src/imports/avant-logo.cb1d82c80a5a1ef2a9bd47055e07387b.png (153 kB)
+src/imports/avant-logo.png (153 kB)
+src/imports/image-1.e804f42576ae64ac37e1954c8e8c4763.png (75.5 kB)
+src/imports/image-1.png (75.5 kB)
+src/imports/image.d1f3d3751bf04a0f9e29c001cadc3579.png (73.7 kB)
+src/imports/image.png (73.7 kB)
+
+› web bundles (1):
+_expo/static/js/web/entry-8590420ef75854e1cd32f935c02e9fc1.js (1.61 MB)
+
+› ios bundles (1):
+_expo/static/js/ios/entry-b3e47e987312eb17386070f6def2f8e6.hbc (4.07 MB)
+
+› android bundles (1):
+_expo/static/js/android/entry-b1d6e933d8121399bda78a6ff207842b.hbc (4.06 MB)
+
+› Files (2):
+index.html (1.19 kB)
+metadata.json (4.15 kB)
+
+Exported: /private/tmp/avantehnik-audit-export

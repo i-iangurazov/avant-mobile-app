@@ -1,0 +1,9 @@
+{
+  "base_commit": "340b960bed2af4033637ab0bc35c9c60ccf076e4",
+  "branch": "main",
+  "dirty": true,
+  "source_manifest_sha256": "b6aee174148012d03ff29036ad9c2f175df208e8838559643454d46cafc7225b",
+  "version": "1.0.0",
+  "build_number": "not established",
+  "audit_date": "2026-09-18"
+}
