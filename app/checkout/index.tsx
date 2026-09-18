@@ -1,3 +1,5 @@
+import { useAuth } from "../../src/hooks/useAuth";
+import { quoteOrder, hasPendingOrder, type OrderQuote } from "../../src/lib/api/orders";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -22,6 +24,11 @@ type FieldErrors = Partial<Record<"name" | "phone" | "address" | "store", string
 
 export default function CheckoutScreen() {
   const params = useLocalSearchParams<{ mode?: string }>();
+  const {session,user} = useAuth();
+  const [quote,setQuote] = useState<OrderQuote | null>(null);
+  const [pending,setPending] = useState(false);
+  const [quoting,setQuoting] = useState(false);
+  const [serverError,setServerError] = useState("");
   const profile = useProfile();
   const stores = useStores();
   const cart = useCart();
@@ -33,6 +40,8 @@ export default function CheckoutScreen() {
   const [address, setAddress] = useState("");
   const [comment, setComment] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
+  useEffect(()=>{ if(user) void hasPendingOrder(user.id).then(setPending); },[user]);
+  useEffect(()=>{setQuote(null);},[name,phone,method,storeId,address,comment,cart.data]);
   const isReservation = params.mode === "reservation";
 
   useEffect(() => {
@@ -66,14 +75,14 @@ export default function CheckoutScreen() {
       return;
     }
 
-    if (!cart.data?.items.length) {
+    if (!pending && !cart.data?.items.length) {
       Alert.alert("Корзина пуста", "Добавьте товары перед оформлением заказа.");
       return;
     }
 
     try {
       const selectedStore = stores.data?.find((store) => store.id === storeId);
-      const result = await createOrder.mutateAsync({
+      const payload = {
         customerName: name.trim(),
         customerPhone: normalizePhone(phone),
         deliveryMethod: method,
@@ -82,13 +91,23 @@ export default function CheckoutScreen() {
         storeAddress: method === "pickup" ? selectedStore?.address ?? null : null,
         deliveryAddress: method === "delivery" ? address.trim() : null,
         comment: comment.trim() || null,
-        orderKind: isReservation ? "reservation" : "order",
+        orderKind: isReservation ? "reservation" as const : "order" as const,
         projectNote: isReservation ? comment.trim() || null : null
-      });
+      };
+      setServerError('');
+      if (!quote && !pending) {
+        setQuoting(true);
+        setQuote(await quoteOrder({...payload,items:cart.data?.items || []},session?.accessToken));
+        return;
+      }
+      const result = await createOrder.mutateAsync({...payload,quote});
 
       Alert.alert(isReservation ? "Резерв создан" : "Заказ оформлен", isReservation ? "Это резерв, а не оплата. Менеджер проверит остатки и подтвердит готовность к самовывозу." : "Заказ оформлен. Менеджер свяжется с вами для подтверждения.");
       router.replace({ pathname: "/orders/[id]", params: { id: result.order_id } });
     } catch (error) {
+      setServerError(error instanceof Error ? error.message : 'Не удалось оформить заказ.');
+      setQuote(null);
+      if(user) setPending(await hasPendingOrder(user.id));
       Alert.alert("Не удалось оформить заказ", friendlyError(error instanceof Error ? error.message : undefined), [
         { text: "Закрыть", style: "cancel" },
         {
@@ -100,7 +119,7 @@ export default function CheckoutScreen() {
             )
         }
       ]);
-    }
+    } finally { setQuoting(false); }
   };
 
   if (profile.isLoading || stores.isLoading || cart.isLoading) {
@@ -198,7 +217,10 @@ export default function CheckoutScreen() {
             style={styles.commentInput}
           />
           {isReservation ? <View style={styles.reservationNotice}><Ionicons name="information-circle-outline" size={20} color={colors.secondary} /><Text style={styles.reservationNoticeText}>Товары будут отложены только после подтверждения менеджером. Оплата выполняется отдельно.</Text></View> : null}
-          <AppButton title={isReservation ? "Отправить резерв" : "Подтвердить заказ"} onPress={() => void submit()} loading={createOrder.isPending} />
+          {quote ? <Text style={styles.label}>Итог по данным сервера: {quote.totalAmount === null ? 'Уточняется менеджером' : `${quote.totalAmount} сом`}. Оплата отдельно.</Text> : null}
+          {pending ? <Text style={styles.label}>Есть незавершённая отправка. Проверим её результат по прежнему номеру запроса.</Text> : null}
+          {serverError ? <Text accessibilityRole="alert" style={styles.errorText}>{serverError}</Text> : null}
+          <AppButton title={pending ? "Проверить результат отправки" : quote ? "Подтвердить заказ" : "Проверить итог"} onPress={() => void submit()} loading={createOrder.isPending || quoting} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

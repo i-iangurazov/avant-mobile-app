@@ -503,3 +503,23 @@ CREATE TABLE IF NOT EXISTS app_rate_limits (
  key TEXT PRIMARY KEY, attempts INTEGER NOT NULL, expires_at TIMESTAMPTZ NOT NULL
 );
 ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS request_hash TEXT;
+
+-- Populated only by a trusted inventory integration after owner approval. No public write endpoint.
+CREATE TABLE IF NOT EXISTS app_order_branches (
+ organization_id TEXT NOT NULL, id TEXT NOT NULL, name TEXT NOT NULL, address TEXT NOT NULL,
+ is_active BOOLEAN NOT NULL DEFAULT false, orders_enabled BOOLEAN NOT NULL DEFAULT false,
+ delivery_enabled BOOLEAN NOT NULL DEFAULT false, updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+ PRIMARY KEY(organization_id,id)
+);
+CREATE TABLE IF NOT EXISTS app_order_offers (
+ organization_id TEXT NOT NULL, branch_id TEXT NOT NULL, product_id TEXT NOT NULL,
+ product_name TEXT NOT NULL, unit_price_minor BIGINT CHECK(unit_price_minor >= 0 AND unit_price_minor <= 10000000000),
+ request_only BOOLEAN NOT NULL DEFAULT false, stock_quantity INTEGER NOT NULL CHECK(stock_quantity >= 0),
+ reserved_quantity INTEGER NOT NULL DEFAULT 0 CHECK(reserved_quantity >= 0 AND reserved_quantity <= stock_quantity),
+ is_active BOOLEAN NOT NULL DEFAULT false, valid_until TIMESTAMPTZ NOT NULL,
+ PRIMARY KEY(organization_id,branch_id,product_id),
+ FOREIGN KEY(organization_id,branch_id) REFERENCES app_order_branches(organization_id,id),
+ CHECK(unit_price_minor IS NOT NULL OR request_only)
+);
+ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS organization_id TEXT;
+ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS inventory_held BOOLEAN NOT NULL DEFAULT false;

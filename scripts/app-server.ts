@@ -1,3 +1,4 @@
+import { trustedOrder, trustedTotal } from "./server/order-trust";
 import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { timingSafeEqual } from "node:crypto";
@@ -219,7 +220,7 @@ const sendError = (req: IncomingMessage, res: ServerResponse, error: unknown) =>
       ? error.statusCode
       : 500;
   const message = error instanceof Error ? error.message : "Сервис временно недоступен. Попробуйте позже.";
-  sendJson(req, res, status, { error: status >= 500 ? "Сервис временно недоступен. Попробуйте позже." : message });
+  sendJson(req, res, status, { error: status >= 500 ? "Сервис временно недоступен. Попробуйте позже." : message, requestNotCreated: Boolean(error && typeof error === "object" && "requestNotCreated" in error && error.requestNotCreated) });
 };
 
 const asText = (value: unknown, maxLength: number) =>
@@ -301,14 +302,14 @@ const parseOrderItem = (value: unknown): NewOrderItem | null => {
   }
   const item = value as Record<string, unknown>;
   const productName = asText(item.productName, 300);
-  const quantity = Math.floor(Number(item.quantity));
+  const quantity = Number(item.quantity);
   const rawPrice = item.unitPrice;
   const parsedPrice = rawPrice === null || rawPrice === undefined || rawPrice === "" ? null : Number(rawPrice);
   const unitPrice = parsedPrice !== null && Number.isFinite(parsedPrice) && parsedPrice >= 0 && parsedPrice <= 100_000_000
     ? parsedPrice
     : null;
 
-  if (!productName || !Number.isFinite(quantity) || quantity < 1 || quantity > 999) {
+  if (!productName || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 999) {
     return null;
   }
 
@@ -322,6 +323,9 @@ const parseOrderItem = (value: unknown): NewOrderItem | null => {
 };
 
 const parseNewOrder = (payload: Record<string, unknown>): NewOrder => {
+  if (['discount','discountAmount','discountPercent','bonus','bonusAmount','total','totalAmount','organizationId'].some(key => key in payload)) {
+    throw Object.assign(new Error('Суммы, скидки и организация определяются сервером.'), {statusCode:400});
+  }
   const clientRequestId = asText(payload.clientRequestId, 100);
   const customerName = asText(payload.customerName, 200);
   const customerPhone = asText(payload.customerPhone, 40);
@@ -714,7 +718,8 @@ const server = createServer(async (req, res) => {
           status: asNullableText(requestUrl.searchParams.get("status"), 30) ?? undefined,
           type: asNullableText(requestUrl.searchParams.get("type"), 50) ?? undefined,
           limit,
-          offset
+          offset,
+          cursor: asNullableText(requestUrl.searchParams.get("cursor"), 1000) ?? undefined
         })
       });
       return;
@@ -1061,6 +1066,12 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    if (path === '/orders/quote' && req.method === 'POST') {
+      await requireCustomerId(req);
+      const payload = parseNewOrder(await readJsonBody(req));
+      const quote = await trustedOrder(pool, payload, {organizationId: env.APP_ORGANIZATION_ID || '', deliveryBranchId: env.DELIVERY_BRANCH_ID}, false);
+      sendJson(req,res,200,{data:{...quote,totalAmount:trustedTotal(quote.items)}}); return;
+    }
     if (path === "/orders" && req.method === "GET") {
       sendJson(req, res, 200, { data: await listAppOrders(pool, await requireCustomerId(req)) });
       return;
@@ -1078,11 +1089,11 @@ const server = createServer(async (req, res) => {
           throw Object.assign(new Error("Резерв доступен только для самовывоза."), { statusCode: 400 });
         }
       }
-      const result = await createAppOrder(pool, customerId, orderPayload);
+      const result = await createAppOrder(pool, customerId, orderPayload, {organizationId:env.APP_ORGANIZATION_ID || "",deliveryBranchId:env.DELIVERY_BRANCH_ID});
       if (!result.order) {
         throw new Error("Не удалось сохранить заказ.");
       }
-      const delivered = result.order.telegram.message_id !== null || await deliverTelegramOrder(result.order.id);
+      const delivered = result.order.telegram.message_id !== null;
       const order = await getAppOrder(pool, result.order.id, customerId);
       sendJson(req, res, result.created ? 201 : 200, {
         data: order ? toPublicOrder(order) : null,

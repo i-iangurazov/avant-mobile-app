@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createOrder, fetchOrder, fetchOrders } from "../lib/api/orders";
-import { clearLocalCart, getLocalCartItems } from "../lib/cart/localCart";
+import { createOrder, fetchOrder, fetchOrders, hasPendingOrder, type OrderQuote } from "../lib/api/orders";
+import { getLocalCartItems } from "../lib/cart/localCart";
 import type { FulfillmentMethod } from "../types";
 import { useAuth } from "./useAuth";
 
@@ -38,6 +38,7 @@ export function useCreateOrderFromCart() {
 
   return useMutation({
     mutationFn: async (payload: {
+      quote?: OrderQuote | null;
       customerName: string;
       customerPhone: string;
       deliveryMethod: FulfillmentMethod;
@@ -49,16 +50,21 @@ export function useCreateOrderFromCart() {
       orderKind?: "order" | "reservation";
       projectNote?: string | null;
     }) => {
-      const items = await getLocalCartItems();
+      const originalItems = await getLocalCartItems();
+      const items = originalItems.map(item => {
+        const price = payload.quote?.items.find(line => line.productId === item.product_id);
+        return price && item.product ? {...item,product:{...item.product,price:price.unitPrice,name:price.productName}} : item;
+      });
 
-      if (!items.length) {
+      if (!user) throw new Error("Войдите в аккаунт.");
+      if (!items.length && !await hasPendingOrder(user.id)) {
         throw new Error("Корзина пуста.");
       }
 
       const order = await createOrder({
         ...payload,
         items
-      }, session?.accessToken);
+      }, session?.accessToken, user.id);
 
       return {
         ...order,
@@ -66,7 +72,7 @@ export function useCreateOrderFromCart() {
       };
     },
     onSuccess: async () => {
-      await clearLocalCart();
+
       void queryClient.invalidateQueries({ queryKey: ["cart"] });
       void queryClient.invalidateQueries({ queryKey: ["orders", user?.id] });
     }

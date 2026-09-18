@@ -1,5 +1,7 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type pg from "pg";
+import { trustedOrder, trustedTotal, type OrderContext } from "./order-trust";
+import { fail } from "./security";
 
 export const ORDER_STATUS_LABELS = {
   created: "Заказ создан",
@@ -146,7 +148,7 @@ const toOrderDetail = (row: OrderRow, items: OrderItemRow[], events: StatusEvent
   }
 });
 
-const getOrderRows = async (pool: pg.Pool, orderId: string, customerId?: string) => {
+const getOrderRows = async (pool: pg.Pool | pg.PoolClient, orderId: string, customerId?: string) => {
   const parameters: string[] = [orderId];
   const customerClause = customerId ? "AND customer_id = $2" : "";
   if (customerId) {
@@ -178,7 +180,7 @@ const getOrderRows = async (pool: pg.Pool, orderId: string, customerId?: string)
   return { row: order.rows[0], items: items.rows, events: events.rows };
 };
 
-export async function getAppOrder(pool: pg.Pool, orderId: string, customerId?: string) {
+export async function getAppOrder(pool: pg.Pool | pg.PoolClient, orderId: string, customerId?: string) {
   const result = await getOrderRows(pool, orderId, customerId);
   return result ? toOrderDetail(result.row, result.items, result.events) : null;
 }
@@ -197,44 +199,44 @@ export async function listAppOrders(pool: pg.Pool, customerId: string) {
   return result.rows.map((row) => toOrderListItem(row, Number(row.item_count)));
 }
 
-const calculateTotal = (items: NewOrderItem[]) => {
-  if (items.some((item) => item.unitPrice === null)) {
-    return null;
-  }
-  return items.reduce((sum, item) => sum + (item.unitPrice ?? 0) * item.quantity, 0);
-};
-
-export async function createAppOrder(pool: pg.Pool, customerId: string, payload: NewOrder) {
+export async function createAppOrder(pool: pg.Pool, customerId: string, payload: NewOrder, context: OrderContext = { organizationId: process.env.APP_ORGANIZATION_ID || "", deliveryBranchId: process.env.DELIVERY_BRANCH_ID }) {
+  const requestHash = createHash('sha256').update(JSON.stringify({
+    ...payload, clientRequestId: undefined, items: [...payload.items].sort((a,b)=>(a.productId||'').localeCompare(b.productId||''))
+  })).digest('hex');
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
-    const existing = await client.query<{ id: string }>(
-      "SELECT id FROM app_orders WHERE customer_id = $1 AND client_request_id = $2 LIMIT 1",
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`order:${customerId}:${payload.clientRequestId}`]);
+    const existing = await client.query<{ id: string; request_hash: string | null }>(
+      "SELECT id, request_hash FROM app_orders WHERE customer_id = $1 AND client_request_id = $2 LIMIT 1",
       [customerId, payload.clientRequestId]
     );
 
     if (existing.rows[0]) {
+      if (existing.rows[0].request_hash !== requestHash) fail('Запрос с этим ключом уже сохранён с другим содержимым. Откройте историю заказов.',409);
       await client.query("COMMIT");
-      const order = await getAppOrder(pool, existing.rows[0].id, customerId);
+      const order = await getAppOrder(client, existing.rows[0].id, customerId);
       return { order, created: false };
     }
 
+    try { payload = await trustedOrder(client, payload, context, true); }
+    catch (error) { if (error instanceof Error) Object.assign(error,{requestNotCreated:true}); throw error; }
     const id = randomUUID();
     const sequence = await client.query<{ value: string }>(
       "SELECT nextval('app_order_number_seq')::text AS value"
     );
     const date = new Date().toISOString().slice(0, 10).replaceAll("-", "");
     const orderNumber = `AV-${date}-${sequence.rows[0].value.padStart(5, "0")}`;
-    const total = calculateTotal(payload.items);
+    const total = trustedTotal(payload.items);
 
     await client.query(
       `INSERT INTO app_orders (
         id, order_number, client_request_id, customer_id, status,
         customer_name, customer_phone, delivery_method,
         store_id, store_name, store_address, delivery_address, comment, total_amount,
-        order_kind, project_note
-      ) VALUES ($1, $2, $3, $4, 'created', $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+        order_kind, project_note, request_hash, organization_id, inventory_held
+      ) VALUES ($1, $2, $3, $4, 'created', $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, true)`,
       [
         id,
         orderNumber,
@@ -250,7 +252,7 @@ export async function createAppOrder(pool: pg.Pool, customerId: string, payload:
         payload.comment,
         total,
         payload.orderKind === "reservation" ? "reservation" : "order",
-        payload.projectNote
+        payload.projectNote, requestHash, context.organizationId
       ]
     );
 
@@ -278,7 +280,7 @@ export async function createAppOrder(pool: pg.Pool, customerId: string, payload:
     );
 
     await client.query("COMMIT");
-    const order = await getAppOrder(pool, id, customerId);
+    const order = await getAppOrder(client, id, customerId);
     return { order, created: true };
   } catch (error) {
     await client.query("ROLLBACK");
@@ -310,8 +312,8 @@ export async function updateAppOrderStatus(
 
   try {
     await client.query("BEGIN");
-    const current = await client.query<Pick<OrderRow, "status" | "delivery_method">>(
-      "SELECT status, delivery_method FROM app_orders WHERE id = $1 FOR UPDATE",
+    const current = await client.query<Pick<OrderRow, "status" | "delivery_method"> & {inventory_held:boolean; organization_id:string; store_id:string}>(
+      "SELECT status, delivery_method, inventory_held, organization_id, store_id FROM app_orders WHERE id = $1 FOR UPDATE",
       [orderId]
     );
     const row = current.rows[0];
@@ -325,10 +327,19 @@ export async function updateAppOrderStatus(
       return { changed: false };
     }
 
-    if (!allowedNextStatuses(row as AppOrderDetail).includes(nextStatus)) {
+    if (!allowedNextStatuses(row).includes(nextStatus)) {
       throw Object.assign(new Error("Этот переход статуса недоступен."), { statusCode: 409 });
     }
 
+    if (row.inventory_held && ['cancelled','completed'].includes(nextStatus)) {
+      const items = await client.query('SELECT product_id,quantity FROM app_order_items WHERE order_id=$1 ORDER BY product_id', [orderId]);
+      for (const item of items.rows) await client.query(`UPDATE app_order_offers SET
+        reserved_quantity=reserved_quantity-$4,
+        stock_quantity=stock_quantity-CASE WHEN $5 THEN $4 ELSE 0 END
+        WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3`,
+        [row.organization_id,row.store_id,item.product_id,item.quantity,nextStatus==='completed']);
+      await client.query('UPDATE app_orders SET inventory_held=false WHERE id=$1',[orderId]);
+    }
     await client.query(
       "UPDATE app_orders SET status = $1, updated_at = now() WHERE id = $2",
       [nextStatus, orderId]

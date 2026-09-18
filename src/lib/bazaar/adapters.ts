@@ -238,7 +238,7 @@ const normalizeOrderStatus = (value: unknown): OrderStatus => {
 
 const unwrapOrderRecord = (value: unknown) => {
   const record = isRecord(value) ? value : {};
-  return isRecord(record.order) ? record.order : record;
+  return isRecord(record.data) ? record.data : isRecord(record.order) ? record.order : record;
 };
 
 const categorySortIndex = (categoryId: string) => {
@@ -378,7 +378,8 @@ export function adaptProducts(payload: unknown) {
 export function adaptOrder(value: unknown): OrderListItem {
   const record = unwrapOrderRecord(value);
   const id = readString(record, ["id", "uuid", "order_id", "orderId"], "");
-  const displayId = id || `local-${Date.now()}`;
+  if (!id) throw new Error("Сервер не вернул идентификатор заказа. Проверьте историю перед повтором.");
+  const displayId = id;
   const status = normalizeOrderStatus(read(record, ["status", "state", "internalStatus"]));
   const items = normalizeArray(read(record, ["items", "order_items", "products"]));
   const itemsCount: number =

@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomInt, randomUUID, timingSafeEqual } from 'node:crypto';
 import type pg from 'pg';
 
-export const fail = (message: string, statusCode = 400): never => { throw Object.assign(new Error(message), { statusCode }); };
+export function fail(message: string, statusCode = 400): never { throw Object.assign(new Error(message), { statusCode }); }
 export type PhoneAction = 'register' | 'login' | 'phone_change' | 'password_reset' | 'delete';
 export type PhoneProof = { challengeId?: string; code?: string };
 export type SmsSender = (message: { phone: string; code: string; action: PhoneAction; challengeId: string; expiresInSeconds: number }) => Promise<void>;

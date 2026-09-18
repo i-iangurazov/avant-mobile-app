@@ -1,4 +1,4 @@
-import { debugApiErrors } from "../config/env";
+const debugApiErrors = process.env.EXPO_PUBLIC_DEBUG_API_ERRORS === "true";
 
 const UNKNOWN_ERROR = "Что-то пошло не так. Попробуйте ещё раз.";
 

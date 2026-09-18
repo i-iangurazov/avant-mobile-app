@@ -18,7 +18,7 @@ const parseCartItems = (value: string | null): CartItemWithProduct[] => {
 
   try {
     const parsed = JSON.parse(value) as unknown;
-    return Array.isArray(parsed) ? (parsed as CartItemWithProduct[]) : [];
+    return Array.isArray(parsed) ? (parsed as CartItemWithProduct[]) : parsed && typeof parsed === "object" && "items" in parsed && Array.isArray(parsed.items) ? parsed.items as CartItemWithProduct[] : [];
   } catch {
     return [];
   }
@@ -30,7 +30,9 @@ export async function getLocalCartItems() {
 }
 
 export async function setLocalCartItems(items: CartItemWithProduct[]) {
-  await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  const raw = await AsyncStorage.getItem(CART_STORAGE_KEY);
+  const previous = raw ? JSON.parse(raw) : {};
+  await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify({items, applied: previous.applied || []}));
   return items;
 }
 
@@ -65,4 +67,15 @@ export async function removeLocalCartItem(itemId: string) {
 
 export async function clearLocalCart() {
   await AsyncStorage.removeItem(CART_STORAGE_KEY);
+}
+
+export async function consumeSubmittedCart(items: CartItemWithProduct[], key: string) {
+  const raw = await AsyncStorage.getItem(CART_STORAGE_KEY);
+  const previous = raw ? JSON.parse(raw) : {};
+  const applied: string[] = previous.applied || [];
+  if (applied.includes(key)) return;
+  const current = parseCartItems(raw);
+  const remaining = current.map(item => ({...item,quantity:item.quantity-(items.find(sent=>sent.id===item.id)?.quantity || 0)})).filter(item=>item.quantity>0);
+  // Applied key and cart are a single stored value: a crash cannot subtract twice.
+  await AsyncStorage.setItem(CART_STORAGE_KEY,JSON.stringify({items:remaining,applied:[...applied.slice(-99),key]}));
 }
