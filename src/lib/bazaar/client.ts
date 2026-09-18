@@ -1,3 +1,4 @@
+import {loadCompleteCatalog,orderedProductPage} from "./completeCatalog";
 import type { Category, Product } from "../../types";
 import { apiBaseUrl } from "../config/env";
 import { normalizeApiError } from "../errors/normalizeApiError";
@@ -333,47 +334,14 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   return sortProducts(products, query.sort).slice(0, query.limit ?? products.length);
 }
 
+let catalogSnapshot: {expires:number;promise:Promise<Product[]>}|null=null;
 export async function getProductsPage(query: ProductPageQuery = {}): Promise<ProductPageResult> {
-  const page = Math.max(1, Math.floor(Number(query.page) || 1));
-  const pageSize = Math.max(1, Math.min(100, Math.floor(Number(query.pageSize) || DEFAULT_PRODUCTS_PAGE_SIZE)));
-  const payload = await bazaarClient.getProductsRaw({
-    page,
-    pageSize,
-    search: query.search?.trim() ?? undefined
-  });
-  const total = getPayloadTotal(payload);
-  let products = adaptProducts(payload);
-
-  if (query.categoryId && query.categoryId !== "all-products") {
-    products = products.filter((product) => product.category_id === query.categoryId);
+  if(!catalogSnapshot || catalogSnapshot.expires<Date.now()) {
+    const promise=loadCompleteCatalog(page=>bazaarClient.getProductsRaw({page,pageSize:DEFAULT_PRODUCTS_PAGE_SIZE}));
+    catalogSnapshot={expires:Date.now()+60_000,promise};
+    promise.catch(()=>{if(catalogSnapshot?.promise===promise)catalogSnapshot=null;});
   }
-
-  products = products.filter((product) => productMatchesQuery(product, query));
-
-  if (query.search?.trim()) {
-    const normalized = query.search.trim().toLowerCase();
-    products = products.filter((product) =>
-      [
-        product.name,
-        product.sku,
-        product.brand,
-        product.description,
-        product.category?.name
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized)
-    );
-  }
-
-  return {
-    products: sortProducts(products, query.sort),
-    page,
-    pageSize,
-    total,
-    hasMore: total !== null ? page * pageSize < total : products.length >= pageSize
-  };
+  return orderedProductPage(await catalogSnapshot.promise,{...query,page:Math.max(1,Math.floor(query.page||1)),pageSize:Math.max(1,Math.min(100,Math.floor(query.pageSize||100)))});
 }
 
 export async function getProductById(productId: string): Promise<Product> {

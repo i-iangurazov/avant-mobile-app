@@ -1,0 +1,6 @@
+import {execFileSync}from'node:child_process';import{writeFileSync}from'node:fs';import vm from'node:vm';import ts from'typescript';import assert from'node:assert/strict';
+const values=new Map();const storage={getItem:async key=>values.get(key)||null,setItem:async(key,value)=>{values.set(key,value);},removeItem:async key=>{values.delete(key);}};
+const source=execFileSync('git',['show','c88450a:src/lib/cart/localCart.ts'],{encoding:'utf8'});const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;
+const exports={};vm.runInNewContext(js,{exports,require:()=>({__esModule:true,default:storage})});
+await Promise.all(Array.from({length:20},()=>exports.addLocalCartItem({id:'fixture',name:'Test',price:1},1)));const actual=(await exports.getLocalCartItems())[0].quantity;assert.equal(actual,1);
+writeFileSync('docs/production-readiness/2026-09-18-remediation/evidence/D20-before.json',JSON.stringify({source:'c88450a:src/lib/cart/localCart.ts',method:'Actual baseline module transpiled by TypeScript, in-memory asynchronous storage',parallelAdds:20,expectedQuantity:20,actualQuantity:actual},null,2));console.log('D20 reproduced in baseline cart module: 20 parallel adds leave quantity 1.');

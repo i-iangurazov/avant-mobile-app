@@ -1,3 +1,4 @@
+import {clearLocalCart} from '../lib/cart/localCart';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
@@ -208,6 +209,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const signOut = useCallback(async () => {
     const token = sessionRef.current?.accessToken;
     if (token) await appApiClient.request('/auth/logout', { method:'POST', headers:{Authorization:`Bearer ${token}`}, body:JSON.stringify({refreshToken:sessionRef.current?.refreshToken}) }).catch(()=>undefined);
+    await clearLocalCart();
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys.filter(key => key.startsWith('avantehnik:') || key.startsWith('avantehnik.checkout.')));
     await persistSession(null);
