@@ -1,3 +1,4 @@
+import {requestAccountRecovery,listAccountRecovery,approveAccountRecovery,completeAccountRecovery} from './server/account-recovery';
 import {createCatalogGateway} from "./server/catalog";
 import {mediaProvider,uploadMedia,requireOwnedMedia} from "./server/media";
 import { listPublicDocuments } from "./server/documents";
@@ -13,9 +14,9 @@ import {
   loginCustomer,
   registerCustomer,
   updateCustomerProfile,
-  requireSession, refreshSession, revokeSession, resetPassword, normalizePhone
+  requireSession, refreshSession, revokeSession, normalizePhone
 } from "./server/auth";
-import { createPhoneChallenge, httpSmsSender, rateLimit, type PhoneAction } from "./server/security";
+import { rateLimit } from "./server/security";
 import { createPool, ensureSchema } from "./server/db";
 import { loadEnv } from "./server/env";
 import {
@@ -245,11 +246,6 @@ const asStringArray = (value: unknown, maxItems = 20) =>
     : [];
 const asRecord = (value: unknown) =>
   value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-
-const parsePhoneProof = (value: unknown) => {
-  const proof = asRecord(value);
-  return { challengeId: asText(proof.challengeId, 100), code: asText(proof.code, 10) };
-};
 
 const parsePlumberApplication = (payload: Record<string, unknown>): PlumberApplicationInput => ({
   programDocumentVersion: asText(payload.programDocumentVersion,100),
@@ -596,31 +592,12 @@ const server = createServer(async (req, res) => {
       const policy=(await listPublicDocuments(pool)).find(doc=>doc.kind==='deletion');
       const body=await readJsonBody(req);
       if (policy && asText(body.deletionDocumentVersion,100)!==policy.version) throw Object.assign(new Error('Порядок удаления обновлён. Прочитайте его и подтвердите действие заново.'),{statusCode:409});
-      sendJson(req,res,200,await deleteAccount(pool,accountId,asText(body.password,200),parsePhoneProof(body.phoneProof),authTokenSecret,
+      sendJson(req,res,200,await deleteAccount(pool,accountId,asText(body.password,200),
         {mode:env.ACCOUNT_DELETION_MODE || '',version:policy?.version || ''},mediaProvider(env.MEDIA_PROVIDER_URL || '',env.MEDIA_PROVIDER_TOKEN || '',env.MEDIA_PUBLIC_HOST || ''))); return;
     }
 
     if (path === '/auth/phone/challenge' && req.method === 'POST') {
-      await enforceRateLimit(req, 'phone-challenge', 20, 60 * 60_000);
-      const payload = await readJsonBody(req);
-      const action = asText(payload.action, 30) as PhoneAction;
-      if (!['register','login','phone_change','password_reset','delete'].includes(action)) {
-        throw Object.assign(new Error('Недопустимое действие.'), { statusCode: 400 });
-      }
-      let phone = normalizePhone(asText(payload.phone, 40));
-      let accountId: string | null = null;
-      if (action === 'phone_change' || action === 'delete') {
-        accountId = await requireCustomerId(req);
-        if (action === 'delete') phone = (await getCustomerProfile(pool, accountId)).user.phone;
-      } else if (action !== 'register') {
-        const found = await pool.query<{id:string}>('SELECT id FROM app_customers WHERE phone=$1', [phone]);
-        accountId = found.rows[0]?.id ?? null;
-        if (!accountId) {
-          sendJson(req, res, 200, { challengeId: crypto.randomUUID(), expiresInSeconds: 300 }); return;
-        }
-      }
-      sendJson(req, res, 200, await createPhoneChallenge(pool, authTokenSecret,
-        httpSmsSender(env.SMS_PROVIDER_URL || '', env.SMS_PROVIDER_TOKEN || ''), action, phone, accountId)); return;
+      sendJson(req,res,410,{error:'Подтверждение телефона по SMS больше не используется. Обновите приложение.'}); return;
     }
     if (path === '/auth/refresh' && req.method === 'POST') {
       await enforceRateLimit(req, 'refresh', 60);
@@ -632,11 +609,22 @@ const server = createServer(async (req, res) => {
       await revokeSession(pool, bearerToken(req.headers.authorization), authTokenSecret, asText(body.refreshToken,200));
       sendJson(req, res, 200, { success: true }); return;
     }
+    if (path === '/auth/recovery/request' && req.method === 'POST') {
+      await enforceRateLimit(req,'recovery-request',5,60*60_000);
+      const body=await readJsonBody(req);
+      sendJson(req,res,202,await requestAccountRecovery(pool,asText(body.phone,40),asText(body.contactNote,1001))); return;
+    }
     if (path === '/auth/password/reset' && req.method === 'POST') {
-      await enforceRateLimit(req, 'password-reset', 10, 10 * 60_000);
-      const body = await readJsonBody(req);
-      await resetPassword(pool, normalizePhone(asText(body.phone,40)), asText(body.password,200), parsePhoneProof(body.phoneProof), authTokenSecret);
-      sendJson(req, res, 200, { success: true }); return;
+      await enforceRateLimit(req,'password-reset',10,10*60_000);
+      const body=await readJsonBody(req);
+      sendJson(req,res,200,await completeAccountRecovery(pool,asText(body.token,200),asText(body.password,201))); return;
+    }
+    if (path === '/admin/account-recovery' && req.method === 'GET') {
+      sendJson(req,res,200,{data:await listAccountRecovery(pool,await requireAdminId(req))}); return;
+    }
+    if (path === '/admin/account-recovery/approve' && req.method === 'POST') {
+      const actor=await requireAdminId(req);const body=await readJsonBody(req);
+      sendJson(req,res,200,await approveAccountRecovery(pool,actor,asText(body.requestId,100),asText(body.password,201),asText(body.reviewNote,1001))); return;
     }
 
     if (path === "/auth/register" && req.method === "POST") {
@@ -645,7 +633,6 @@ const server = createServer(async (req, res) => {
       const result = await registerCustomer(
         pool,
         {
-          phoneProof: parsePhoneProof(payload.phoneProof),
           name: typeof payload.name === "string" ? payload.name : undefined,
           phone: typeof payload.phone === "string" ? payload.phone : undefined,
           address: typeof payload.address === "string" ? payload.address : undefined,
@@ -676,7 +663,6 @@ const server = createServer(async (req, res) => {
       const result = await loginCustomer(
         pool,
         {
-          phoneProof: parsePhoneProof(payload.phoneProof),
           phone: typeof payload.phone === "string" ? payload.phone : undefined,
           password: typeof payload.password === "string" ? payload.password : undefined
         },
@@ -695,7 +681,7 @@ const server = createServer(async (req, res) => {
     if (path === "/profile" && ["PATCH", "PUT"].includes(req.method || "")) {
       const payload = await readJsonBody(req);
       const result = await updateCustomerProfile(pool, await requireCustomerId(req), {
-        phoneProof: parsePhoneProof(payload.phoneProof),
+        password: typeof payload.password === "string" ? payload.password : undefined,
         name: typeof payload.name === "string" ? payload.name : undefined,
         phone: typeof payload.phone === "string" ? payload.phone : undefined,
         address: typeof payload.address === "string" ? payload.address : undefined

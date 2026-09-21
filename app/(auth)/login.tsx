@@ -1,4 +1,3 @@
-import { PhoneVerification, type PhoneProof } from "../../src/components/PhoneVerification";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -20,7 +19,6 @@ import { safeBack } from "../../src/lib/navigation/safeBack";
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
-  const [phoneProof, setPhoneProof] = useState<PhoneProof>();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ phone?: string; password?: string }>({});
@@ -40,7 +38,7 @@ export default function LoginScreen() {
 
     try {
       setLoading(true);
-      const account = await signIn(normalizedPhone, password, phoneProof);
+      const account = await signIn(normalizedPhone, password);
       router.replace(account.plumber?.applicationStatus === "approved" ? "/plumber-home" : "/catalog");
     } catch (error) {
       Alert.alert("Не удалось войти", friendlyError(error instanceof Error ? error.message : undefined));
@@ -79,8 +77,6 @@ export default function LoginScreen() {
           >
             <Text style={styles.forgotText}>Забыли пароль?</Text>
           </Pressable>
-          <Text style={styles.inlineText}>При первом входе подтвердите номер кодом из SMS.</Text>
-          <PhoneVerification phone={phone} action="login" onChange={setPhoneProof} />
           <AppButton title="Войти" onPress={() => void submit()} loading={loading} />
           <View style={styles.inline}>
             <Text style={styles.inlineText}>Нет аккаунта?</Text>

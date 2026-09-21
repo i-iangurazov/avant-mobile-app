@@ -3,7 +3,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {createCatalogGateway} from '../server/catalog';
 import {adaptProduct,deriveCategoriesFromProducts} from '../../src/lib/bazaar/adapters';
 import {orderedProductPage} from '../../src/lib/bazaar/completeCatalog';
-const evidence='docs/production-readiness/2026-09-18-followup/evidence/';
+const evidence=process.env.REGRESSION_EVIDENCE_DIR || 'artifacts/device-20260921/';
 async function main(){
  let requests=0;const calls:string[]=[];
  const items=Array.from({length:137},(_,i)=>({id:`sku-${i}`,name:`Товар ${i}`,category:i===136?'Краны и вентили':null,categories:i===136?['Краны и вентили','Водоснабжение']:[],priceKgs:20+i,stockQty:2,imageObjects:[]}));

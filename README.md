@@ -66,7 +66,7 @@ Server-only values:
 - `TELEGRAM_BOT_TOKEN`
 - `TELEGRAM_CHAT_ID`
 - `TELEGRAM_BOT_USERNAME` for the one-tap secure Telegram linking flow
-- `SMS_PROVIDER_URL` / `SMS_PROVIDER_TOKEN` for server-bound phone verification
+- Phone/password registration and login require no SMS. Entered phones are not verified identities. Recovery uses a support request and a single-use 30-minute link after an authorized administrator manually checks identity. Apply `scripts/db/migrations/20260921-account-recovery.sql` before this server version; approve the support identity procedure before production.
 - `APP_ORGANIZATION_ID` / `DELIVERY_BRANCH_ID` for trusted inventory context
 - `MEDIA_PROVIDER_URL` / `MEDIA_PROVIDER_TOKEN` / `MEDIA_PUBLIC_HOST` for owned attachments
 - `ACCOUNT_DELETION_MODE`, enabled only after approved retention/deletion policy

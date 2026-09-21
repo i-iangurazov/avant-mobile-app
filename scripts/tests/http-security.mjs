@@ -9,18 +9,17 @@ const checks=[];
 async function req(path,method='GET',body,token=sessions.customer.accessToken,headers={}){const r=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`} : {}),...headers},body:body===undefined?undefined:JSON.stringify(body)});return{status:r.status,body:await r.json()};}
 function check(name,actual,expected){assert.equal(actual,expected,name);checks.push({name,actual,expected});}
 try{
- const routes=[['GET','/admin/program'],['GET','/admin/plumbers'],['PATCH','/admin/plumbers/missing/status'],['GET','/admin/loyalty/config'],['PATCH','/admin/loyalty/config'],['POST','/admin/loyalty/release'],['POST','/admin/receipts'],['POST','/admin/returns'],['POST','/admin/loyalty/adjustments'],['GET','/admin/leads'],['GET','/admin/leads/missing/candidates'],['POST','/admin/leads/missing/assign'],['PATCH','/admin/reviews/missing'],['POST','/admin/rewards'],['PUT','/admin/rewards'],['PATCH','/admin/redemptions/missing/status'],['POST','/admin/promotions'],['PUT','/admin/promotions'],['POST','/admin/exclusions'],['PUT','/admin/exclusions'],['POST','/admin/content'],['PUT','/admin/content']];
+ const routes=[['GET','/admin/account-recovery'],['POST','/admin/account-recovery/approve'],['GET','/admin/program'],['GET','/admin/plumbers'],['PATCH','/admin/plumbers/missing/status'],['GET','/admin/loyalty/config'],['PATCH','/admin/loyalty/config'],['POST','/admin/loyalty/release'],['POST','/admin/receipts'],['POST','/admin/returns'],['POST','/admin/loyalty/adjustments'],['GET','/admin/leads'],['GET','/admin/leads/missing/candidates'],['POST','/admin/leads/missing/assign'],['PATCH','/admin/reviews/missing'],['POST','/admin/rewards'],['PUT','/admin/rewards'],['PATCH','/admin/redemptions/missing/status'],['POST','/admin/promotions'],['PUT','/admin/promotions'],['POST','/admin/exclusions'],['PUT','/admin/exclusions'],['POST','/admin/content'],['PUT','/admin/content']];
  for(const [method,path]of routes){check(`customer ${method} ${path}`,(await req(path,method,method==='GET'?undefined:{})).status,403);check(`guest ${method} ${path}`,(await req(path,method,method==='GET'?undefined:{},null)).status,401);}
  check('database admin access',(await req('/admin/program','GET',undefined,sessions.admin.accessToken)).status,200);
  const tamper=await req('/profile','PATCH',{name:sessions.customer.user.name,phone:sessions.customer.user.phone,address:'Test',roles:['admin'],isAdmin:true,verified:true});check('role fields do not grant admin',tamper.body.user.isAdmin,false);
- check('unverified phone change',(await req('/profile','PATCH',{name:'Test',phone:'+996700000091',verified:true,role:'admin'})).status,400);
+ check('phone change requires current password',(await req('/profile','PATCH',{name:'Test',phone:'+996700000091',verified:true,role:'admin'})).status,401);
  const phone=`+996708${String(Date.now()).slice(-6)}`;const registration={name:'HTTP identity test',phone,password:'test-password',verified:true,role:'admin'};
- check('unverified registration',(await req('/auth/register','POST',registration,null)).status,400);
- const challenge=await req('/auth/phone/challenge','POST',{phone,action:'register'},null);check('isolated SMS challenge',challenge.status,200);
- const otp=JSON.parse(readFileSync('/private/tmp/avantehnik-remediation-otp.json'))[challenge.body.challengeId];const proof={challengeId:challenge.body.challengeId,code:otp.code};
- check('wrong OTP',(await req('/auth/register','POST',{...registration,phoneProof:{...proof,code:'invalid'}},null)).status,400);
- const account=await req('/auth/register','POST',{...registration,phoneProof:proof},null);check('verified registration',account.status,201);check('OTP does not grant admin',account.body.user.isAdmin,false);
- check('OTP replay',(await req('/auth/register','POST',{...registration,phoneProof:proof},null)).status,400);
+ check('retired SMS endpoint',(await req('/auth/phone/challenge','POST',{phone,action:'register'},null)).status,410);
+ const account=await req('/auth/register','POST',registration,null);check('registration without SMS',account.status,201);check('claimed role does not grant admin',account.body.user.isAdmin,false);
+ check('claim does not verify phone',(await pool.query('SELECT phone_verified_at FROM app_customers WHERE id=$1',[account.body.user.id])).rows[0].phone_verified_at,null);
+ check('duplicate registration',(await req('/auth/register','POST',registration,null)).status,409);
+ check('phone alone cannot reset password',(await req('/auth/password/reset','POST',{phone,password:'hacked-password',verified:true},null)).status,400);
  await pool.query("INSERT INTO app_account_roles(account_id,role) VALUES($1,'admin')",[account.body.user.id]);
  await pool.query("UPDATE app_account_roles SET is_active=false WHERE account_id=$1 AND role='admin'",[account.body.user.id]);
  const fresh=await req('/auth/refresh','POST',{refreshToken:account.body.session.refreshToken},null);check('refresh reloads revoked role',fresh.body.user.isAdmin,false);
@@ -42,7 +41,7 @@ try{
  check('all HTTP ledger entries',entries.length,137);check('no HTTP ledger duplicates',new Set(entries.map(x=>x.id)).size,137);
  for(let i=0;i<16;i++)await req('/auth/login','POST',{phone:'+996799999999',password:'wrong'},null);
  check('spoofed forwarded header cannot bypass',(await req('/auth/login','POST',{phone:'+996799999999',password:'wrong'},null,{'X-Forwarded-For':'198.51.100.15'})).status,429);
- writeFileSync('docs/production-readiness/2026-09-18-remediation/evidence/http-security.json',JSON.stringify({checks,status:'PASS',adminRoutes:routes.length,externalTraffic:'SMS/Telegram/catalog mocked in isolated process'},null,2));
+ writeFileSync(process.env.HTTP_SECURITY_EVIDENCE || 'artifacts/device-20260921/http-security.json',JSON.stringify({checks,status:'PASS',adminRoutes:routes.length,externalTraffic:'Telegram/catalog mocked; SMS endpoint retired'},null,2));
  console.log(`HTTP security/order/history: ${checks.length} checks passed; ${routes.length} admin method/path combinations denied for customer and guest.`);
 }finally{
  // This is the dedicated test DB; prevent intentional login throttling from affecting subsequent UI fixture runs.

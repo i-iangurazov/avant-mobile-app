@@ -1,14 +1,11 @@
-import type { PhoneProof } from "../../components/PhoneVerification";
 import type { UserProfile } from "../../types";
 
 export type LoginCustomerPayload = {
-  phoneProof?: PhoneProof;
   phone: string;
   password: string;
 };
 
 export type RegisterCustomerPayload = {
-  phoneProof?: PhoneProof;
   name: string;
   phone: string;
   address: string;
@@ -30,7 +27,7 @@ export type RegisterCustomerPayload = {
 };
 
 export type UpdateCustomerProfilePayload = {
-  phoneProof?: PhoneProof;
+  password?: string;
   name: string;
   phone: string;
   address: string;

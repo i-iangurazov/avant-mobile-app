@@ -1,18 +1,18 @@
 import type {MediaProvider} from "./media";
 import type pg from 'pg';
-import {consumePhoneProof,fail,type PhoneProof} from './security';
+import {fail} from './security';
 import {verifyPassword} from './auth';
 
-export async function deleteAccount(pool:pg.Pool,accountId:string,password:string,proof:PhoneProof,secret:string,
+export async function deleteAccount(pool:pg.Pool,accountId:string,password:string,
  policy:{mode:string;version:string},media?:MediaProvider) {
  if(policy.mode!=='erase-all' || !policy.version) fail('Удаление ещё не настроено: обратитесь в поддержку. Аккаунт пока не удалён.',503);
  const account=(await pool.query('SELECT phone,password_hash FROM app_customers WHERE id=$1',[accountId])).rows[0];
  if(!account || !verifyPassword(password,account.password_hash)) fail('Неверный пароль.',401);
- await consumePhoneProof(pool,secret,'delete',account.phone,accountId,proof);
  const client=await pool.connect();
  try{
   await client.query('BEGIN');
-  await client.query('SELECT id FROM app_customers WHERE id=$1 FOR UPDATE',[accountId]);
+  const locked=(await client.query('SELECT password_hash FROM app_customers WHERE id=$1 FOR UPDATE',[accountId])).rows[0];
+  if(!locked || !verifyPassword(password,locked.password_hash)) fail('Неверный пароль.',401);
   const plumbers=(await client.query<{id:string}>('SELECT id FROM app_plumber_profiles WHERE account_id=$1 FOR UPDATE',[accountId])).rows.map(x=>x.id);
   const orders=(await client.query('SELECT id,organization_id,store_id,inventory_held FROM app_orders WHERE customer_id=$1 ORDER BY id FOR UPDATE',[accountId])).rows;
   // Remove this account's holds, not another customer's inventory or balances.

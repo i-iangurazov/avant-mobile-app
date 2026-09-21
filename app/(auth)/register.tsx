@@ -1,6 +1,5 @@
 import {LegalLinks} from "../../src/components/LegalLinks";
 import {useDocuments} from "../../src/hooks/useDocuments";
-import { PhoneVerification, type PhoneProof } from "../../src/components/PhoneVerification";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -32,7 +31,6 @@ export default function RegisterScreen() {
   const { signUp } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>("customer");
   const [name, setName] = useState("");
-  const [phoneProof, setPhoneProof] = useState<PhoneProof>();
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -78,7 +76,7 @@ export default function RegisterScreen() {
         name: name.trim(),
         phone: normalizedPhone,
         address: address.trim(),
-        password, phoneProof,
+        password,
         accountType,
         plumberApplication: plumber ? {
           fullName: name.trim(),
@@ -205,7 +203,6 @@ export default function RegisterScreen() {
           ) : null}
 
           <LegalLinks />
-          <PhoneVerification phone={phone} action="register" onChange={setPhoneProof} />
           <AppInput label="Пароль" placeholder="Минимум 8 символов" secureTextEntry value={password} onChangeText={setPassword} error={errors.password} />
           <AppInput label="Повторите пароль" placeholder="Повторите пароль" secureTextEntry value={passwordRepeat} onChangeText={setPasswordRepeat} error={errors.passwordRepeat} />
           <AppButton title={accountType === "plumber" ? "Создать аккаунт и отправить анкету" : "Создать аккаунт"} onPress={() => void submit()} loading={loading} />

@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
 import type pg from "pg";
 import type { CustomerRow } from "./db";
-import { consumePhoneProof, fail, rateLimit, type PhoneProof } from "./security";
+import { fail, rateLimit } from "./security";
 import {
   createPlumberApplicationRecord,
   getPlumberProfileByAccount,
@@ -103,8 +103,7 @@ const loadCustomerPayload = async (
   ]);
   const roles = roleRows.rows.map((item) => item.role);
   if (!roles.includes("customer")) roles.unshift("customer");
-  const admin = roles.includes("admin") && Boolean(row.phone_verified_at);
-  if (!admin && roles.includes("admin")) roles.splice(roles.indexOf("admin"), 1);
+  const admin = roles.includes("admin");
 
   return {
     id: row.id,
@@ -129,7 +128,6 @@ export async function registerCustomer(
     password?: string;
     accountType?: "customer" | "plumber";
     plumberApplication?: PlumberApplicationInput;
-    phoneProof?: PhoneProof;
   },
   secret: string,
   _configuredAdminPhones: string[] = []
@@ -146,7 +144,6 @@ export async function registerCustomer(
     throw Object.assign(new Error("Заполните анкету сантехника."), { statusCode: 400 });
   }
 
-  await consumePhoneProof(pool, secret, "register", phone, null, payload.phoneProof);
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -155,7 +152,7 @@ export async function registerCustomer(
     }
     const inserted = await client.query<CustomerRow>(
       `INSERT INTO app_customers (id, name, phone, address, password_hash, phone_verified_at)
-       VALUES ($1, $2, $3, $4, $5, now()) RETURNING ${customerColumns}`,
+       VALUES ($1, $2, $3, $4, $5, NULL) RETURNING ${customerColumns}`,
       [randomUUID(), name, phone, address, hashPassword(password)]
     );
     const row = inserted.rows[0];
@@ -186,27 +183,26 @@ export async function registerCustomer(
 
 export async function loginCustomer(
   pool: pg.Pool,
-  payload: { phone?: string; password?: string; phoneProof?: PhoneProof },
+  payload: { phone?: string; password?: string },
   secret: string,
   _configuredAdminPhones: string[] = []
 ) {
   const phone = normalizePhone(payload.phone ?? "");
   await rateLimit(pool, "login-account", phone, 15, 10 * 60_000);
-  const row = await pool.query<CustomerRow>(
-    `SELECT ${customerColumns} FROM app_customers WHERE phone = $1 LIMIT 1`,
-    [phone]
-  );
-  const customer = row.rows[0];
-  if (!customer || !verifyPassword(payload.password ?? "", customer.password_hash)) {
-    throw Object.assign(new Error("Неверный телефон или пароль"), { statusCode: 401 });
-  }
-  if (!customer.phone_verified_at) {
-    await consumePhoneProof(pool, secret, "login", phone, customer.id, payload.phoneProof);
-    await pool.query("UPDATE app_customers SET phone_verified_at=now() WHERE id=$1", [customer.id]);
-    customer.phone_verified_at = new Date();
-  }
-  const user = await loadCustomerPayload(pool, customer);
-  return { session: await issueSession(pool, user, secret), user };
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const row = await client.query<CustomerRow>(
+      `SELECT ${customerColumns} FROM app_customers WHERE phone = $1 LIMIT 1 FOR UPDATE`, [phone]);
+    const customer = row.rows[0];
+    if (!customer || !verifyPassword(payload.password ?? "", customer.password_hash)) fail("Неверный телефон или пароль", 401);
+    // Serialize password validation/session creation with reset, phone change and deletion.
+    const user = await loadCustomerPayload(client, customer);
+    const session = await issueSession(client, user, secret);
+    await client.query("COMMIT");
+    return { session, user };
+  } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
+
 }
 
 export async function getCustomerProfile(
@@ -225,9 +221,9 @@ export async function getCustomerProfile(
 export async function updateCustomerProfile(
   pool: pg.Pool,
   customerId: string,
-  payload: { name?: string; phone?: string; address?: string; phoneProof?: PhoneProof },
+  payload: { name?: string; phone?: string; address?: string; password?: string },
   _configuredAdminPhones: string[] = [],
-  secret = ""
+  _secret = ""
 ) {
   const name = payload.name?.trim().slice(0, 200) || "Покупатель";
   const phone = normalizePhone(payload.phone ?? "");
@@ -239,13 +235,23 @@ export async function updateCustomerProfile(
   const current = await pool.query<CustomerRow>(`SELECT ${customerColumns} FROM app_customers WHERE id=$1`, [customerId]);
   if (!current.rows[0]) fail("Профиль не найден.", 404);
   const changingPhone = current.rows[0].phone !== phone;
-  if (changingPhone) await consumePhoneProof(pool, secret, "phone_change", phone, customerId, payload.phoneProof);
+  if (changingPhone) {
+    await rateLimit(pool, "phone-change", customerId, 5, 60 * 60_000);
+    if (!verifyPassword(payload.password || "", current.rows[0].password_hash)) fail("Введите текущий пароль для смены телефона.", 401);
+  }
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    if (changingPhone) await client.query("UPDATE app_sessions SET revoked_at=now() WHERE account_id=$1", [customerId]);
+    const locked = await client.query<CustomerRow>(`SELECT ${customerColumns} FROM app_customers WHERE id=$1 FOR UPDATE`, [customerId]);
+    if (!locked.rows[0]) fail("Профиль не найден.", 404);
+    const phoneChanged = locked.rows[0].phone !== phone;
+    if (phoneChanged && !verifyPassword(payload.password || "", locked.rows[0].password_hash)) fail("Введите текущий пароль для смены телефона.", 401);
+    if (phoneChanged) {
+      await client.query("UPDATE app_sessions SET revoked_at=now() WHERE account_id=$1", [customerId]);
+      await client.query("UPDATE app_account_recovery SET status='cancelled',token_hash=NULL WHERE account_id=$1 AND status IN ('pending','approved')", [customerId]);
+    }
     const updated = await client.query<CustomerRow>(
-      `UPDATE app_customers SET name = $1, phone = $2, address = $3, updated_at = now()
+      `UPDATE app_customers SET name = $1, phone_verified_at = CASE WHEN phone = $2 THEN phone_verified_at ELSE NULL END, phone = $2, address = $3, updated_at = now()
        WHERE id = $4 RETURNING ${customerColumns}`,
       [name, phone, address, customerId]
     );
@@ -268,7 +274,7 @@ export async function hasAdminAccess(pool: pg.Pool, accountId: string, _configur
   const result = await pool.query<{ phone: string; database_admin: boolean }>(
     `SELECT accounts.phone, EXISTS (
        SELECT 1 FROM app_account_roles roles
-       WHERE roles.account_id = accounts.id AND roles.role = 'admin' AND roles.is_active = true AND accounts.phone_verified_at IS NOT NULL
+       WHERE roles.account_id = accounts.id AND roles.role = 'admin' AND roles.is_active = true
      ) AS database_admin
      FROM app_customers accounts WHERE accounts.id = $1 LIMIT 1`,
     [accountId]
@@ -289,7 +295,7 @@ export async function requireSession(pool: pg.Pool, token: string, secret: strin
   const payload = verifyAccessToken(token, secret);
   if (!payload) return fail('Войдите в аккаунт.', 401);
   const row = await pool.query(`SELECT 1 FROM app_sessions s JOIN app_customers c ON c.id=s.account_id
-    WHERE s.id=$1 AND s.account_id=$2 AND s.revoked_at IS NULL AND s.expires_at>now() AND c.phone_verified_at IS NOT NULL`, [payload.sid,payload.sub]);
+    WHERE s.id=$1 AND s.account_id=$2 AND s.revoked_at IS NULL AND s.expires_at>now()`, [payload.sid,payload.sub]);
   if (!row.rowCount) return fail('Сессия завершена. Войдите снова.', 401);
   return payload.sub;
 }
@@ -298,11 +304,14 @@ export async function refreshSession(pool: pg.Pool, token: string, secret: strin
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    const candidate = await client.query('SELECT account_id FROM app_sessions WHERE refresh_hash=$1', [refreshHash(token)]);
+    if (!candidate.rows[0]) fail('Войдите снова.', 401);
+    // Same account-first lock order as reset/login/phone change/deletion.
+    const row = await client.query<CustomerRow>(`SELECT ${customerColumns} FROM app_customers WHERE id=$1 FOR UPDATE`, [candidate.rows[0].account_id]);
+    if (!row.rows[0]) fail('Войдите снова.', 401);
     const result = await client.query(`SELECT * FROM app_sessions WHERE refresh_hash=$1 FOR UPDATE`, [refreshHash(token)]);
     const session = result.rows[0];
     if (!session || session.revoked_at || new Date(session.expires_at).getTime() <= Date.now()) fail('Войдите снова.', 401);
-    const row = await client.query<CustomerRow>(`SELECT ${customerColumns} FROM app_customers WHERE id=$1`, [session.account_id]);
-    if (!row.rows[0]?.phone_verified_at) fail('Подтвердите номер телефона.', 401);
     // Roles are always reloaded from the database; an old token cannot restore a revoked privilege.
     const user = await loadCustomerPayload(client, row.rows[0]);
     await client.query('UPDATE app_sessions SET revoked_at=now() WHERE id=$1', [session.id]);
@@ -315,19 +324,4 @@ export async function revokeSession(pool: pg.Pool, token: string, secret: string
   if (refreshToken) await pool.query('UPDATE app_sessions SET revoked_at=now() WHERE refresh_hash=$1', [refreshHash(refreshToken)]);
   const payload = verifyAccessToken(token, secret);
   if (payload) await pool.query('UPDATE app_sessions SET revoked_at=now() WHERE id=$1 AND account_id=$2', [payload.sid,payload.sub]);
-}
-
-export async function resetPassword(pool: pg.Pool, phone: string, password: string, proof: PhoneProof, secret: string) {
-  if (password.length < 8 || password.length > 200) fail('Пароль должен содержать от 8 до 200 символов.');
-  const result = await pool.query<{id:string}>('SELECT id FROM app_customers WHERE phone=$1', [phone]);
-  const id = result.rows[0]?.id;
-  if (!id) fail('Не удалось восстановить доступ.', 400);
-  await consumePhoneProof(pool, secret, 'password_reset', phone, id, proof);
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-    await client.query('UPDATE app_customers SET password_hash=$1,phone_verified_at=now(),updated_at=now() WHERE id=$2', [hashPassword(password),id]);
-    await client.query('UPDATE app_sessions SET revoked_at=now() WHERE account_id=$1', [id]);
-    await client.query('COMMIT');
-  } catch (error) { await client.query('ROLLBACK'); throw error; } finally { client.release(); }
 }

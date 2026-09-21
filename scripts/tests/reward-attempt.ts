@@ -32,6 +32,6 @@ async function main(){try{
  const failed=createRewardAttemptClient({...storage,setItem:async()=>{throw new Error('Disk full');}});let sent=false;await assert.rejects(()=>failed.submit('storage-failure',reward,async()=>{sent=true;return repeated[0];}));assert.equal(sent,false);record('No debit when durable save fails');
  await restarted.acknowledge(id);
  await assert.rejects(()=>restarted.submit(id,{rewardId:randomUUID(),title:'Unavailable'},async(r,k)=>{try{return await redeemReward(pool,id,r,k);}catch(e:any){throw {payload:{requestNotCreated:e.requestNotCreated}};}}));assert.equal(await readRewardAttempt(storage,id),null);record('Authoritative no-operation rejection permits corrected selection');
- writeFileSync('docs/production-readiness/2026-09-18-followup/evidence/reward-retry.json',JSON.stringify({status:'PASS',checks,beforeOperations:baselineCount,recoveredOperations:rows.rowCount,recoveredLedgerDebits:Number(ledger.rows[0].count),scope:'isolated PostgreSQL; real ledger + client recovery module'},null,2));console.log({status:'PASS',checks});
+ writeFileSync((process.env.REGRESSION_EVIDENCE_DIR || 'artifacts/device-20260921/')+'reward-retry.json',JSON.stringify({status:'PASS',checks,beforeOperations:baselineCount,recoveredOperations:rows.rowCount,recoveredLedgerDebits:Number(ledger.rows[0].count),scope:'isolated PostgreSQL; real ledger + client recovery module'},null,2));console.log({status:'PASS',checks});
 }finally{await pool.end();}}
 void main().catch(e=>{console.error(e);process.exitCode=1;});

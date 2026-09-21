@@ -18,7 +18,6 @@ import type { AppCustomer, AppCustomerSession, RegisterCustomerPayload } from ".
 import { friendlyError, normalizePhone } from "../lib/formatters";
 
 import { appApiClient, AppApiError, setSessionRefreshHandler } from "../lib/api/client";
-import type { PhoneProof } from "../components/PhoneVerification";
 
 type SignUpPayload = RegisterCustomerPayload;
 
@@ -26,7 +25,7 @@ type AuthContextValue = {
   session: AppCustomerSession | null;
   user: AppCustomer | null;
   isLoading: boolean;
-  signIn: (phone: string, password: string, phoneProof?: PhoneProof) => Promise<AppCustomer>;
+  signIn: (phone: string, password: string) => Promise<AppCustomer>;
   signUp: (payload: SignUpPayload) => Promise<{ needsLogin: boolean }>;
   updateSessionUser: (user: AppCustomer) => Promise<void>;
   signOut: () => Promise<void>;
@@ -154,11 +153,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   const signIn = useCallback(
-    async (phone: string, password: string, phoneProof?: PhoneProof) => {
+    async (phone: string, password: string) => {
       try {
         const nextSession = await loginCustomer({
           phone: normalizePhone(phone),
-          password, phoneProof
+          password
         });
         await persistSession(nextSession);
         queryClient.clear();
@@ -171,7 +170,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
 
   const signUp = useCallback(
-    async ({ name, phone, address, password, accountType, plumberApplication, phoneProof }: SignUpPayload) => {
+    async ({ name, phone, address, password, accountType, plumberApplication }: SignUpPayload) => {
       try {
         const nextSession = await registerCustomer({
           name,
@@ -179,7 +178,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
           address,
           password,
           accountType,
-          plumberApplication, phoneProof
+          plumberApplication
         });
         await persistSession(nextSession);
         queryClient.clear();
