@@ -1,4 +1,5 @@
 import {adaptProducts,deriveCategoriesFromProducts,productMatchesCategory} from '../../src/lib/bazaar/adapters';
+import {orderedProductPage} from '../../src/lib/bazaar/completeCatalog';
 import {fail} from './security';
 type Row=Record<string,unknown>;
 type Snapshot={items:Row[];store:unknown;currencyCode:unknown;currencyRateKgsPerUnit:unknown};
@@ -40,17 +41,27 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
  };
  return async(path:string,query:URLSearchParams)=>{
   if(!baseUrl||!token)fail('Каталог ещё не подключён.',503);
-  const allowed=new Set(['page','pageSize','search','id','categoryId']);
+  const allowed=new Set(['page','pageSize','search','id','categoryId','sort','inStock','withPrice']);
   for(const key of query.keys())if(!allowed.has(key))fail('Неизвестный параметр каталога.',400);
   if(path!=='/products'&&path!=='/categories')fail('Маршрут каталога не найден.',404);
   const integer=(key:string,fallback:number,max:number)=>{const raw=query.get(key);if(raw===null)return fallback;const n=Number(raw);if(!/^\d+$/.test(raw)||!Number.isSafeInteger(n)||n<1||n>max)fail('Некорректная страница каталога.',400);return n;};
   const page=integer('page',1,10000),pageSize=integer('pageSize',50,100);
   const search=(query.get('search')||'').trim().toLocaleLowerCase('ru');if(search.length>200)fail('Слишком длинный поисковый запрос.',400);
+  const sort=query.get('sort');
+  if(sort!==null&&!['name','price_asc','price_desc'].includes(sort))fail('Некорректная сортировка каталога.',400);
+  const boolean=(key:string)=>{const value=query.get(key);if(value!==null&&value!=='true'&&value!=='false')fail('Некорректный фильтр каталога.',400);return value==='true';};
+  const inStock=boolean('inStock'),withPrice=boolean('withPrice');
   const data=await snapshot();
   if(path==='/categories')return deriveCategoriesFromProducts({items:data.items,total:data.items.length});
   const id=query.get('id'),categoryId=query.get('categoryId');
   const adapted=adaptProducts({items:data.items});
-  const matches=adapted.filter(item=>(!id||item.id===id)&&(!categoryId||categoryId==='all-products'||productMatchesCategory(item,categoryId))&&(!search||[item.name,item.sku,item.category?.name].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
+  // Explicit sort opts into global server ordering. Legacy raw-page consumers
+  // retain their existing source order; a mobile screen now needs one page only.
+  if(sort){
+   const result=orderedProductPage(id?adapted.filter(item=>item.id===id):adapted,{page,pageSize,search,categoryId:categoryId||undefined,sort:sort as 'name'|'price_asc'|'price_desc',inStock,withPrice});
+   return {...data,items:result.products.map(item=>item.raw),page,pageSize,total:result.total};
+  }
+  const matches=adapted.filter(item=>(!id||item.id===id)&&(!inStock||item.inStock===true||(item.stock_quantity||0)>0)&&(!withPrice||item.price!==null)&&(!categoryId||categoryId==='all-products'||productMatchesCategory(item,categoryId))&&(!search||[item.name,item.sku,item.brand,item.description,item.category?.name].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
   return {...data,items:matches.slice((page-1)*pageSize,page*pageSize).map(item=>item.raw),page,pageSize,total:matches.length};
  };
 }

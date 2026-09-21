@@ -17,7 +17,16 @@ async function main(){
  const filtered=await gateway('/products',new URLSearchParams({categoryId:category!.id}));assert.equal((filtered as any).items.length,1);
  assert.equal(orderedProductPage(items.map(adaptProduct),{page:1,pageSize:30,categoryId:category!.id}).total,1);
  const missing=await gateway('/products',new URLSearchParams({id:'foreign-id'}));assert.equal((missing as any).total,0);
- const invalidQueries:Record<string,string>[]=[{storeId:'foreign'},{organizationId:'foreign'},{page:'-1'},{page:'1.5'},{pageSize:'101'},{search:'x'.repeat(201)}];
+ const sorted=await gateway('/products',new URLSearchParams({sort:'price_desc',pageSize:'40'})) as any;
+ assert.equal(sorted.items.length,40);assert.equal(sorted.items[0].id,'sku-136');assert.equal(sorted.items[39].id,'sku-97');assert.equal(sorted.total,137);
+ const second=await gateway('/products',new URLSearchParams({sort:'price_desc',pageSize:'40',page:'2'})) as any;
+ assert.equal(second.items[0].id,'sku-96');assert.equal(new Set([...sorted.items,...second.items].map(x=>x.id)).size,80);
+ const searched=await gateway('/products',new URLSearchParams({sort:'name',search:'Товар 136'})) as any;
+ assert.equal(searched.items.length,1);assert.equal(searched.items[0].id,'sku-136');
+ const last=await gateway('/products',new URLSearchParams({sort:'price_desc',pageSize:'40',page:'4'})) as any;assert.equal(last.items.length,17);
+ const past=await gateway('/products',new URLSearchParams({sort:'price_desc',pageSize:'40',page:'5'})) as any;assert.equal(past.items.length,0);
+ const legacy=await gateway('/products',new URLSearchParams({pageSize:'40'})) as any;assert.equal(legacy.items[0].id,'sku-0');
+ const invalidQueries:Record<string,string>[]=[{storeId:'foreign'},{organizationId:'foreign'},{page:'-1'},{page:'1.5'},{pageSize:'101'},{search:'x'.repeat(201)},{sort:'unknown'},{inStock:'1'},{withPrice:'yes'}];
  for(const q of invalidQueries)await assert.rejects(()=>gateway('/products',new URLSearchParams(q)));
  assert.equal(requests,2);assert.ok(calls.every(url=>!url.includes('organizationId')&&!url.includes('storeId')));
  const broken=createCatalogGateway('https://fixture.invalid','fixture',async()=>Response.json({items:items.slice(0,100),total:137}));await assert.rejects(()=>broken('/products',new URLSearchParams()),/неполный/);
@@ -29,6 +38,6 @@ async function main(){
  assert.equal(adaptProduct({id:'unsafe',imageUrl:'javascript:alert(1)',images:[null]}).imageUrl,null);
  let actual:ReturnType<typeof deriveCategoriesFromProducts>|undefined;
  if(process.env.CATALOG_CAPTURE){const live=JSON.parse(readFileSync(process.env.CATALOG_CAPTURE,'utf8'));actual=deriveCategoriesFromProducts(live);assert.equal(actual.find(x=>x.name==='Краны и вентили')?.product_count,2);assert.equal(actual.find(x=>x.id==='all-products')?.product_count,2365);}
- const result={status:'PASS',scenarios:['concurrent single-flight full catalog','last-page exact ID','multiple categories','secondary category client/server','foreign product absent','six invalid/context-injection queries','repeated upstream page','invalid upstream JSON','three negative stock statuses','negative stock overrides flag','imageObjects and empty-array fallback','unsafe image rejected'],upstreamRequestsForConcurrentFullCategoriesAndLastPageDetail:requests,actualCategories:actual?.map(x=>({id:x.id,name:x.name,count:x.product_count}))};mkdirSync(evidence,{recursive:true});writeFileSync(evidence+'catalog-gateway.json',JSON.stringify(result,null,2));console.log(result);
+ const result={status:'PASS',scenarios:['concurrent single-flight full catalog','last-page exact ID','multiple categories','secondary category client/server','foreign product absent','nine invalid/context-injection queries','global sorted pagination without gaps or duplicates','last and out-of-range pages','search before pagination','legacy source order preserved','repeated upstream page','invalid upstream JSON','three negative stock statuses','negative stock overrides flag','imageObjects and empty-array fallback','unsafe image rejected'],upstreamRequestsForConcurrentFullCategoriesAndLastPageDetail:requests,actualCategories:actual?.map(x=>({id:x.id,name:x.name,count:x.product_count}))};mkdirSync(evidence,{recursive:true});writeFileSync(evidence+'catalog-gateway.json',JSON.stringify(result,null,2));console.log(result);
 }
 void main().catch(e=>{console.error(e);process.exitCode=1;});

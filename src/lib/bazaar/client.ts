@@ -1,4 +1,4 @@
-import {loadCompleteCatalog,orderedProductPage} from "./completeCatalog";
+import {loadCompleteCatalog} from "./completeCatalog";
 import type { Category, Product } from "../../types";
 import { apiBaseUrl } from "../config/env";
 import { normalizeApiError } from "../errors/normalizeApiError";
@@ -336,14 +336,16 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
   return sortProducts(products, query.sort).slice(0, query.limit ?? products.length);
 }
 
-let catalogSnapshot: {expires:number;promise:Promise<Product[]>}|null=null;
 export async function getProductsPage(query: ProductPageQuery = {}): Promise<ProductPageResult> {
-  if(!catalogSnapshot || catalogSnapshot.expires<Date.now()) {
-    const promise=loadCompleteCatalog(page=>bazaarClient.getProductsRaw({page,pageSize:DEFAULT_PRODUCTS_PAGE_SIZE}));
-    catalogSnapshot={expires:Date.now()+60_000,promise};
-    promise.catch(()=>{if(catalogSnapshot?.promise===promise)catalogSnapshot=null;});
-  }
-  return orderedProductPage(await catalogSnapshot.promise,{...query,page:Math.max(1,Math.floor(query.page||1)),pageSize:Math.max(1,Math.min(100,Math.floor(query.pageSize||100)))});
+  const page=Math.max(1,Math.floor(query.page||1));
+  const pageSize=Math.max(1,Math.min(100,Math.floor(query.pageSize||100)));
+  const payload=await bazaarClient.getProductsRaw({page,pageSize,categoryId:query.categoryId,
+    search:query.search?.trim()||undefined,sort:query.sort||'name',inStock:query.inStock,withPrice:query.withPrice});
+  const total=getPayloadTotal(payload);
+  if(total===null||!Number.isSafeInteger(total)||total<0)throw new Error('Сервер вернул некорректную страницу каталога. Попробуйте позже.');
+  const products=adaptProducts(payload);
+  if(products.length!==Math.max(0,Math.min(pageSize,total-(page-1)*pageSize)))throw new Error('Сервер вернул неполную страницу каталога. Попробуйте позже.');
+  return {products,page,pageSize,total,hasMore:page*pageSize<total};
 }
 
 export async function getProductById(productId: string): Promise<Product> {
