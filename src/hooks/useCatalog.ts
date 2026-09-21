@@ -3,7 +3,8 @@ import { addLocalCartItem } from "../lib/cart/localCart";
 import { fetchCategories, fetchProduct, fetchProductPage, fetchProducts } from "../lib/api/catalog";
 import type { Product } from "../types";
 
-export type ProductSort = "name" | "price_asc" | "price_desc";
+import type { ProductSort } from "../lib/catalog/merchandising";
+export type { ProductSort } from "../lib/catalog/merchandising";
 export type ProductFilter = "all";
 
 export function useCategories() {
@@ -17,7 +18,7 @@ export function useProductsByCategory(
   categoryId?: string,
   search = "",
   filter: ProductFilter = "all",
-  sort: ProductSort = "name"
+  sort: ProductSort = "recommended"
 ) {
   return useQuery({
     queryKey: ["products", categoryId, search, filter, sort],
@@ -41,7 +42,7 @@ export function useInfiniteProductsByCategory(
   categoryId?: string,
   search = "",
   filter: ProductFilter = "all",
-  sort: ProductSort = "name"
+  sort: ProductSort = "recommended"
 ) {
   return useInfiniteQuery({
     queryKey: ["products", "infinite", categoryId, search, filter, sort],
@@ -90,8 +91,7 @@ export function usePopularProducts(limit = 4) {
     queryKey: ["popular-products", limit],
     queryFn: () =>
       fetchProducts({
-        sort: "name",
-        inStock: true,
+        sort: "recommended",
         limit
       })
   });

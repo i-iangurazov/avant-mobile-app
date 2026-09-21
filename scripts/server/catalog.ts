@@ -1,3 +1,4 @@
+import type {ProductSort} from '../../src/lib/catalog/merchandising';
 import {adaptProducts,deriveCategoriesFromProducts,productMatchesCategory} from '../../src/lib/bazaar/adapters';
 import {orderedProductPage} from '../../src/lib/bazaar/completeCatalog';
 import {fail} from './security';
@@ -48,7 +49,7 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
   const page=integer('page',1,10000),pageSize=integer('pageSize',50,100);
   const search=(query.get('search')||'').trim().toLocaleLowerCase('ru');if(search.length>200)fail('Слишком длинный поисковый запрос.',400);
   const sort=query.get('sort');
-  if(sort!==null&&!['name','price_asc','price_desc'].includes(sort))fail('Некорректная сортировка каталога.',400);
+  if(sort!==null&&!['recommended','name','price_asc','price_desc'].includes(sort))fail('Некорректная сортировка каталога.',400);
   const boolean=(key:string)=>{const value=query.get(key);if(value!==null&&value!=='true'&&value!=='false')fail('Некорректный фильтр каталога.',400);return value==='true';};
   const inStock=boolean('inStock'),withPrice=boolean('withPrice');
   const data=await snapshot();
@@ -58,7 +59,7 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
   // Explicit sort opts into global server ordering. Legacy raw-page consumers
   // retain their existing source order; a mobile screen now needs one page only.
   if(sort){
-   const result=orderedProductPage(id?adapted.filter(item=>item.id===id):adapted,{page,pageSize,search,categoryId:categoryId||undefined,sort:sort as 'name'|'price_asc'|'price_desc',inStock,withPrice});
+   const result=orderedProductPage(id?adapted.filter(item=>item.id===id):adapted,{page,pageSize,search,categoryId:categoryId||undefined,sort:sort as ProductSort,inStock,withPrice});
    return {...data,items:result.products.map(item=>item.raw),page,pageSize,total:result.total};
   }
   const matches=adapted.filter(item=>(!id||item.id===id)&&(!inStock||item.inStock===true||(item.stock_quantity||0)>0)&&(!withPrice||item.price!==null)&&(!categoryId||categoryId==='all-products'||productMatchesCategory(item,categoryId))&&(!search||[item.name,item.sku,item.brand,item.description,item.category?.name].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));

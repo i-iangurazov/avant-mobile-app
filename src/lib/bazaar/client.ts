@@ -1,3 +1,4 @@
+import {type ProductSort} from "../catalog/merchandising";
 import {loadCompleteCatalog} from "./completeCatalog";
 import type { Category, Product } from "../../types";
 import { apiBaseUrl } from "../config/env";
@@ -6,7 +7,6 @@ import {
   adaptCategories,
   adaptProduct,
   adaptProducts,
-  productMatchesCategory,
   deriveCategoriesFromProducts
 } from "./adapters";
 import { BAZAAR_ENDPOINTS } from "./endpoints";
@@ -25,7 +25,7 @@ type ProductQuery = {
   search?: string;
   inStock?: boolean;
   withPrice?: boolean;
-  sort?: "name" | "price_asc" | "price_desc";
+  sort?: ProductSort;
   limit?: number;
 };
 
@@ -68,58 +68,6 @@ const getPayloadTotal = (payload: unknown) => {
   }
 
   return null;
-};
-
-const categoryById = (categoryId?: string) =>
-  categoryId && categoryId !== "all-products" ? { id: categoryId } : null;
-
-const getAllProductsFromApi = async (params?: BazaarQueryParams, stopWhenVisibleCount?: number) => {
-  const pageSize = Number(params?.pageSize ?? DEFAULT_PRODUCTS_PAGE_SIZE);
-  const firstPayload = await bazaarClient.getProductsRaw({ ...params, page: 1, pageSize });
-  const products = adaptProducts(firstPayload);
-  const total = getPayloadTotal(firstPayload);
-  const totalPages = total ? Math.ceil(total / pageSize) : 1;
-  const maxPages = Math.min(totalPages, 30);
-
-  if (stopWhenVisibleCount && products.length >= stopWhenVisibleCount) {
-    return products;
-  }
-
-  for (let page = 2; page <= maxPages; page += 1) {
-    const payload = await bazaarClient.getProductsRaw({ ...params, page, pageSize });
-    products.push(...adaptProducts(payload));
-    if (stopWhenVisibleCount && products.length >= stopWhenVisibleCount) {
-      break;
-    }
-  }
-
-  return products;
-};
-
-const sortProducts = (products: Product[], sort: ProductQuery["sort"] = "name") => {
-  const sorted = [...products];
-
-  if (sort === "price_asc") {
-    return sorted.sort((a, b) => (a.price ?? Number.MAX_SAFE_INTEGER) - (b.price ?? Number.MAX_SAFE_INTEGER));
-  }
-
-  if (sort === "price_desc") {
-    return sorted.sort((a, b) => (b.price ?? -1) - (a.price ?? -1));
-  }
-
-  return sorted.sort((a, b) => a.name.localeCompare(b.name, "ru"));
-};
-
-const productMatchesQuery = (product: Product, query: Pick<ProductQuery, "inStock" | "withPrice">) => {
-  if (query.inStock && !(product.inStock === true || (product.stock_quantity ?? 0) > 0)) {
-    return false;
-  }
-
-  if (query.withPrice && (product.price === null || product.price === undefined)) {
-    return false;
-  }
-
-  return true;
 };
 
 export class BazaarApiError extends Error {
@@ -279,68 +227,33 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
-  const category = categoryById(query.categoryId);
-  const shouldStopEarly = query.limit && !query.search?.trim() && (!query.categoryId || query.categoryId === "all-products");
-
-  if (query.limit && (query.inStock || query.withPrice) && !query.search?.trim() && (!query.categoryId || query.categoryId === "all-products")) {
-    const pageSize = DEFAULT_PRODUCTS_PAGE_SIZE;
-    const visibleProducts: Product[] = [];
-    let total: number | null = null;
-
-    for (let page = 1; page <= 20; page += 1) {
-      const payload = await bazaarClient.getProductsRaw({ page, pageSize });
-      total = total ?? getPayloadTotal(payload);
-      visibleProducts.push(...adaptProducts(payload).filter((product) => productMatchesQuery(product, query)));
-
-      if (visibleProducts.length >= query.limit || (total !== null && page * pageSize >= total)) {
-        break;
-      }
+  // Every consumer uses the same global server order, including short previews.
+  const limit = query.limit ? Math.max(1, Math.floor(query.limit)) : undefined;
+  const pageSize = Math.min(limit ?? DEFAULT_PRODUCTS_PAGE_SIZE, DEFAULT_PRODUCTS_PAGE_SIZE);
+  const products = new Map<string, Product>();
+  let expectedTotal: number | null = null;
+  for (let page = 1; page <= 100; page += 1) {
+    const result = await getProductsPage({...query, page, pageSize});
+    if (expectedTotal !== null && result.total !== expectedTotal) {
+      throw new Error('Каталог изменился. Обновите список.');
     }
-
-    return sortProducts(visibleProducts, query.sort).slice(0, query.limit);
+    expectedTotal = result.total;
+    for (const product of result.products) {
+      if (products.has(product.id)) throw new Error('Каталог изменился. Обновите список.');
+      products.set(product.id, product);
+    }
+    if (!result.hasMore || (limit && products.size >= limit)) {
+      return [...products.values()].slice(0, limit);
+    }
   }
-
-  let products = await getAllProductsFromApi(
-    {
-      pageSize: DEFAULT_PRODUCTS_PAGE_SIZE,
-      search: query.search?.trim() ?? undefined
-    },
-    shouldStopEarly ? query.limit : undefined
-  );
-
-  if (query.categoryId && query.categoryId !== "all-products") {
-    products = category
-      ? products.filter((product) => productMatchesCategory(product,category.id))
-      : [];
-  }
-
-  if (query.search?.trim()) {
-    const normalized = query.search.trim().toLowerCase();
-    products = products.filter((product) =>
-      [
-        product.name,
-        product.sku,
-        product.brand,
-        product.description,
-        product.category?.name
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(normalized)
-    );
-  }
-
-  products = products.filter((product) => productMatchesQuery(product, query));
-
-  return sortProducts(products, query.sort).slice(0, query.limit ?? products.length);
+  throw new Error('Каталог слишком велик. Уточните товар у менеджера.');
 }
 
 export async function getProductsPage(query: ProductPageQuery = {}): Promise<ProductPageResult> {
   const page=Math.max(1,Math.floor(query.page||1));
   const pageSize=Math.max(1,Math.min(100,Math.floor(query.pageSize||100)));
   const payload=await bazaarClient.getProductsRaw({page,pageSize,categoryId:query.categoryId,
-    search:query.search?.trim()||undefined,sort:query.sort||'name',inStock:query.inStock,withPrice:query.withPrice});
+    search:query.search?.trim()||undefined,sort:query.sort||'recommended',inStock:query.inStock,withPrice:query.withPrice});
   const total=getPayloadTotal(payload);
   if(total===null||!Number.isSafeInteger(total)||total<0)throw new Error('Сервер вернул некорректную страницу каталога. Попробуйте позже.');
   const products=adaptProducts(payload);

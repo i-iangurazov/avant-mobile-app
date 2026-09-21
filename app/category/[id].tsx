@@ -22,6 +22,7 @@ import { safeBack } from "../../src/lib/navigation/safeBack";
 import type { Product } from "../../src/types";
 
 const sortOptions: { label: string; value: ProductSort }[] = [
+  { label: "Рекомендуемые", value: "recommended" },
   { label: "По названию", value: "name" },
   { label: "Сначала дешевле", value: "price_asc" },
   { label: "Сначала дороже", value: "price_desc" }
@@ -32,7 +33,7 @@ export default function CategoryProductsScreen() {
   const categories = useCategories();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sort, setSort] = useState<ProductSort>("name");
+  const [sort, setSort] = useState<ProductSort>("recommended");
   const addToCart = useAddToCart();
   const { showToast } = useToast();
   const products = useInfiniteProductsByCategory(id, debouncedSearch, "all", sort);

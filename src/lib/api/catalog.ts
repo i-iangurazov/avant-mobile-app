@@ -22,7 +22,7 @@ export async function fetchProducts({
   search = "",
   inStock,
   withPrice,
-  sort = "name",
+  sort = "recommended",
   limit
 }: ProductQuery = {}) {
   return getProducts({
@@ -40,7 +40,7 @@ export async function fetchProductPage({
   search = "",
   inStock,
   withPrice,
-  sort = "name",
+  sort = "recommended",
   page = 1,
   pageSize = 40
 }: ProductQuery = {}) {
