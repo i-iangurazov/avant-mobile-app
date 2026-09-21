@@ -16,7 +16,7 @@ import { useCart } from "../../src/hooks/useCart";
 import { useCreateOrderFromCart } from "../../src/hooks/useOrders";
 import { useProfile } from "../../src/hooks/useProfile";
 import { useStores } from "../../src/hooks/useStores";
-import { friendlyError, isValidKyrgyzPhone, normalizePhone, phoneValidationMessage } from "../../src/lib/formatters";
+import { formatPrice, friendlyError, isValidKyrgyzPhone, normalizePhone, phoneValidationMessage } from "../../src/lib/formatters";
 import { safeBack } from "../../src/lib/navigation/safeBack";
 import { openWhatsApp } from "../../src/lib/whatsapp";
 import type { FulfillmentMethod } from "../../src/types";
@@ -108,7 +108,12 @@ export default function CheckoutScreen() {
     } catch (error) {
       setServerError(error instanceof Error ? error.message : 'Не удалось оформить заказ.');
       setQuote(null);
-      if(user) setPending(await hasPendingOrder(user.id));
+      const unresolved = user ? await hasPendingOrder(user.id) : false;
+      setPending(unresolved);
+      if (unresolved) {
+        Alert.alert("Ответ сервера не получен", "Заказ мог сохраниться. Нажмите «Проверить результат отправки», чтобы открыть его без повторного оформления.");
+        return;
+      }
       Alert.alert("Не удалось оформить заказ", friendlyError(error instanceof Error ? error.message : undefined), [
         { text: "Закрыть", style: "cancel" },
         {
@@ -205,7 +210,7 @@ export default function CheckoutScreen() {
             style={styles.commentInput}
           />
           {isReservation ? <View style={styles.reservationNotice}><Ionicons name="information-circle-outline" size={20} color={colors.secondary} /><Text style={styles.reservationNoticeText}>Товары будут отложены только после подтверждения менеджером. Оплата выполняется отдельно.</Text></View> : null}
-          {quote ? <Text style={styles.label}>Итог по данным сервера: {quote.totalAmount === null ? 'Уточняется менеджером' : `${quote.totalAmount} сом`}. Оплата отдельно.</Text> : null}
+          {quote ? <Text style={styles.label}>Итог по данным сервера: {formatPrice(quote.totalAmount, 'Уточняется менеджером')}. Оплата отдельно.</Text> : null}
           {pending ? <Text style={styles.label}>Есть незавершённая отправка. Проверим её результат по прежнему номеру запроса.</Text> : null}
           {serverError ? <Text accessibilityRole="alert" style={styles.errorText}>{serverError}</Text> : null}
           <AppButton title={pending ? "Проверить результат отправки" : quote ? "Подтвердить заказ" : "Проверить итог"} onPress={() => void submit()} loading={createOrder.isPending || quoting} />
