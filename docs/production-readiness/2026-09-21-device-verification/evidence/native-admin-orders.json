@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "source": "2a640b3",
+  "versionCode": 8,
+  "checks": [
+    "admin session survived QA update",
+    "native admin order list with Telegram notification status",
+    "order detail trusted total customer and items"
+  ],
+  "screenshots": [
+    "native-admin-orders",
+    "native-admin-order-detail"
+  ]
+}

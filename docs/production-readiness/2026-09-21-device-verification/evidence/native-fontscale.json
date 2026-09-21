@@ -1,0 +1,27 @@
+{
+  "source": "7f3d863",
+  "qaVersion": 7,
+  "status": "PASS",
+  "scaleSequence": [
+    1,
+    1.5,
+    1
+  ],
+  "formDeliveryPreserved": true,
+  "checks": [
+    "live font scale relayout readable without clipping",
+    "delivery choice survives background/configuration change",
+    "checkout action visible above system navigation at150%",
+    "actual delivery quote submission confirmation and persisted detail"
+  ],
+  "screenshots": [
+    "font7-before",
+    "font7-after-top",
+    "font7-restored",
+    "font7-scroll-action",
+    "font7-delivery-quote",
+    "font7-delivery-confirmed",
+    "font7-delivery-detail"
+  ],
+  "limitation": "One physical Redmi; no full TalkBack/iOS/max-OEM-scale matrix"
+}

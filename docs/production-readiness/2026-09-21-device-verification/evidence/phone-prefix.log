@@ -1,0 +1,2 @@
+PASS phone input: four typed/pasted formats, partial country prefix, deletion, excess digits and foreign country
+PASS fixed +996 prefix: typed/pasted number, complete deletion, foreign code and excess digit rejection

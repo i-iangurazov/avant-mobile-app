@@ -1,0 +1,10 @@
+{
+  "source": "1d98374",
+  "versionCode": 16,
+  "checks": [
+    "All products opens with first two owner-selected products",
+    "Variant required; Size 20 selected at 31 KGS and same variant shown in cart",
+    "Catalogue preview has same first products"
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,23 @@
+{
+  status: 'PASS',
+  scenarios: [
+    'concurrent single-flight full catalog',
+    'last-page exact ID',
+    'multiple categories',
+    'secondary category client/server',
+    'foreign product absent',
+    'nine invalid/context-injection queries',
+    'global sorted pagination without gaps or duplicates',
+    'last and out-of-range pages',
+    'search before pagination',
+    'legacy source order preserved',
+    'repeated upstream page',
+    'invalid upstream JSON',
+    'three negative stock statuses',
+    'negative stock overrides flag',
+    'imageObjects and empty-array fallback',
+    'unsafe image rejected'
+  ],
+  upstreamRequestsForConcurrentFullCategoriesAndLastPageDetail: 2,
+  actualCategories: undefined
+}

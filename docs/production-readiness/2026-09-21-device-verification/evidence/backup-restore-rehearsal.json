@@ -1,0 +1,14 @@
+[
+  {
+    "database": "website",
+    "restored": true,
+    "target": "isolated local PostgreSQL16",
+    "compatibility": "PG17/18 archive; only unsupported SET transaction_timeout removed; tables/data unchanged"
+  },
+  {
+    "database": "railway",
+    "restored": true,
+    "target": "isolated local PostgreSQL16",
+    "compatibility": "PG17/18 archive; only unsupported SET transaction_timeout removed; tables/data unchanged"
+  }
+]

@@ -1,0 +1,98 @@
+{
+  "package": "kg.avantehnik.app",
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "sourceCommit": "a13a32b",
+  "api": "https://api-production-2e6d.up.railway.app",
+  "signedWith": "private upload key; public certificate in report",
+  "checks": [
+    "actual application routes",
+    "target36",
+    "non-debug signature",
+    "16KB ZIP and 17 ELF alignment",
+    "HTTPS API and business WhatsApp in JS bundle",
+    "no QA API"
+  ],
+  "nativeLibraries": [
+    {
+      "name": "lib/arm64-v8a/libappmodules.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libc++_shared.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libexpo-modules-core.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libfbjni.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libgifimage.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libhermes.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libhermestooling.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libimagepipeline.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libjsi.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libnative-filters.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libnative-imagetranscoder.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libreact_codegen_rnscreens.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libreact_codegen_rnsvg.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libreact_codegen_safeareacontext.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libreactnative.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/librnscreens.so",
+      "minAlignment": 16384
+    },
+    {
+      "name": "lib/arm64-v8a/libstatic-webp.so",
+      "minAlignment": 16384
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/google-play/avantehnik-1.0.0-1.apk",
+      "bytes": 29471364,
+      "sha256": "f2ff09468ae6d736198a80e549c5398b48cbd874a478b0960de2edec7e73599d"
+    },
+    {
+      "path": "artifacts/google-play/avantehnik-1.0.0-1.aab",
+      "bytes": 21332489,
+      "sha256": "584e6ba19e94b1b806bd6bad7031b25335d5e032b1aeaebe8328c178cca8163b"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "source": "3e977ca + storefront working tree",
+  "versionCode": 15,
+  "checks": [
+    "Live width320: checkout action visible",
+    "Live width430: checkout action visible"
+  ],
+  "settingsRestored": true,
+  "status": "PASS"
+}

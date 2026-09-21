@@ -1,0 +1,13 @@
+// React Native0.81 pins8.11.0 in its version catalog. Resolve library buildscript
+// dependencies to the same plugin, avoiding obsolete standalone AGP classpaths.
+gradle.beforeProject { p ->
+    p.buildscript.repositories.mavenCentral()
+    p.buildscript.configurations.configureEach { c ->
+        c.resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.tools.build' && details.requested.name == 'gradle') {
+                details.useVersion('8.11.0')
+                details.because('Use the same Android Gradle Plugin as React Native0.81')
+            }
+        }
+    }
+}

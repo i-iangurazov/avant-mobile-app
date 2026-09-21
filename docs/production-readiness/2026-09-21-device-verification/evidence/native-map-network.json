@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": [
+    "real device network disabled: explicit fallback",
+    "branch remains selectable",
+    "original network settings restored",
+    "retry loads map WebView controls",
+    "zoom controls Russian"
+  ],
+  "versionCode": 3
+}

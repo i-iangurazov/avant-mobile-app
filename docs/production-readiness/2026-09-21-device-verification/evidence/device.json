@@ -1,0 +1,13 @@
+{
+  "manufacturer": "Xiaomi",
+  "model": "25062RN2DA",
+  "android": "16",
+  "sdk": "36",
+  "abi": "arm64-v8a",
+  "securityPatch": "2026-05-01",
+  "pageSize": "4096",
+  "displaySize": "Physical size: 1080x2340",
+  "displayDensity": "Physical density: 450",
+  "existingProductionPackage": "",
+  "existingQA": ""
+}

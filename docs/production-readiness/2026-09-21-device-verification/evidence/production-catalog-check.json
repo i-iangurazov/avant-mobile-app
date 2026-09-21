@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "environment": "live HTTPS production API; read-only",
+  "total": 845,
+  "photo": 842,
+  "checks": [
+    "nine pages unique and complete",
+    "photo first",
+    "featured first",
+    "search",
+    "category filter",
+    "ascending price",
+    "product detail"
+  ]
+}

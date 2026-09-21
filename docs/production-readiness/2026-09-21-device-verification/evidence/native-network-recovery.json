@@ -1,0 +1,65 @@
+{
+  "source": "909dfe4",
+  "versionCode": 9,
+  "isolation": "local API/DB; one explicit trusted fixture offer 12345 minor, no production order",
+  "checks": [
+    "Missing trusted offer rejected visibly; no order created",
+    "HTTP503 after quote: zero server creates",
+    "Timeout after503: zero creates, pending attempt retained",
+    "Retry restores one server order and clears cart"
+  ],
+  "before": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e",
+      "total_amount": "123.45"
+    },
+    {
+      "id": "18a5620f-d832-46c3-8a5e-f4fd580e0de0",
+      "client_request_id": "order_1789994782184_47zyye5ggwb",
+      "total_amount": "123.45"
+    }
+  ],
+  "after503": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e",
+      "total_amount": "123.45"
+    },
+    {
+      "id": "18a5620f-d832-46c3-8a5e-f4fd580e0de0",
+      "client_request_id": "order_1789994782184_47zyye5ggwb",
+      "total_amount": "123.45"
+    }
+  ],
+  "afterTimeout": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e",
+      "total_amount": "123.45"
+    },
+    {
+      "id": "18a5620f-d832-46c3-8a5e-f4fd580e0de0",
+      "client_request_id": "order_1789994782184_47zyye5ggwb",
+      "total_amount": "123.45"
+    }
+  ],
+  "afterRetry": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e",
+      "total_amount": "123.45"
+    },
+    {
+      "id": "18a5620f-d832-46c3-8a5e-f4fd580e0de0",
+      "client_request_id": "order_1789994782184_47zyye5ggwb",
+      "total_amount": "123.45"
+    },
+    {
+      "id": "9e9e6d78-4ec0-435d-8c5d-d181506241bb",
+      "client_request_id": "order_1789997979976_74414dtc9eq",
+      "total_amount": "123.45"
+    }
+  ],
+  "status": "PASS"
+}

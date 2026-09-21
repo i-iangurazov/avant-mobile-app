@@ -1,0 +1,42 @@
+{
+  "source": "06037ef",
+  "device": "same physical Redmi15, reversible Android density overrides; not two hardware devices",
+  "checks": [
+    {
+      "widthDp": 320.0,
+      "route": "/catalog",
+      "captured": true
+    },
+    {
+      "widthDp": 320.0,
+      "route": "/cart",
+      "captured": true
+    },
+    {
+      "widthDp": 320.0,
+      "route": "/checkout",
+      "captured": true
+    },
+    {
+      "widthDp": 320.0,
+      "route": "/maps",
+      "captured": true
+    },
+    {
+      "widthDp": 429.9,
+      "route": "/catalog",
+      "captured": true
+    },
+    {
+      "widthDp": 429.9,
+      "route": "/cart",
+      "captured": true
+    },
+    {
+      "widthDp": 429.9,
+      "route": "/checkout",
+      "captured": true
+    }
+  ],
+  "settingsRestored": true
+}

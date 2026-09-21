@@ -1,0 +1,6 @@
+Recovery request submitted through guest UI without SMS
+Administrator UI issues one-time recovery link after password and review note
+Pasted link resets password and opens login
+New password signs in through actual UI
+Reset invalidates pre-reset access session
+No runtime exceptions in manual recovery flow

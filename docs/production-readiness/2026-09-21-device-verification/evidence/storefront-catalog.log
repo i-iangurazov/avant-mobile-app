@@ -1,0 +1,20 @@
+{
+  status: 'PASS',
+  source: 'shared storefront Product/Variant tables; local replay of SELECT-only production capture',
+  products: 845,
+  variants: 2147,
+  withImages: 842,
+  featuredMatched: 15,
+  scenarios: [
+    'website names/prices/15 IDs match',
+    'global photo order over nine pages without duplicates',
+    'unknown inventory remains unknown',
+    'root requires explicit variant; foreign variant rejected',
+    'variant detail and price match cart selection',
+    'client context injection rejected',
+    'trusted quote ignores client and stale inventory price',
+    'price changes between quote/submit rejected',
+    'inactive variants/products/categories hidden and cannot order',
+    'test mutations rolled back'
+  ]
+}

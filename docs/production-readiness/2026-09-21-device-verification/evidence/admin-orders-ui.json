@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "platform": "Chrome390x844 exported app, isolated backend",
+  "checks": [
+    {
+      "name": "customer UI cannot read admin orders",
+      "status": "PASS"
+    },
+    {
+      "name": "admin overview opens actual customer order list",
+      "status": "PASS"
+    },
+    {
+      "name": "Telegram delivery is visible",
+      "status": "PASS"
+    },
+    {
+      "name": "detail displays persisted customer contact",
+      "status": "PASS"
+    },
+    {
+      "name": "detail displays trusted total",
+      "status": "PASS"
+    },
+    {
+      "name": "manual refresh retains same order",
+      "status": "PASS"
+    },
+    {
+      "name": "account switch removes administrator order details",
+      "status": "PASS"
+    },
+    {
+      "name": "guest gets login path",
+      "status": "PASS"
+    },
+    {
+      "name": "No JavaScript exceptions",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}

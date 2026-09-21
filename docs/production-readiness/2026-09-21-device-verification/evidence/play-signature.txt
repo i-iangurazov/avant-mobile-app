@@ -1,0 +1,17 @@
+Verifies
+Verified using v1 scheme (JAR signing): false
+Verified using v2 scheme (APK Signature Scheme v2): true
+Verified using v3 scheme (APK Signature Scheme v3): false
+Verified using v3.1 scheme (APK Signature Scheme v3.1): false
+Verified using v4 scheme (APK Signature Scheme v4): false
+Verified for SourceStamp: false
+Number of signers: 1
+Signer #1 certificate DN: CN=Avantehnik Android Upload
+Signer #1 certificate SHA-256 digest: 2a9ca9abad8f04c0bb3475c144b11cd133270cde027005f80e99a98426c1033a
+Signer #1 certificate SHA-1 digest: 88872b981afe280f0feef8d2e786063665c630f6
+Signer #1 certificate MD5 digest: ef1e446d75bedccd05d98eef7ac502f6
+Signer #1 key algorithm: RSA
+Signer #1 key size (bits): 3072
+Signer #1 public key SHA-256 digest: d47a670016dc4c61db05eb5ea55baa98af314515e670c0e85858a2a5b5f70c47
+Signer #1 public key SHA-1 digest: 312038b1220a3989b91ea8aa2eb07febff3438df
+Signer #1 public key MD5 digest: bcede9a68f3860612fa1d6b0466846cb

@@ -1,0 +1,3 @@
+PASS: Offline map exposes fallback and branch selection
+PASS: Original Wi-Fi/mobile data settings restored
+PASS: Map restored after network and retry; Russian zoom accessible

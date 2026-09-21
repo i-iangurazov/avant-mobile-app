@@ -1,0 +1,17 @@
+Add through catalog appears in cart
+Select exposes expanded and checked states
+Searchable branch select applies and closes
+Select empty search has explicit state
+Escape closes select and preserves chosen branch
+Delivery address validation
+Trusted quote is shown before submission
+Successful server response deliberately lost
+One server order exists after lost response
+Retry key persisted after network failure
+Response recovery opens actual persisted order
+Retry after reload did not create a second order
+Persisted attempt cleared after accepted result
+Submitted cart cleared
+History shows created order
+Order can be reopened
+No runtime exceptions after checkout changes

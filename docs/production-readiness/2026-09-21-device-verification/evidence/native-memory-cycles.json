@@ -1,0 +1,49 @@
+{
+  "source": "06037ef",
+  "cycles": [
+    {
+      "cycle": 1,
+      "totalPssKb": 283162
+    },
+    {
+      "cycle": 2,
+      "totalPssKb": 287986
+    },
+    {
+      "cycle": 3,
+      "totalPssKb": 289756
+    },
+    {
+      "cycle": 4,
+      "totalPssKb": 287031
+    },
+    {
+      "cycle": 5,
+      "totalPssKb": 282669
+    },
+    {
+      "cycle": 6,
+      "totalPssKb": 285500
+    },
+    {
+      "cycle": 7,
+      "totalPssKb": 285911
+    },
+    {
+      "cycle": 8,
+      "totalPssKb": 285288
+    },
+    {
+      "cycle": 9,
+      "totalPssKb": 285068
+    },
+    {
+      "cycle": 10,
+      "totalPssKb": 284948
+    }
+  ],
+  "scope": "10 bounded navigation/background cycles on one physical device; no long-duration leak guarantee",
+  "processStable": true,
+  "ownCrashBufferEmpty": true,
+  "settingsRestored": true
+}

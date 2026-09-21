@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "source": "a13a32b",
+  "package": "kg.avantehnik.app",
+  "versionCode": 1,
+  "environment": "live HTTPS production API",
+  "checks": [
+    "Fresh production install loads photographed featured products",
+    "Actual product detail and option prices; selecting size20 shows31KGS; no order submitted",
+    "Native sort selector applies ascending price",
+    "Native search queries real catalog for SD1036",
+    "Owner login and actual test order visible in admin",
+    "Same Telegram-confirmed order is readable on production Android",
+    "Native page2 product verified against live catalog after infinite scroll",
+    "Native category filter: Metal fittings"
+  ],
+  "paginationBeyondFirstPage": [
+    "Ванна металлическая AVANT",
+    "Вантуз ОРИО",
+    "Вантуз с деревянной ручкой",
+    "Ведро металлическое"
+  ]
+}

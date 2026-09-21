@@ -1,0 +1,46 @@
+{"suite":"no-sms-auth-and-manual-recovery","assertions":48,"status":"PASS","externalTraffic":"none","scope":"local DB; human identity procedure still requires owner approval"}
+{"suite":"orders","assertions":28,"status":"PASS","parallelSameKey":20,"lostAck":"one server operation","inventory":"isolated authoritative fixtures; real integration not verified"}
+{"suite":"loyalty-history","checks":14,"status":"PASS","records":137,"pages":5,"source":"isolated real ledger mutations, no production data"}
+{"suite":"deletion","assertions":24,"status":"PASS","scope":"app database; external providers and retention approval remain blocked"}
+{"suite":"media","checks":6,"status":"PASS","provider":"injected fake; decoding/metadata stripping/storage integration BLOCKED"}
+{"suite":"catalog/localization","checks":22,"status":"PASS","catalog":"137 fixtures, provider pages of 50, globally sorted pages of 30"}
+{
+  status: 'PASS',
+  scenarios: [
+    'concurrent single-flight full catalog',
+    'last-page exact ID',
+    'multiple categories',
+    'secondary category client/server',
+    'foreign product absent',
+    'nine invalid/context-injection queries',
+    'global sorted pagination without gaps or duplicates',
+    'last and out-of-range pages',
+    'search before pagination',
+    'legacy source order preserved',
+    'repeated upstream page',
+    'invalid upstream JSON',
+    'three negative stock statuses',
+    'negative stock overrides flag',
+    'imageObjects and empty-array fallback',
+    'unsafe image rejected'
+  ],
+  upstreamRequestsForConcurrentFullCategoriesAndLastPageDetail: 2,
+  actualCategories: undefined
+}
+{
+  status: 'PASS',
+  checks: [
+    'Before: new client keys create two redemptions',
+    'Loss after committed debit preserves durable attempt',
+    'Unknown result cannot be discarded',
+    'Reload and 20 parallel retries produce one server redemption',
+    'Exactly one ledger debit of 100 for recovered request',
+    'Accepted receipt remains until explicit acknowledgment',
+    'Account B cannot recover account A attempt',
+    'Cannot replace unresolved reward',
+    'Only explicit acknowledgment permits next purchase',
+    'No debit when durable save fails',
+    'Authoritative no-operation rejection permits corrected selection'
+  ]
+}
+PASS phone input: four typed/pasted formats, partial country prefix, deletion, excess digits and foreign country

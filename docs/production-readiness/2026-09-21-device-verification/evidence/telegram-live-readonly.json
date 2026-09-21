@@ -1,0 +1,9 @@
+{
+  "status": "READ ONLY",
+  "webhookUrl": "",
+  "hasCustomCertificate": false,
+  "pendingUpdateCount": 0,
+  "lastErrorDate": null,
+  "lastErrorMessage": null,
+  "allowedUpdates": null
+}

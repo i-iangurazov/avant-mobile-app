@@ -1,0 +1,11 @@
+{
+  "source": "73c4a8c",
+  "versionCode": 12,
+  "status": "PASS",
+  "checks": [
+    "+996 shown on empty registration/login",
+    "Registration accepts nine local digits",
+    "Deleting local digits keeps country prefix",
+    "Login pasted +996 number normalized once and authenticates existing QA customer"
+  ]
+}

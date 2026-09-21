@@ -1,0 +1,26 @@
+Alias name: avantehnik-upload
+Creation date: 21 сент. 2026 г.
+Entry type: PrivateKeyEntry
+Certificate chain length: 1
+Certificate[1]:
+Owner: CN=Avantehnik Android Upload
+Issuer: CN=Avantehnik Android Upload
+Serial number: 1f4bc90e75f2fc4c
+Valid from: Mon Sep 21 19:22:38 KGT 2026 until: Fri Feb 06 19:22:38 KGT 2054
+Certificate fingerprints:
+	 SHA1: 88:87:2B:98:1A:FE:28:0F:0F:EE:F8:D2:E7:86:06:36:65:C6:30:F6
+	 SHA256: 2A:9C:A9:AB:AD:8F:04:C0:BB:34:75:C1:44:B1:1C:D1:33:27:0C:DE:02:70:05:F8:0E:99:A9:84:26:C1:03:3A
+Signature algorithm name: SHA256withRSA
+Subject Public Key Algorithm: 3072-bit RSA key
+Version: 3
+
+Extensions: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: 6F 27 9F 2C BA 4E A5 CB   B9 73 4E 6E 6E AC D8 81  o'.,.N...sNnn...
+0010: 89 A3 31 73                                        ..1s
+]
+]
+

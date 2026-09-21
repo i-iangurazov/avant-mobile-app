@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-09-21T15:09:00.944Z",
+  "health": {
+    "ok": true,
+    "database": "reachable",
+    "authTokenSecret": "present",
+    "telegramBotToken": "present",
+    "telegramChatId": "present",
+    "telegramWebhook": "registered",
+    "orderOrganization": "configured",
+    "plumberProgram": "configured",
+    "adminAccess": "database-role-only",
+    "catalog": "database:read-only"
+  },
+  "adminLogin": true,
+  "catalogProducts": 845,
+  "firstProduct": "\u041e\u0442\u0432\u043e\u0434 \u0418\u0440\u0430\u043d\u0441\u043a\u0438\u0439",
+  "orderId": "dd91f398-8023-46dd-bb60-ca96f8eceb40",
+  "orderNumber": "AV-20260921-01000",
+  "total": "23.00",
+  "mode": "inquiry",
+  "duplicateRequestSameOrder": true,
+  "telegramStatus": "sent",
+  "callback": "PASS: actual owner Telegram button, source=telegram_admin",
+  "testOnly": "explicitly labelled do not fulfill; no payment or inventory held",
+  "status": "confirmed",
+  "inventoryHeld": false,
+  "events": [
+    {
+      "status": "created",
+      "source": "customer"
+    },
+    {
+      "status": "confirmed",
+      "source": "telegram_admin"
+    }
+  ],
+  "ownerConfirmedReceipt": true
+}

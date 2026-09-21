@@ -1,0 +1,44 @@
+{
+  "website": {
+    "tables": [
+      "AppSetting",
+      "Category",
+      "CategoryTranslation",
+      "Order",
+      "OrderNotificationJob",
+      "Product",
+      "ProductTranslation",
+      "Session",
+      "Subcategory",
+      "SubcategoryTranslation",
+      "User",
+      "Variant",
+      "VariantTranslation",
+      "_prisma_migrations",
+      "app_customers",
+      "app_order_items",
+      "app_order_status_events",
+      "app_orders"
+    ],
+    "counts": {
+      "Product": 889,
+      "Variant": 2233,
+      "app_customers": 0,
+      "app_order_items": 0,
+      "app_order_status_events": 0,
+      "app_orders": 0
+    },
+    "ownerAccountCount": 0,
+    "serverVersion": "17.11 (8a81ecb)"
+  },
+  "railway": {
+    "tables": [
+      "app_customers"
+    ],
+    "counts": {
+      "app_customers": 3
+    },
+    "ownerAccountCount": 0,
+    "serverVersion": "18.6 (Debian 18.6-1.pgdg13+2)"
+  }
+}

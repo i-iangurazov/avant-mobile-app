@@ -1,0 +1,35 @@
+[
+  {
+    "screen": "all-products-placeholder-after",
+    "bounds": "[45,800][523,1278]",
+    "width": 478,
+    "height": 478,
+    "result": "PASS"
+  },
+  {
+    "screen": "all-products-placeholder-after",
+    "bounds": "[557,800][1035,1278]",
+    "width": 478,
+    "height": 478,
+    "result": "PASS"
+  },
+  {
+    "screen": "all-products-photo-after",
+    "bounds": "[45,800][523,1278]",
+    "width": 478,
+    "height": 478,
+    "result": "PASS"
+  },
+  {
+    "screen": "all-products-photo-after",
+    "bounds": "[557,800][1035,1278]",
+    "width": 478,
+    "height": 478,
+    "result": "PASS"
+  },
+  {
+    "test": "Назад has Russian label and 48 dp touch target",
+    "result": "PASS",
+    "density": 450
+  }
+]

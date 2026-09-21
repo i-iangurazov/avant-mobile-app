@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-09-21T15:01:11.880Z",
+  "sourceCommit": "fa7e957",
+  "migration": "20260921-complete-app-schema.sql",
+  "copiedAccounts": 3,
+  "ownerCreated": true,
+  "branches": 6,
+  "catalogSource": "database",
+  "fulfilmentMode": "inquiry",
+  "oldDatabasePreserved": true,
+  "counts": {
+    "customers": 4,
+    "orders": 0,
+    "ledger": 0,
+    "offers": 0,
+    "products": 889,
+    "variants": 2233
+  }
+}

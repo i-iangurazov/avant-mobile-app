@@ -1,0 +1,42 @@
+[
+  {
+    "id": "4d12a9ea-54ee-4501-9141-c56c2788b3f2",
+    "name": "Болгарка 125ф VCLND",
+    "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/unassigned/9c47c7879e47d7f8eeef3a1c0fceae3d0cc65c95.jpg",
+    "status": 200,
+    "type": "image/jpeg",
+    "bytesRead": 68833
+  },
+  {
+    "id": "0bf09e2d-7c4f-4500-8729-4c55ede17400",
+    "name": "Вентиль запорный пласт 20 Авант А213",
+    "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/0bf09e2d-7c4f-4500-8729-4c55ede17400/66787d7a1977df8348a7e316c9917700c13cc424.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytesRead": 15982
+  },
+  {
+    "id": "cmq2eb5st002upte2sobbb0yd",
+    "name": "Вентиль запорный пласт 25 Авант А214",
+    "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/0bf09e2d-7c4f-4500-8729-4c55ede17400/66787d7a1977df8348a7e316c9917700c13cc424.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytesRead": 15982
+  },
+  {
+    "id": "cmq2ebips0038pte212n0qqax",
+    "name": "Вентиль запорный пласт 32 Авант А215",
+    "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/0bf09e2d-7c4f-4500-8729-4c55ede17400/66787d7a1977df8348a7e316c9917700c13cc424.webp",
+    "status": 200,
+    "type": "image/webp",
+    "bytesRead": 15982
+  },
+  {
+    "id": "785528d7-bbd9-4af8-9bb1-089e62df420e",
+    "name": "Газ баллончик Казахстан",
+    "url": "https://pub-75076a8067634fa3a91a6df2248d729c.r2.dev/retails/cmp5ntkgg0005njbftimmsg32/products/unassigned/500e609a23c0fbd24833f45baf022c90f2b5d4a8.jpg",
+    "status": 200,
+    "type": "image/jpeg",
+    "bytesRead": 35556
+  }
+]

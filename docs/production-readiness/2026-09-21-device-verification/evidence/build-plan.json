@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "d1d4fc9006ae07fbcd4badfc98ddb3835617659a",
+  "package": "kg.avantehnik.acceptance",
+  "endpoint": "http://127.0.0.1:8789",
+  "transport": "adb reverse, isolated local API; loopback-only cleartext network config; not production release approval",
+  "nativeBuildVariant": "Release",
+  "signing": "engineering test key",
+  "purpose": "physical device acceptance without modifying any installed production app or using production data",
+  "isolatedNativeOverrides": [
+    "package/name QA",
+    "cleartext allowed ONLY for127.0.0.1 via adb reverse"
+  ]
+}

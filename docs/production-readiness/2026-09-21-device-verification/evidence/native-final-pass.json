@@ -1,0 +1,12 @@
+{
+  "source": "06037ef",
+  "versionCode": 11,
+  "checks": [
+    "Spent filter returns empty before spending on Android",
+    "Physical history loads next page after first30",
+    "Native rewards screen opens",
+    "Guest cart survives login and resumes checkout with contacts",
+    "After logout and customer login, prior master ledger is inaccessible"
+  ],
+  "status": "PASS"
+}

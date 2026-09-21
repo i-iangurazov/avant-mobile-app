@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "scope": "physical Redmi 15 standalone Release; isolated DB/authoritative price fixture",
+  "beforeCount": 39,
+  "afterLoss": 40,
+  "afterRestartAndRetry": 40,
+  "order": {
+    "id": "1055ac4a-6c54-46ef-9ff9-1a386eeb94bf",
+    "client_request_id": "order_1789992106205_octsz4jiavd",
+    "total_amount": "123.45"
+  },
+  "reservedInventoryReconciles": [
+    {
+      "product_id": "c34f7883-3475-44ed-9401-2065b7fc221b",
+      "reserved_quantity": 1,
+      "expected": 1
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "project": "avant-mobile-app",
+  "service": "api",
+  "databaseUrlMatchesLocal": false,
+  "databaseHostAndNameMatch": false,
+  "databaseProvider": "different current database",
+  "configuredKeys": [
+    "AUTH_TOKEN_SECRET",
+    "BAZAAR_API_BASE_URL",
+    "BAZAAR_API_TOKEN",
+    "BAZAAR_PROXY_HOST",
+    "DATABASE_URL",
+    "NODE_ENV",
+    "RAILWAY_ENVIRONMENT",
+    "RAILWAY_ENVIRONMENT_ID",
+    "RAILWAY_ENVIRONMENT_NAME",
+    "RAILWAY_PRIVATE_DOMAIN",
+    "RAILWAY_PROJECT_ID",
+    "RAILWAY_PROJECT_NAME",
+    "RAILWAY_PUBLIC_DOMAIN",
+    "RAILWAY_SERVICE_API_URL",
+    "RAILWAY_SERVICE_ID",
+    "RAILWAY_SERVICE_NAME",
+    "RAILWAY_STATIC_URL",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID"
+  ],
+  "requiredPresence": {
+    "DATABASE_URL": true,
+    "AUTH_TOKEN_SECRET": true,
+    "APP_ORGANIZATION_ID": false,
+    "DELIVERY_BRANCH_ID": false,
+    "TELEGRAM_BOT_TOKEN": true,
+    "TELEGRAM_CHAT_ID": true,
+    "TELEGRAM_WEBHOOK_URL": false
+  },
+  "catalogSource": "not set"
+}

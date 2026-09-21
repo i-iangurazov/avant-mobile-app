@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scenarios": [
+    "15 exact featured IDs promoted from late source pages in owner order",
+    "remaining images before placeholders across 10 pages",
+    "no duplicates or omissions",
+    "deterministic repeated request",
+    "explicit ascending/descending price and name preserved",
+    "search and ID filtering before ordering",
+    "legacy source order unchanged",
+    "featured without image does not outrank actual image",
+    "absent IDs do not create invented products"
+  ],
+  "total": 150
+}

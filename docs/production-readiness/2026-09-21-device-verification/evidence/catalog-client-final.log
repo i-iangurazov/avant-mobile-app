@@ -1,0 +1,1 @@
+PASS: Android client preview = first 15 catalogue entries; one preview request, complete pagination, explicit price/search, reject changing snapshot.

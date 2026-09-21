@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "environment": "two disposable local PostgreSQL databases; no production mutation",
+  "checks": [
+    "legacy migration and repeat are safe; no loyalty, inventory, documents or roles seeded",
+    "dry-run writes nothing; digest mismatch refuses; three IDs/hashes/timestamps preserved; retry does not duplicate",
+    "migrated customer can sign in and has no admin privilege",
+    "conflict and expanded source schema refuse cutover without overwriting data",
+    "bootstrap never claims existing phone, serializes concurrent grants, audits exactly one admin; normal sign-in works"
+  ]
+}

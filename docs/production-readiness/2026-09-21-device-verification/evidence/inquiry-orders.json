@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "checks": [
+    "no inventory rows needed; server checks current catalogue price and branch; tampered price rejected",
+    "negative/fractional/excess quantity, duplicate/missing product, foreign organization/branch and legacy source rejected",
+    "inactive variant and price change after quote rejected; catalogue mutations rolled back",
+    "20 parallel retries persist exactly one order; mode survives history; Telegram explains conditional availability; cancellation never changes stock"
+  ]
+}

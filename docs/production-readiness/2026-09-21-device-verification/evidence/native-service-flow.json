@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "source": "2a640b3",
+  "versionCode": 8,
+  "transport": "Isolated PostgreSQL + mocked Telegram",
+  "rows": [
+    {
+      "id": "213cdbda-b0f0-49c3-9dce-5dd5e627ea1a",
+      "status": "completed",
+      "review_count": "1"
+    }
+  ],
+  "checks": [
+    "customer creates service request",
+    "admin sees request and assigns master",
+    "assigned master cannot see private contact before acceptance",
+    "master accepts contact becomes visible",
+    "master starts and completes work",
+    "customer sees completed request and submits review",
+    "one review persisted"
+  ]
+}

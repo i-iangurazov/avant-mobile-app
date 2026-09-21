@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "source": "909dfe4",
+  "versionCode": 9,
+  "checks": [
+    "cold picker opens",
+    "Activity recreated without process kill; picker opens",
+    "Known QA file selected through system picker without broad library permissions",
+    "Native photo preview returns to app; no unregistered ActivityResultLauncher error"
+  ],
+  "selection": "Own AvantehnikQA/avantehnik-release-test.png selected after Activity recreation; app preview and manager fallback visible",
+  "systemGalleryCaptured": false
+}

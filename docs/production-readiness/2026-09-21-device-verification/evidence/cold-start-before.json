@@ -1,0 +1,17 @@
+[
+  {
+    "run": 1,
+    "kind": "cold process, existing app storage",
+    "result": "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 703\nWaitTime: 716\nComplete\n"
+  },
+  {
+    "run": 2,
+    "kind": "cold process, existing app storage",
+    "result": "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 659\nWaitTime: 674\nComplete\n"
+  },
+  {
+    "run": 3,
+    "kind": "cold process, existing app storage",
+    "result": "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 592\nWaitTime: 602\nComplete\n"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "database": "website",
+    "bytes": 299497,
+    "sha256": "1096dcf303002a3d7e2e093d2a6fa68473b6672f578785c0c6187398c1ca72ff",
+    "archiveReadable": true,
+    "restoreRehearsal": false
+  },
+  {
+    "database": "railway",
+    "bytes": 3129,
+    "sha256": "fc77b178d22f034a7f006c42f6936d4dcb24966bd2221949ed431093520b3490",
+    "archiveReadable": true,
+    "restoreRehearsal": false
+  }
+]

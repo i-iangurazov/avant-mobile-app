@@ -1,0 +1,417 @@
+{
+  "checks": [
+    {
+      "name": "customer GET /admin/orders",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/orders",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/orders/missing",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/orders/missing",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/account-recovery",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/account-recovery",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/account-recovery/approve",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/account-recovery/approve",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/program",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/program",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/plumbers",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/plumbers",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PATCH /admin/plumbers/missing/status",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PATCH /admin/plumbers/missing/status",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/loyalty/config",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/loyalty/config",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PATCH /admin/loyalty/config",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PATCH /admin/loyalty/config",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/loyalty/release",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/loyalty/release",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/receipts",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/receipts",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/returns",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/returns",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/loyalty/adjustments",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/loyalty/adjustments",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/leads",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/leads",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer GET /admin/leads/missing/candidates",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest GET /admin/leads/missing/candidates",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/leads/missing/assign",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/leads/missing/assign",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PATCH /admin/reviews/missing",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PATCH /admin/reviews/missing",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/rewards",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/rewards",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PUT /admin/rewards",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PUT /admin/rewards",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PATCH /admin/redemptions/missing/status",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PATCH /admin/redemptions/missing/status",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/promotions",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/promotions",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PUT /admin/promotions",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PUT /admin/promotions",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/exclusions",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/exclusions",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PUT /admin/exclusions",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PUT /admin/exclusions",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer POST /admin/content",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest POST /admin/content",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "customer PUT /admin/content",
+      "actual": 403,
+      "expected": 403
+    },
+    {
+      "name": "guest PUT /admin/content",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "database admin access",
+      "actual": 200,
+      "expected": 200
+    },
+    {
+      "name": "role fields do not grant admin",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "phone change requires current password",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "retired SMS endpoint",
+      "actual": 410,
+      "expected": 410
+    },
+    {
+      "name": "registration without SMS",
+      "actual": 201,
+      "expected": 201
+    },
+    {
+      "name": "claimed role does not grant admin",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "claim does not verify phone",
+      "actual": null,
+      "expected": null
+    },
+    {
+      "name": "duplicate registration",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "phone alone cannot reset password",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "refresh reloads revoked role",
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "rotated refresh replay",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "legacy token cannot regain admin",
+      "actual": 401,
+      "expected": 401
+    },
+    {
+      "name": "invalid monetary/quantity request",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "invalid monetary/quantity request",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "invalid monetary/quantity request",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "invalid monetary/quantity request",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "invalid monetary/quantity request",
+      "actual": 400,
+      "expected": 400
+    },
+    {
+      "name": "untrusted order data",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "untrusted order data",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "untrusted order data",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "one HTTP creation",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "19 HTTP replays",
+      "actual": 19,
+      "expected": 19
+    },
+    {
+      "name": "same HTTP order ID",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "changed payload conflict",
+      "actual": 409,
+      "expected": 409
+    },
+    {
+      "name": "foreign order read",
+      "actual": 404,
+      "expected": 404
+    },
+    {
+      "name": "one database operation",
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "default ledger page",
+      "actual": 30,
+      "expected": 30
+    },
+    {
+      "name": "all HTTP ledger entries",
+      "actual": 137,
+      "expected": 137
+    },
+    {
+      "name": "no HTTP ledger duplicates",
+      "actual": 137,
+      "expected": 137
+    },
+    {
+      "name": "spoofed forwarded header cannot bypass",
+      "actual": 429,
+      "expected": 429
+    }
+  ],
+  "status": "PASS",
+  "adminRoutes": 26,
+  "externalTraffic": "Telegram/catalog mocked; SMS endpoint retired"
+}

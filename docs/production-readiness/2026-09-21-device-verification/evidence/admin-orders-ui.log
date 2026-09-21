@@ -1,0 +1,9 @@
+customer UI cannot read admin orders
+admin overview opens actual customer order list
+Telegram delivery is visible
+detail displays persisted customer contact
+detail displays trusted total
+manual refresh retains same order
+account switch removes administrator order details
+guest gets login path
+No JavaScript exceptions

@@ -1,0 +1,69 @@
+{
+  "source": "a0433f7",
+  "versionCode": 17,
+  "device": "Physical Redmi15, reversible 320/430dp logical widths, not two hardware devices",
+  "checks": [
+    {
+      "width": 320,
+      "route": "/category/all-products"
+    },
+    {
+      "width": 320,
+      "route": "/cart"
+    },
+    {
+      "width": 320,
+      "route": "/checkout"
+    },
+    {
+      "width": 320,
+      "route": "/maps"
+    },
+    {
+      "width": 320,
+      "map": "zoom in/out and pan, provider attribution visible"
+    },
+    {
+      "width": 390,
+      "route": "/category/all-products"
+    },
+    {
+      "width": 390,
+      "route": "/cart"
+    },
+    {
+      "width": 390,
+      "route": "/checkout"
+    },
+    {
+      "width": 390,
+      "route": "/maps"
+    },
+    {
+      "width": 390,
+      "map": "zoom in/out and pan, provider attribution visible"
+    },
+    {
+      "width": 430,
+      "route": "/category/all-products"
+    },
+    {
+      "width": 430,
+      "route": "/cart"
+    },
+    {
+      "width": 430,
+      "route": "/checkout"
+    },
+    {
+      "width": 430,
+      "route": "/maps"
+    },
+    {
+      "width": 430,
+      "map": "zoom in/out and pan, provider attribution visible"
+    }
+  ],
+  "status": "PASS",
+  "settingsRestored": true
+}

@@ -1,0 +1,13 @@
+{
+  "source": "2a640b3",
+  "typecheck": "PASS client/server",
+  "lint": "PASS",
+  "telegramAdminHTTPChecks": 44,
+  "securityHTTPChecks": 82,
+  "adminRoutesCheckedForGuestAndCustomer": 26,
+  "webAdminChecks": 9,
+  "webCheckoutChecks": 17,
+  "iosExport": "JS/assets PASS; native archive NOT BUILT",
+  "productionMutations": false,
+  "baselineUnchangedFromSnapshot": "git diff c88450a -- docs/production-readiness/2026-09-18-340b960: empty"
+}

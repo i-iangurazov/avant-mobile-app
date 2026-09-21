@@ -1,0 +1,29 @@
+{
+  "source": "2a640b3",
+  "versionCode": 8,
+  "status": "PASS",
+  "cold": [
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 569\nWaitTime: 580\nComplete\n",
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 554\nWaitTime: 560\nComplete\n",
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 532\nWaitTime: 539\nComplete\n"
+  ],
+  "metric": "am start -W Activity time; not time to all server content",
+  "originalNight": "Night mode: no",
+  "settingsRestored": true,
+  "resume": [
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nWarning: Activity not started, its current task has been brought to the front\nStatus: ok\nLaunchState: UNKNOWN (0)\nActivity: kg.avantehnik.acceptance/.MainActivity\nWaitTime: 108\nComplete\n",
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nWarning: Activity not started, its current task has been brought to the front\nStatus: ok\nLaunchState: UNKNOWN (0)\nActivity: kg.avantehnik.acceptance/.MainActivity\nWaitTime: 77\nComplete\n",
+    "Starting: Intent { cmp=kg.avantehnik.acceptance/.MainActivity }\nWarning: Activity not started, its current task has been brought to the front\nStatus: ok\nLaunchState: UNKNOWN (0)\nActivity: kg.avantehnik.acceptance/.MainActivity\nWaitTime: 57\nComplete\n"
+  ],
+  "warm": [
+    "Starting: Intent { flg=0x10008000 cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: WARM\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 179\nWaitTime: 189\nComplete\n",
+    "Starting: Intent { flg=0x10008000 cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: WARM\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 163\nWaitTime: 190\nComplete\n",
+    "Starting: Intent { flg=0x10008000 cmp=kg.avantehnik.acceptance/.MainActivity }\nStatus: ok\nLaunchState: WARM\nActivity: kg.avantehnik.acceptance/.MainActivity\nTotalTime: 150\nWaitTime: 216\nComplete\n"
+  ],
+  "darkModeVerified": true,
+  "darkScreens": [
+    "final-system-dark-catalog",
+    "final-system-dark-form"
+  ],
+  "darkLoginRedirect": "Authenticated /login redirects to catalog as expected; initial harness assertion corrected"
+}

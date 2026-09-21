@@ -1,0 +1,6 @@
+TELEGRAM_BOT_TOKEN: present
+TELEGRAM_CHAT_ID: present
+Bot: reachable (8548790820)
+Admin chat: reachable (group, bot administrator)
+Webhook: missing; pending updates: 0
+Telegram check failed: Configure the reviewed HTTPS backend URL in TELEGRAM_WEBHOOK_URL or RAILWAY_PUBLIC_DOMAIN.

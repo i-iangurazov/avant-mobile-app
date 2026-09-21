@@ -1,0 +1,14 @@
+[
+  {
+    "method": "GET",
+    "path": "/health",
+    "status": 200,
+    "body": "{\"ok\":true,\"bazaarBaseUrl\":\"present\",\"bazaarToken\":\"present\",\"database\":\"present\"}"
+  },
+  {
+    "method": "GET",
+    "path": "/telegram/webhook",
+    "status": 404,
+    "body": "{\"error\":\"This Bazaar proxy route is not allowed for the customer app.\"}"
+  }
+]

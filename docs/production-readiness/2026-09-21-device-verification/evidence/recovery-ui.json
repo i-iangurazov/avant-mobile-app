@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "scope": "web + isolated DB; staff identity check simulated, not operational approval",
+  "checks": [
+    {
+      "name": "Recovery request submitted through guest UI without SMS",
+      "status": "PASS"
+    },
+    {
+      "name": "Administrator UI issues one-time recovery link after password and review note",
+      "status": "PASS"
+    },
+    {
+      "name": "Pasted link resets password and opens login",
+      "status": "PASS"
+    },
+    {
+      "name": "New password signs in through actual UI",
+      "status": "PASS"
+    },
+    {
+      "name": "Reset invalidates pre-reset access session",
+      "status": "PASS"
+    },
+    {
+      "name": "No runtime exceptions in manual recovery flow",
+      "status": "PASS"
+    }
+  ],
+  "errors": []
+}

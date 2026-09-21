@@ -1,0 +1,14 @@
+{
+  "source": "af8c329",
+  "beforeCount": 0,
+  "afterLossAndRetry": 1,
+  "orders": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e",
+      "delivery_method": "pickup",
+      "total_amount": "123.45"
+    }
+  ],
+  "status": "PASS"
+}

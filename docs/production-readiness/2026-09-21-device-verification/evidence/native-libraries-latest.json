@@ -1,0 +1,156 @@
+[
+  {
+    "path": "lib/arm64-v8a/libappmodules.so",
+    "sha256": "993b55e166ca9e458ba6dbcda545ebb9f84cf1822022969de40040087696caeb",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libc++_shared.so",
+    "sha256": "3e852764502d06e0cf1080d532ae7c608b7649d946a3a9d7e84e3d4b7d683214",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libexpo-modules-core.so",
+    "sha256": "a3923f614de9cf95ba067d24988ce525787db26db5fe450c2118306769b52bde",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libfbjni.so",
+    "sha256": "a9e35ba55d3f956920281f519385f8a72475ee24819799cb08375fdd4cce2b22",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libgifimage.so",
+    "sha256": "9f605249728da7091569772a38a4dde298ed48e1e73fed3da0e4b662ef38715c",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libhermes.so",
+    "sha256": "5705c7e2cf51fcd3befa825ae2a6717524037b368cdac005a7a63c4a92ef4467",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libhermestooling.so",
+    "sha256": "142247a46e46a9c2b07397b2b69fff61ffe9f635da3c42308d214b134ad73e31",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libimagepipeline.so",
+    "sha256": "1b377992e4256fa9398ec057722f84a359c7d588e570c8a41f51d930c19ece7d",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libjsi.so",
+    "sha256": "4473c47c5bd25e2856b6b13f756e39abb299b1c19954830f6efbf13b6b6cf0b4",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libnative-filters.so",
+    "sha256": "4294b57460e70a6351ce7ae2733a79c088c907dfa54673a657227ec5bb669594",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libnative-imagetranscoder.so",
+    "sha256": "2aed28298a25afd52ac670cf9682398c6c7ba42a57195c01efd565e7ddfe17ca",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libreact_codegen_rnscreens.so",
+    "sha256": "be1fab52b4063c48a65dd012cf6657eeb7f197d35e5829fa999ba8fe71e3be14",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libreact_codegen_rnsvg.so",
+    "sha256": "db2ba4117060653cf73529a2ddbd9ccf1e17d13b367387b9d1d298d876e7d14d",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libreact_codegen_safeareacontext.so",
+    "sha256": "80bd5f53f5aafe7a7c3abbd39531132aa89c297fce6381d4a83d9645c54e9d20",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libreactnative.so",
+    "sha256": "8fd69e877877a85f768190343e587a5a0238246c2903c4063be9fc05b7c705b7",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/librnscreens.so",
+    "sha256": "d6fa159fa37b1bcaac21e20361d679db00ab1403d0dc5825044a46d326bae3da",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  {
+    "path": "lib/arm64-v8a/libstatic-webp.so",
+    "sha256": "f3e5f9ab4f93f2a0a057285a2de9c93ba0ab59c76c22874d0356493ce283c4c7",
+    "loadAlignments": [
+      16384,
+      16384,
+      16384
+    ]
+  }
+]

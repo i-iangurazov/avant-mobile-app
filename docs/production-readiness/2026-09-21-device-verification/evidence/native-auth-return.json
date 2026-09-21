@@ -1,0 +1,9 @@
+{
+  "source": "54d6011",
+  "versionCode": 10,
+  "status": "PARTIAL PASS",
+  "checks": [
+    "Guest find-plumber → phone/password login → find-plumber, no detour to home"
+  ],
+  "remaining": "guest checkout/register continuation pending"
+}

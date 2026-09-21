@@ -1,0 +1,18 @@
+{
+  "source": "7f3d863",
+  "rows": [
+    {
+      "id": "7fe879dd-7564-449b-a251-88e035bad512",
+      "delivery_method": "pickup",
+      "total_amount": "123.45",
+      "client_request_id": "order_1789994096673_zz8yv44hl0e"
+    },
+    {
+      "id": "18a5620f-d832-46c3-8a5e-f4fd580e0de0",
+      "delivery_method": "delivery",
+      "total_amount": "123.45",
+      "client_request_id": "order_1789994782184_47zyye5ggwb"
+    }
+  ],
+  "onePickupAndOneDelivery": true
+}

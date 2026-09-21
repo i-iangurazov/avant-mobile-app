@@ -1,0 +1,12 @@
+[
+  {
+    "path": "artifacts/device-20260921/android/app-release.apk",
+    "bytes": 29471700,
+    "sha256": "43c967b52766730b447bde6fee4bbf91c0d1db975ee9dc861e19b3626a5f2abc"
+  },
+  {
+    "path": "artifacts/device-20260921/android/app-release.aab",
+    "bytes": 21332602,
+    "sha256": "d34192c4052b2b322435c0279bf52aa088fb4269dc18a688abfef0a0d7f8442e"
+  }
+]
