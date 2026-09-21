@@ -74,13 +74,19 @@ export const normalizePhone = (phone: string) => {
 };
 
 export const formatKyrgyzPhoneInput = (value: string) => {
-  const normalized = normalizePhone(value);
-  const localDigits = normalized.replace(/^\+996/, "").replace(/\D/g, "").slice(0, 9);
-  const first = localDigits.slice(0, 3);
-  const second = localDigits.slice(3, 6);
-  const third = localDigits.slice(6, 9);
-
-  return ["+996", first, second, third].filter(Boolean).join(" ");
+  const digits = value.replace(/\D/g, "");
+  const international = value.trimStart().startsWith("+");
+  // A controlled native input receives every keystroke, including '+' and '+9'.
+  // Adding +996 at that point used to duplicate the country code and lose digits.
+  if (!digits) return international ? "+" : "";
+  if (international && digits.length <= 3 && "996".startsWith(digits)) return `+${digits}`;
+  if (international && !digits.startsWith("996")) return `+${digits}`;
+  const hasCountry = digits.startsWith("996") && (international || digits.length > 9);
+  const nationalPrefix = !hasCountry && digits.startsWith("0") ? "0" : "";
+  const localDigits = hasCountry ? digits.slice(3) : digits.slice(nationalPrefix.length);
+  // Preserve excess digits so validation rejects them instead of changing the number.
+  const groups = [localDigits.slice(0, 3), localDigits.slice(3, 6), localDigits.slice(6)].filter(Boolean).join(" ");
+  return hasCountry ? ["+996", groups].filter(Boolean).join(" ") : nationalPrefix + groups;
 };
 
 export const isValidKyrgyzPhone = (value: string) => /^\+996\d{9}$/.test(normalizePhone(value));
