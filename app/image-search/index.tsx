@@ -119,7 +119,7 @@ export default function ImageSearchScreen() {
   );
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <ScreenHeader title="Поиск по фото" onBack={() => safeBack("/catalog")} />
       {!imageUri ? (
         <View style={styles.pickContent}>

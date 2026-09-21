@@ -30,7 +30,7 @@ export default function RewardsScreen() {
 
   const submit=(reward:{rewardId:string;title:string})=>{setSelected(null);void redeem.mutateAsync(reward).catch(()=>undefined);};
 
-  return <SafeAreaView edges={["top"]} style={styles.safe}>
+  return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
     <ScreenHeader title="Награды" subtitle={`Доступно: ${formatBonus(dashboard.data?.balances.availableMinor ?? 0)}`} onBack={() => safeBack("/plumber-home")} />
     {attempt.isError?<ErrorState message="Не удалось восстановить предыдущую попытку обмена." onRetry={()=>void attempt.refetch()}/>:null}
     {attempt.data?<View style={styles.notice}><Text style={styles.title}>{attempt.data.accepted?'Заявка создана':'Проверьте результат обмена'}</Text><Text>{attempt.data.title}</Text><Text>{attempt.data.accepted?`Номер заявки: ${attempt.data.accepted.id}. Стоимость: ${formatBonus(attempt.data.accepted.costMinor)}. Статус: ${rewardStatuses[attempt.data.accepted.status]??"Уточняется"}.`:'Ответ мог потеряться. Проверка использует тот же запрос и не создаёт повторное списание.'}</Text><AppButton title={attempt.data.accepted?'Понятно':'Проверить результат'} loading={redeem.isPending||acknowledge.isPending} onPress={()=>attempt.data?.accepted?void acknowledge.mutateAsync().catch(()=>undefined):submit(attempt.data!)}/></View>:null}

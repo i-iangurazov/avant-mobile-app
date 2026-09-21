@@ -58,7 +58,7 @@ export default function EditProfileScreen() {
 
   if (!user) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ScreenHeader title="Редактировать профиль" onBack={() => safeBack("/profile")} />
         <EmptyState
           title="Войдите в аккаунт"
@@ -73,7 +73,7 @@ export default function EditProfileScreen() {
 
   if (profile.isLoading) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Загружаем профиль..." />
       </SafeAreaView>
     );
@@ -81,14 +81,14 @@ export default function EditProfileScreen() {
 
   if (profile.isError) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ErrorState message={profile.error.message} onRetry={() => void profile.refetch()} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <ScreenHeader title="Редактировать профиль" onBack={() => safeBack("/profile")} />
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

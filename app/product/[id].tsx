@@ -50,7 +50,7 @@ export default function ProductDetailScreen() {
 
   if (product.isLoading) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Загружаем товар..." />
       </SafeAreaView>
     );
@@ -58,7 +58,7 @@ export default function ProductDetailScreen() {
 
   if (product.isError || !product.data) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ErrorState message={product.error?.message ?? "Товар не найден"} onRetry={() => void product.refetch()} />
       </SafeAreaView>
     );
@@ -82,7 +82,7 @@ export default function ProductDetailScreen() {
   ].filter((item): item is [string, string] => Boolean(item[1]));
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <View style={styles.topBar}>
         <Pressable accessibilityRole="button" accessibilityLabel="Назад" onPress={() => safeBack("/catalog")} style={styles.iconButton}>
           <Ionicons accessible={false} name="chevron-back" size={22} color={colors.text} />

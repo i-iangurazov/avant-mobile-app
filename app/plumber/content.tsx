@@ -20,7 +20,7 @@ export default function ProgramContentScreen() {
   const content = useProgramContent();
   const registration = useRegisterForTraining();
   if (!user || user.plumber?.applicationStatus !== "approved") return <SafeAreaView style={styles.safe}><EmptyState title="Материалы недоступны" actionTitle="Открыть профиль" onAction={() => router.replace("/profile")} /></SafeAreaView>;
-  return <SafeAreaView edges={["top"]} style={styles.safe}><ScreenHeader title="Для мастеров" subtitle="Акции, новинки и обучение" onBack={() => safeBack("/plumber-home")} />
+  return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}><ScreenHeader title="Для мастеров" subtitle="Акции, новинки и обучение" onBack={() => safeBack("/plumber-home")} />
     {content.isLoading ? <LoadingState text="Загружаем материалы..." /> : null}
     {content.isError ? <ErrorState message={content.error.message} onRetry={() => void content.refetch()} /> : null}
     {!content.isLoading && !content.isError && !content.data?.length ? <EmptyState title="Новостей пока нет" text="Акции и события появятся после публикации командой Авантехник." icon="megaphone-outline" /> : null}

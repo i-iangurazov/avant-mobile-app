@@ -16,7 +16,7 @@ export default function PlumberReviewsScreen() {
   const { user } = useAuth();
   const reviews = usePlumberReviews();
   if (!user || user.plumber?.applicationStatus !== "approved") return <SafeAreaView style={styles.safe}><EmptyState title="Отзывы недоступны" actionTitle="Открыть профиль" onAction={() => router.replace("/profile")} /></SafeAreaView>;
-  return <SafeAreaView edges={["top"]} style={styles.safe}><ScreenHeader title="Отзывы клиентов" subtitle={`${user.plumber.rating ?? "—"} · ${user.plumber.reviewsCount} отзывов`} onBack={() => safeBack("/plumber-home")} />
+  return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}><ScreenHeader title="Отзывы клиентов" subtitle={`${user.plumber.rating ?? "—"} · ${user.plumber.reviewsCount} отзывов`} onBack={() => safeBack("/plumber-home")} />
     {reviews.isLoading ? <LoadingState text="Загружаем отзывы..." /> : null}
     {reviews.isError ? <ErrorState message={reviews.error.message} onRetry={() => void reviews.refetch()} /> : null}
     {!reviews.isLoading && !reviews.isError && !reviews.data?.length ? <EmptyState title="Отзывов пока нет" text="Клиент сможет оценить работу только после завершённой заявки." icon="star-outline" /> : null}

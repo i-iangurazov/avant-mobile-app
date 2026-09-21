@@ -11,7 +11,7 @@ import { openWhatsApp } from "../../src/lib/whatsapp";
 
 export default function AboutScreen() {
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <ScreenHeader title="О приложении" onBack={() => safeBack("/profile")} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.hero}>

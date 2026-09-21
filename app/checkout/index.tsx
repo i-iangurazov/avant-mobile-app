@@ -131,7 +131,7 @@ export default function CheckoutScreen() {
 
   if (profile.isLoading || stores.isLoading || cart.isLoading) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Готовим оформление..." />
       </SafeAreaView>
     );
@@ -139,7 +139,7 @@ export default function CheckoutScreen() {
 
   if (profile.isError || stores.isError || cart.isError) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ErrorState
           message={profile.error?.message ?? stores.error?.message ?? cart.error?.message}
           onRetry={() => {
@@ -153,7 +153,7 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <ScreenHeader title={isReservation ? "Быстрый резерв" : "Оформление заказа"} subtitle={isReservation ? "Резерв не является оплатой" : "Менеджер подтвердит наличие и цену"} onBack={() => safeBack("/cart")} />
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>

@@ -60,7 +60,7 @@ export default function PlumberQrScreen() {
   if (qr.isError || !qr.data) return <SafeAreaView style={styles.safe}><ErrorState message={qr.error?.message} onRetry={() => void qr.refetch()} /></SafeAreaView>;
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <ScreenHeader title="Мой QR" subtitle="Для начисления бонусов на кассе" onBack={() => safeBack("/plumber-home")} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>

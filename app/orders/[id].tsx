@@ -40,7 +40,7 @@ export default function OrderDetailScreen() {
 
   if (authLoading) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Проверяем аккаунт..." />
       </SafeAreaView>
     );
@@ -48,7 +48,7 @@ export default function OrderDetailScreen() {
 
   if (!user) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ScreenHeader title="Заказ" onBack={() => safeBack("/orders")} />
         <EmptyState
           title="Войдите в аккаунт"
@@ -63,7 +63,7 @@ export default function OrderDetailScreen() {
 
   if (order.isLoading) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Загружаем заказ..." />
       </SafeAreaView>
     );
@@ -71,7 +71,7 @@ export default function OrderDetailScreen() {
 
   if (order.isError || !order.data) {
     return (
-      <SafeAreaView edges={["top"]} style={styles.safe}>
+      <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <ErrorState message={order.error?.message ?? "Заказ не найден"} onRetry={() => void order.refetch()} />
       </SafeAreaView>
     );
@@ -92,7 +92,7 @@ export default function OrderDetailScreen() {
     : [{ id: "created", status: "created", label: statusLabels.created, created_at: currentOrder.created_at }];
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <ScreenHeader title={title} subtitle={formatDate(currentOrder.created_at)} onBack={() => safeBack("/orders")} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.summaryCard}>

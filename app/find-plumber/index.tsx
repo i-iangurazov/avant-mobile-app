@@ -76,7 +76,7 @@ export default function FindPlumberScreen() {
   if (requests.isLoading) return <SafeAreaView style={styles.safe}><LoadingState text="Загружаем заявки..." /></SafeAreaView>;
   if (requests.isError) return <SafeAreaView style={styles.safe}><ErrorState message={requests.error.message} onRetry={() => void requests.refetch()} /></SafeAreaView>;
 
-  return <SafeAreaView edges={["top"]} style={styles.safe}><KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}><ScreenHeader title="Найти сантехника" subtitle="Только проверенные мастера" onBack={() => safeBack("/catalog")} />
+  return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}><KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}><ScreenHeader title="Найти сантехника" subtitle="Только проверенные мастера" onBack={() => safeBack("/catalog")} />
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.hero}><View style={styles.heroIcon}><Ionicons name="shield-checkmark" size={28} color={colors.surface} /></View><View style={styles.heroCopy}><Text style={styles.heroTitle}>Безопасный подбор</Text><Text style={styles.heroText}>Сначала заявку видит администратор. Телефон и точный адрес откроются только назначенному мастеру после принятия.</Text></View></View>
       <AppButton title={showForm ? "Скрыть форму" : "Создать заявку"} variant={showForm ? "secondary" : "primary"} onPress={() => setShowForm((value) => !value)} />

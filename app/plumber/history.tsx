@@ -32,7 +32,7 @@ export default function LoyaltyHistoryScreen() {
   if (!user || user.plumber?.applicationStatus !== "approved") return <SafeAreaView style={styles.safe}><EmptyState title="История недоступна" text="Она доступна подтверждённым сантехникам." actionTitle="Открыть профиль" onAction={() => router.replace("/profile")} /></SafeAreaView>;
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
+    <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
       <ScreenHeader title="История бонусов" subtitle="Все операции можно проверить" onBack={() => safeBack("/plumber-home")} />
       <View style={styles.filters}>{filters.map((filter) => <Pressable accessibilityRole="radio" aria-checked={status===filter.value} accessibilityState={{checked:status===filter.value}} key={filter.label} onPress={() => setStatus(filter.value)} style={[styles.filter, status === filter.value && styles.filterActive]}><Text style={[styles.filterText, status === filter.value && styles.filterTextActive]}>{filter.label}</Text></Pressable>)}</View>
       {history.isLoading ? <LoadingState text="Загружаем операции..." /> : null}

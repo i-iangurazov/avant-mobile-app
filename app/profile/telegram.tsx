@@ -49,7 +49,7 @@ export default function TelegramSettingsScreen() {
     } catch (error) { Alert.alert("Не удалось создать ссылку", error instanceof Error ? error.message : "Попробуйте ещё раз."); }
   };
 
-  return <SafeAreaView edges={["top"]} style={styles.safe}><ScreenHeader title="Telegram" subtitle="Безопасные уведомления бота" onBack={() => safeBack("/profile")} /><ScrollView contentContainerStyle={styles.content}>
+  return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}><ScreenHeader title="Telegram" subtitle="Безопасные уведомления бота" onBack={() => safeBack("/profile")} /><ScrollView contentContainerStyle={styles.content}>
     <View style={[styles.statusCard, link.data?.connected ? styles.connected : styles.disconnected]}><Ionicons name={link.data?.connected ? "checkmark-circle" : "paper-plane-outline"} size={42} color={link.data?.connected ? colors.success : colors.secondary} /><View style={styles.flex}><Text style={styles.statusTitle}>{link.data?.connected ? "Telegram подключён" : "Telegram не подключён"}</Text><Text style={styles.statusText}>{link.data?.connected ? (link.data.username ? `@${link.data.username}` : "Связь с ботом подтверждена") : "Подключение выполняется одноразовой командой в личном чате с ботом."}</Text></View></View>
     {!link.data?.connected ? <AppButton title="Подключить Telegram" loading={createLink.isPending} onPress={() => void connect()} icon={<Ionicons name="paper-plane" size={19} color={colors.surface} />} /> : null}
     {command ? <View style={styles.commandCard}><Text style={styles.commandLabel}>Если бот не открылся, отправьте команду:</Text><Text selectable style={styles.command}>{command}</Text><Text style={styles.expiry}>Код одноразовый и действует 10 минут.</Text></View> : null}
