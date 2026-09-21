@@ -495,6 +495,8 @@ export function adaptOrderDetail(value: unknown): OrderDetail {
       : readNullableString(record, ["delivery_address", "deliveryAddress", "address"]),
     store_id: readNullableString(record, ["store_id", "storeId"]),
     comment: readNullableString(record, ["comment", "note"]),
+    fulfilment_mode: readString(record, ["fulfilment_mode"], "inventory") === "inquiry" ? "inquiry" : "inventory",
+    availability_notice: readNullableString(record, ["availability_notice"]),
     order_kind: readString(record, ["order_kind", "orderKind"], "order") === "reservation" ? "reservation" : "order",
     project_note: readNullableString(record, ["project_note", "projectNote"]),
     store: storeRecord

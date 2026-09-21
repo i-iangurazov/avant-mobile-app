@@ -7,6 +7,7 @@ import { registerCustomer } from '../server/auth';
 import { trustedOrder } from '../server/order-trust';
 import { createAppOrder, getAppOrder, updateAppOrderStatus, type NewOrder } from '../server/orders';
 import { formatTelegramOrder } from '../server/telegram';
+import { adaptOrderDetail } from '../../src/lib/bazaar/adapters';
 
 async function main() {
  const pool=createPool(process.env.TEST_DATABASE_URL||'')!;assertTestDatabase(pool);
@@ -43,6 +44,7 @@ async function main() {
   const results=await Promise.all(Array.from({length:20},()=>createAppOrder(pool,customerId,valid,context)));
   assert.equal(results.filter(r=>r.created).length,1);assert.equal(new Set(results.map(r=>r.order!.id)).size,1);
   const order=results[0].order!;assert.equal(order.fulfilment_mode,'inquiry');assert.match(order.availability_notice!,/WhatsApp/);assert.match(formatTelegramOrder(order),/не резервирует/);
+  assert.equal(adaptOrderDetail(order).availability_notice,order.availability_notice);
   assert.equal((await pool.query('SELECT inventory_held FROM app_orders WHERE id=$1',[order.id])).rows[0].inventory_held,false);
   await assert.rejects(()=>createAppOrder(pool,customerId,{...valid,comment:'different'},context),/другим содержимым/);
   assert.equal((await createAppOrder(pool,customerId,valid,context)).created,false);
