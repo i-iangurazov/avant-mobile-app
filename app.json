@@ -58,7 +58,8 @@
       ],
       "expo-secure-store",
       "expo-font",
-      "./plugins/withLauncherIconPadding"
+      "./plugins/withLauncherIconPadding",
+      "./plugins/withFontScaleChanges"
     ]
   }
 }
