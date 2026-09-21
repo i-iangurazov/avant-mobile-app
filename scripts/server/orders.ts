@@ -199,6 +199,30 @@ export async function listAppOrders(pool: pg.Pool, customerId: string) {
   return result.rows.map((row) => toOrderListItem(row, Number(row.item_count)));
 }
 
+export async function listOrganizationOrders(pool: pg.Pool, organizationId: string, cursor?: string, limit = 30) {
+  if (!organizationId) fail('Не настроена организация заказов.', 503);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) fail('Некорректный размер страницы.', 400);
+  if (cursor && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(cursor)) fail('Некорректная страница.', 400);
+  const result = await pool.query<OrderRow & { item_count: number }>(
+    `SELECT orders.*, (SELECT COALESCE(SUM(quantity),0) FROM app_order_items WHERE order_id=orders.id) AS item_count
+     FROM app_orders orders WHERE organization_id=$1
+       AND ($2::text IS NULL OR (created_at,id) <
+         (SELECT created_at,id FROM app_orders WHERE id=$2 AND organization_id=$1))
+     ORDER BY created_at DESC,id DESC LIMIT $3`, [organizationId, cursor || null, limit + 1]
+  );
+  const rows = result.rows.slice(0, limit);
+  return { data: rows.map(row => ({ ...toOrderListItem(row, Number(row.item_count)),
+    telegram_notification_status: row.telegram_notification_status })),
+    nextCursor: result.rows.length > limit ? rows.at(-1)!.id : null };
+}
+
+export async function getOrganizationOrder(pool: pg.Pool, organizationId: string, orderId: string) {
+  if (!organizationId) fail('Не настроена организация заказов.', 503);
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(orderId)) return null;
+  const scope = await pool.query('SELECT 1 FROM app_orders WHERE id=$1 AND organization_id=$2', [orderId, organizationId]);
+  return scope.rowCount ? getAppOrder(pool, orderId) : null;
+}
+
 export async function createAppOrder(pool: pg.Pool, customerId: string, payload: NewOrder, context: OrderContext = { organizationId: process.env.APP_ORGANIZATION_ID || "", deliveryBranchId: process.env.DELIVERY_BRANCH_ID }) {
   const requestHash = createHash('sha256').update(JSON.stringify({
     ...payload, clientRequestId: undefined, items: [...payload.items].sort((a,b)=>(a.productId||'').localeCompare(b.productId||''))

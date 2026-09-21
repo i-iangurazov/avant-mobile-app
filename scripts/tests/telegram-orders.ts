@@ -19,6 +19,7 @@ const foreignOrganization = `telegram-foreign-${randomUUID()}`;
 const checks: string[] = [];
 let processHandle: ChildProcess | undefined;
 let accountId = '';
+let adminId = '';
 const check = (name: string, result: unknown) => { assert.ok(result, name); checks.push(name); };
 const calls = () => readFileSync(join(work, 'calls.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
 const mode = (value: string) => writeFileSync(join(work, 'mode'), value);
@@ -51,6 +52,10 @@ async function main() {
     await ensureSchema(pool); mode('pass'); writeFileSync(join(work, 'calls.jsonl'), '');
     const account = await registerFixture(pool, { name: 'Telegram isolated QA', phone: '+996709' + String(Date.now()).slice(-6), password: 'test-password' }, secret);
     accountId = account.user.id;
+    const admin = await registerFixture(pool, { name: 'Order admin isolated QA', phone: '+996708' + String(Date.now()).slice(-6), password: 'test-password' }, secret);
+    adminId = admin.user.id;
+    await pool.query("INSERT INTO app_account_roles(account_id,role) VALUES($1,'admin')", [adminId]);
+    const adminToken = admin.session.accessToken;
     for (const org of [organization, foreignOrganization]) {
       await pool.query("INSERT INTO app_order_branches(organization_id,id,name,address,is_active,orders_enabled) VALUES($1,'branch','QA branch','QA address',true,true)", [org]);
       await pool.query("INSERT INTO app_order_offers(organization_id,branch_id,product_id,product_name,unit_price_minor,stock_quantity,is_active,valid_until) VALUES($1,'branch','tg-sku','Telegram QA <product>',1234,100,true,now()+interval '1 hour')", [org]);
@@ -61,6 +66,15 @@ async function main() {
     const created = await request('/orders', 'POST', body, account.session.accessToken);
     check('HTTP creates order before Telegram transport completes', created.status === 201);
     const id = created.body.data.id;
+    for (const path of ['/admin/orders', `/admin/orders/${id}`]) {
+      check(`guest denied ${path.replace(id, ':id')}`, (await request(path, 'GET')).status === 401);
+      check(`customer denied ${path.replace(id, ':id')}`, (await request(path, 'GET', undefined, account.session.accessToken)).status === 403);
+    }
+    const adminDetail = await request(`/admin/orders/${id}`, 'GET', undefined, adminToken);
+    check('admin sees same saved order, trusted total and customer contact', adminDetail.status === 200 && adminDetail.body.data.id === id && Number(adminDetail.body.data.total_amount) === 12.34 && adminDetail.body.data.customer_phone === account.user.phone);
+    check('admin response does not expose Telegram message routing', !('telegram' in adminDetail.body.data));
+    check('admin unknown order is404', (await request(`/admin/orders/${randomUUID()}`, 'GET', undefined, adminToken)).status === 404);
+    for (const query of ['limit=0','limit=-1','limit=1.5','limit=101','cursor=not-an-id']) check(`invalid admin pagination ${query}`, (await request('/admin/orders?' + query, 'GET', undefined, adminToken)).status === 400);
     const row = async (orderId = id) => (await pool.query('SELECT * FROM app_orders WHERE id=$1', [orderId])).rows[0];
     await until(async () => (await row()).telegram_notification_status === 'sent', 'immediate delivery, before30-second timer');
     const delivered = await row();
@@ -76,6 +90,7 @@ async function main() {
     await callback('confirmed', { message: { message_id: 999999, chat: { id: -100200 } } }); check('wrong message cannot change order', (await row()).status === 'created');
     await callback('hacked'); check('invalid status button rejected', (await row()).status === 'created');
     check('verified chat administrator can confirm', (await callback('confirmed')).status === 200 && (await row()).status === 'confirmed');
+    check('admin order API sees Telegram status', (await request(`/admin/orders/${id}`, 'GET', undefined, adminToken)).body.data.status === 'confirmed');
     check('mobile order API sees Telegram status', (await request(`/orders/${id}`, 'GET', undefined, account.session.accessToken)).body.data.status === 'confirmed');
     const repeated = await Promise.all(Array.from({ length: 20 }, () => callback('confirmed')));
     check('20 repeated callbacks acknowledge unchanged Telegram edits without500', repeated.every(r => r.status === 200));
@@ -85,6 +100,10 @@ async function main() {
     check('completion consumes inventory once', (await pool.query("SELECT stock_quantity,reserved_quantity FROM app_order_offers WHERE organization_id=$1 AND product_id='tg-sku'", [organization])).rows[0].stock_quantity === 99 && !(await row()).inventory_held);
     const foreign = await createAppOrder(pool, accountId, { ...body, clientRequestId: randomUUID() }, { organizationId: foreignOrganization });
     check('worker never claims another organization', !(await claimTelegramDeliveries(pool, organization)).includes(foreign.order!.id) && (await row(foreign.order!.id)).telegram_notification_status === 'pending');
+    check('admin cannot read foreign organization', (await request(`/admin/orders/${foreign.order!.id}`, 'GET', undefined, adminToken)).status === 404);
+    const scoped = await request('/admin/orders?organizationId=' + foreignOrganization, 'GET', undefined, adminToken);
+    check('client organization cannot switch admin list context', scoped.status === 200 && scoped.body.data.every((r: {id:string}) => r.id !== foreign.order!.id));
+    check('foreign organization cursor cannot enumerate orders', (await request('/admin/orders?cursor=' + foreign.order!.id, 'GET', undefined, adminToken)).body.data.length === 0);
     await markTelegramSent(pool, foreign.order!.id, '-100200', Number(delivered.telegram_message_id));
     await callback('confirmed', { data: `o:${foreign.order!.id}:confirmed` }); check('callback cannot switch organization even in same chat', (await row(foreign.order!.id)).status === 'created');
     const retryBody = { ...body, clientRequestId: randomUUID() };
@@ -95,6 +114,13 @@ async function main() {
     await request('/orders', 'POST', retryBody, account.session.accessToken);
     await until(async () => (await row(failedId)).telegram_notification_status === 'sent', 'retry delivery');
     check('retry delivers existing order after transport recovers', Number((await row(failedId)).telegram_notification_attempts) === 2);
+    const firstPage = (await request('/admin/orders?limit=1', 'GET', undefined, adminToken)).body;
+    const secondPage = (await request('/admin/orders?limit=1&cursor=' + firstPage.nextCursor, 'GET', undefined, adminToken)).body;
+    check('admin keyset pagination includes all own orders without duplicates', firstPage.data.length === 1 && secondPage.data.length === 1 && !secondPage.nextCursor && new Set([firstPage.data[0].id, secondPage.data[0].id]).size === 2 && [firstPage.data[0].id, secondPage.data[0].id].every(value => [id, failedId].includes(value)));
+    check('admin list exposes notification delivery status', firstPage.data[0].telegram_notification_status === 'sent');
+    await pool.query("UPDATE app_account_roles SET is_active=false WHERE account_id=$1", [adminId]);
+    check('revoked admin token cannot list orders', (await request('/admin/orders', 'GET', undefined, adminToken)).status === 403);
+    check('revoked admin token cannot read order', (await request(`/admin/orders/${id}`, 'GET', undefined, adminToken)).status === 403);
     await stop(); mode('webhook-failure'); await start();
     const health = await request('/health', 'GET'); check('failed webhook registration cannot report healthy', health.status === 503 && health.body.telegramWebhook === 'registration_failed');
     const evidence = { status: 'PASS', transport: 'ISOLATED ADAPTER; no real Telegram messages or webhook changes', checks, appServerSha256: createHash('sha256').update(readFileSync('scripts/app-server.ts')).digest('hex') };
@@ -105,6 +131,7 @@ async function main() {
     await pool.query('DELETE FROM app_order_offers WHERE organization_id=ANY($1)', [[organization, foreignOrganization]]);
     await pool.query('DELETE FROM app_order_branches WHERE organization_id=ANY($1)', [[organization, foreignOrganization]]);
     if (accountId) await pool.query('DELETE FROM app_customers WHERE id=$1', [accountId]);
+    if (adminId) await pool.query('DELETE FROM app_customers WHERE id=$1', [adminId]);
     await pool.end(); rmSync(work, { recursive: true, force: true });
   }
 }

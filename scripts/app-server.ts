@@ -24,6 +24,8 @@ import {
   createAppOrder,
   getAppOrder,
   listAppOrders,
+  listOrganizationOrders,
+  getOrganizationOrder,
   markTelegramFailed,
   markTelegramSent,
   ORDER_STATUS_LABELS,
@@ -883,6 +885,21 @@ const server = createServer(async (req, res) => {
       sendJson(req, res, 200, {
         data: await updateLeadByPlumber(pool, await requireCustomerId(req), decodeURIComponent(plumberLeadStatusMatch[1]), nextStatus)
       });
+      return;
+    }
+
+    if (path === '/admin/orders' && req.method === 'GET') {
+      await requireAdminId(req);
+      sendJson(req, res, 200, await listOrganizationOrders(pool, env.APP_ORGANIZATION_ID || '',
+        requestUrl.searchParams.get('cursor') || undefined, Number(requestUrl.searchParams.get('limit') || 30)));
+      return;
+    }
+    const adminOrderMatch = path.match(/^\/admin\/orders\/([^/]+)$/);
+    if (adminOrderMatch && req.method === 'GET') {
+      await requireAdminId(req);
+      const order = await getOrganizationOrder(pool, env.APP_ORGANIZATION_ID || '', adminOrderMatch[1]);
+      if (!order) throw Object.assign(new Error('Заказ не найден.'), { statusCode: 404 });
+      sendJson(req, res, 200, { data: { ...toPublicOrder(order), telegram_notification_status: order.telegram.notification_status } });
       return;
     }
 
