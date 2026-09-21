@@ -17,7 +17,7 @@ export async function loadCompleteCatalog(fetchPage:(page:number)=>Promise<unkno
 }
 export function orderedProductPage(products:Product[],query:{page:number;pageSize:number;sort?:ProductSort;categoryId?:string;search?:string;inStock?:boolean;withPrice?:boolean}){
  const search=query.search?.trim().toLocaleLowerCase('ru');
- const filtered=products.filter(p=>(!query.categoryId||query.categoryId==='all-products'||productMatchesCategory(p,query.categoryId))&&(!query.inStock||p.inStock===true||(p.stock_quantity||0)>0)&&(!query.withPrice||p.price!==null)&&(!search||[p.name,p.sku,p.brand,p.description,p.category?.name].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
+ const filtered=products.filter(p=>(!query.categoryId||query.categoryId==='all-products'||productMatchesCategory(p,query.categoryId))&&(!query.inStock||p.inStock===true||(p.stock_quantity||0)>0)&&(!query.withPrice||p.price!==null)&&(!search||[p.name,p.sku,p.brand,p.description,p.category?.name,...(p.purchaseOptions??[]).flatMap(option=>[option.label,option.sku])].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
  filtered.sort((a,b)=>compareProducts(a,b,query.sort ?? 'name'));
  return {products:filtered.slice((query.page-1)*query.pageSize,query.page*query.pageSize),page:query.page,pageSize:query.pageSize,total:filtered.length,hasMore:query.page*query.pageSize<filtered.length};
 }

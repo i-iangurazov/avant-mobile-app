@@ -72,7 +72,10 @@ Server-only values:
 - `ACCOUNT_DELETION_MODE`, enabled only after approved retention/deletion policy
 - `TELEGRAM_WEBHOOK_URL` when not hosted on Railway
 - optional `TELEGRAM_WEBHOOK_SECRET`
-- `BAZAAR_API_BASE_URL` and `BAZAAR_API_TOKEN` only for the current read-only catalog
+- `PRODUCT_CATALOG_SOURCE=database` (default): reads the same active `Product`/`Variant` tables and retail prices as avantehnik.kg through `DATABASE_URL`.
+- `BAZAAR_API_BASE_URL` / `BAZAAR_API_TOKEN` are used only with explicit `PRODUCT_CATALOG_SOURCE=bazaar` for legacy compatibility. There is no fallback to a different source on database failure.
+
+The catalogue defaults to featured photos first, then other photos, then placeholders. Explicit price/name sorting remains available. Variants are selected before adding to cart; checkout independently checks the current database variant price and active status. Product visibility does not imply stock: organization/branch inventory still requires fresh trusted `app_order_offers`. Deploy the backend before the new mobile client; old Bazaar cart IDs must be reselected, never silently mapped by name.
 
 Never expose database, Telegram, auth, or catalog secrets with an `EXPO_PUBLIC_` prefix. Local `.env` files are gitignored. The same server-only values must be configured in Railway; adding them only to a local `.env` does not configure production.
 

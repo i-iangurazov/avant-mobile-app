@@ -24,7 +24,9 @@ async function main(){
  assert.ok(all.every(p=>p.inStock===undefined&&p.stockQty===undefined),'Do not infer inventory from visibility');
  const root=adaptProduct(first.items[0]);assert.ok(root.purchaseOptions!.length>1);
  assert.throws(()=>selectProductOption(root),/Выберите/);assert.throws(()=>selectProductOption(root,'foreign-variant'),/Выберите/);
- const option=root.purchaseOptions![1];const selected=selectProductOption(root,option.id);assert.equal(selected.id,option.id);assert.equal(selected.price,option.price);assert.equal(selected.parentProductId,root.id);
+ const option=root.purchaseOptions![1];
+ const variantSearch=await gateway('/products',new URLSearchParams({sort:'recommended',search:option.sku||option.label,pageSize:'100'})) as any;
+ assert.ok(variantSearch.items.some((p:any)=>p.id===root.id));const selected=selectProductOption(root,option.id);assert.equal(selected.id,option.id);assert.equal(selected.price,option.price);assert.equal(selected.parentProductId,root.id);
  const detail=await gateway('/products',new URLSearchParams({id:option.id})) as any;assert.equal(detail.items[0].id,option.id);assert.equal(detail.items[0].priceKgs,option.price);
  await assert.rejects(()=>gateway('/products',new URLSearchParams({organizationId:'foreign'})));
  const direct=await gateway('/products',new URLSearchParams({id:'missing'})) as any;assert.equal(direct.total,0);

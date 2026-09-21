@@ -68,7 +68,7 @@ export function createCatalogHandler(load:()=>Promise<Snapshot>,resolveProduct?:
    const result=orderedProductPage(id?adapted.filter(item=>item.id===id):adapted,{page,pageSize,search,categoryId:categoryId||undefined,sort:sort as ProductSort,inStock,withPrice});
    return {...data,items:result.products.map(item=>item.raw),page,pageSize,total:result.total};
   }
-  const matches=adapted.filter(item=>(!id||item.id===id)&&(!inStock||item.inStock===true||(item.stock_quantity||0)>0)&&(!withPrice||item.price!==null)&&(!categoryId||categoryId==='all-products'||productMatchesCategory(item,categoryId))&&(!search||[item.name,item.sku,item.brand,item.description,item.category?.name].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
+  const matches=adapted.filter(item=>(!id||item.id===id)&&(!inStock||item.inStock===true||(item.stock_quantity||0)>0)&&(!withPrice||item.price!==null)&&(!categoryId||categoryId==='all-products'||productMatchesCategory(item,categoryId))&&(!search||[item.name,item.sku,item.brand,item.description,item.category?.name,...(item.purchaseOptions??[]).flatMap(option=>[option.label,option.sku])].filter(Boolean).join(' ').toLocaleLowerCase('ru').includes(search)));
   return {...data,items:matches.slice((page-1)*pageSize,page*pageSize).map(item=>item.raw),page,pageSize,total:matches.length};
  };
 }
