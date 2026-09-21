@@ -24,6 +24,7 @@ export function AppButton({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={title}
       aria-disabled={disabled || loading} aria-busy={loading} accessibilityState={{disabled:disabled || loading,busy:loading}}
       disabled={disabled || loading}
       onPress={onPress}

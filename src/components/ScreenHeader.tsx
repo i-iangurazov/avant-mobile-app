@@ -14,8 +14,8 @@ export function ScreenHeader({ title, subtitle, onBack, right }: ScreenHeaderPro
   return (
     <View style={styles.header}>
       {onBack ? (
-        <Pressable accessibilityRole="button" onPress={onBack} style={styles.back}>
-          <Ionicons name="chevron-back" size={22} color={colors.text} />
+        <Pressable accessibilityRole="button" accessibilityLabel="Назад" onPress={onBack} style={styles.back}>
+          <Ionicons accessible={false} name="chevron-back" size={22} color={colors.text} />
         </Pressable>
       ) : null}
       <View style={styles.titleWrap}>
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface
   },
   back: {
-    width: 38,
-    height: 38,
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceMuted,
     alignItems: "center",
@@ -59,6 +59,6 @@ const styles = StyleSheet.create({
     marginTop: 2
   },
   placeholder: {
-    width: 38
+    width: 48
   }
 });

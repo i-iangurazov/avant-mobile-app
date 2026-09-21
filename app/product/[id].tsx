@@ -83,8 +83,8 @@ export default function ProductDetailScreen() {
   return (
     <SafeAreaView edges={["top"]} style={styles.safe}>
       <View style={styles.topBar}>
-        <Pressable accessibilityRole="button" onPress={() => safeBack("/catalog")} style={styles.iconButton}>
-          <Ionicons name="chevron-back" size={22} color={colors.text} />
+        <Pressable accessibilityRole="button" accessibilityLabel="Назад" onPress={() => safeBack("/catalog")} style={styles.iconButton}>
+          <Ionicons accessible={false} name="chevron-back" size={22} color={colors.text} />
         </Pressable>
         <View style={styles.iconSpacer} />
       </View>
@@ -201,16 +201,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface
   },
   iconButton: {
-    width: 42,
-    height: 42,
+    width: 48,
+    height: 48,
     borderRadius: radius.md,
     backgroundColor: colors.surfaceMuted,
     alignItems: "center",
     justifyContent: "center"
   },
   iconSpacer: {
-    width: 42,
-    height: 42
+    width: 48,
+    height: 48
   },
   content: {
     backgroundColor: colors.surface
