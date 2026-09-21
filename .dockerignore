@@ -1,0 +1,14 @@
+.git
+.env
+.env.*
+.release-secrets
+credentials.json
+node_modules
+artifacts
+docs
+android
+ios
+.expo
+dist
+web-build
+npm-debug.log*

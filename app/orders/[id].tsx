@@ -109,6 +109,7 @@ export default function OrderDetailScreen() {
             <StatusBadge status={currentStatus} />
           </View>
           <View style={styles.summaryDivider} />
+          {currentOrder.availability_notice ? <Text style={styles.cardSubtitle}>{currentOrder.availability_notice}</Text> : null}
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Итого</Text>
             <Text style={styles.summaryValue}>{formatPrice(currentOrder.total_amount, currentOrder.total_label ?? "Уточняется менеджером")}</Text>

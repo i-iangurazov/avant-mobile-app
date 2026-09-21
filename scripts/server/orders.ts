@@ -54,6 +54,7 @@ type OrderRow = {
   delivery_address: string | null;
   comment: string | null;
   order_kind: "order" | "reservation";
+  fulfilment_mode: 'inventory' | 'inquiry';
   project_note: string | null;
   total_amount: string | number | null;
   telegram_chat_id: string | null;
@@ -87,7 +88,7 @@ const orderColumns = `
   id, order_number, client_request_id, customer_id, status,
   customer_name, customer_phone, delivery_method,
   store_id, store_name, store_address, delivery_address, comment,
-  order_kind, project_note,
+  order_kind, project_note, fulfilment_mode,
   total_amount, telegram_chat_id, telegram_message_id,
   telegram_notification_status, telegram_notification_attempts,
   created_at, updated_at
@@ -103,6 +104,8 @@ const toOrderListItem = (row: OrderRow, itemCount: number) => ({
   updated_at: toIso(row.updated_at),
   item_count: itemCount,
   order_kind: row.order_kind,
+  fulfilment_mode: row.fulfilment_mode,
+  availability_notice: row.fulfilment_mode === 'inquiry' ? 'Наличие и доставку менеджер уточнит через WhatsApp. Отправка заявки не резервирует товар.' : null,
   project_note: row.project_note,
   total_amount: row.total_amount,
   total_label: row.total_amount === null ? "Уточняется менеджером" : null
@@ -259,8 +262,8 @@ export async function createAppOrder(pool: pg.Pool, customerId: string, payload:
         id, order_number, client_request_id, customer_id, status,
         customer_name, customer_phone, delivery_method,
         store_id, store_name, store_address, delivery_address, comment, total_amount,
-        order_kind, project_note, request_hash, organization_id, inventory_held
-      ) VALUES ($1, $2, $3, $4, 'created', $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, true)`,
+        order_kind, project_note, request_hash, organization_id, inventory_held, fulfilment_mode
+      ) VALUES ($1, $2, $3, $4, 'created', $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)`,
       [
         id,
         orderNumber,
@@ -276,7 +279,7 @@ export async function createAppOrder(pool: pg.Pool, customerId: string, payload:
         payload.comment,
         total,
         payload.orderKind === "reservation" ? "reservation" : "order",
-        payload.projectNote, requestHash, context.organizationId
+        payload.projectNote, requestHash, context.organizationId, context.fulfilmentMode !== 'inquiry', context.fulfilmentMode || 'inventory'
       ]
     );
 

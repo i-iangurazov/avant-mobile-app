@@ -221,9 +221,10 @@ export default function CheckoutScreen() {
           />
           {isReservation ? <View style={styles.reservationNotice}><Ionicons name="information-circle-outline" size={20} color={colors.secondary} /><Text style={styles.reservationNoticeText}>Товары будут отложены только после подтверждения менеджером. Оплата выполняется отдельно.</Text></View> : null}
           {quote ? <Text style={styles.label}>Итог по данным сервера: {formatPrice(quote.totalAmount, 'Уточняется менеджером')}. Оплата отдельно.</Text> : null}
+          {quote?.availabilityNotice ? <Text style={styles.label}>{quote.availabilityNotice}</Text> : null}
           {pending ? <Text style={styles.label}>Есть незавершённая отправка. Проверим её результат по прежнему номеру запроса.</Text> : null}
           {serverError ? <Text accessibilityRole="alert" style={styles.errorText}>{serverError}</Text> : null}
-          <AppButton title={pending ? "Проверить результат отправки" : quote ? "Подтвердить заказ" : "Проверить итог"} onPress={() => void submit()} loading={createOrder.isPending || quoting} />
+          <AppButton title={pending ? "Проверить результат отправки" : quote ? quote.fulfilmentMode === 'inquiry' ? "Отправить заявку" : "Подтвердить заказ" : "Проверить итог"} onPress={() => void submit()} loading={createOrder.isPending || quoting} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

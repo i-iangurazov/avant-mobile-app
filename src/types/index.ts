@@ -256,6 +256,8 @@ export type OrderListItem = AppOrder & {
   item_count: number;
   total_amount?: number | null;
   total_label?: string | null;
+  fulfilment_mode?: 'inventory' | 'inquiry';
+  availability_notice?: string | null;
   order_kind?: "order" | "reservation";
   project_note?: string | null;
 };

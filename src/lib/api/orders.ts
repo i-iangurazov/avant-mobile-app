@@ -49,7 +49,7 @@ export const orderBody = (payload: CreateOrderPayload, key: string) => ({
   items:payload.items.map(item=>({productId:item.product_id,productName:item.product?.name || 'Товар',quantity:item.quantity,
     unitPrice:item.product?.price ?? null,unitPriceLabel:item.product?.price_label ?? null}))
 });
-export type OrderQuote = {totalAmount:string|null;items:{productId:string;unitPrice:number|null;productName:string}[]};
+export type OrderQuote = {totalAmount:string|null;fulfilmentMode?:'inventory'|'inquiry';availabilityNotice?:string|null;items:{productId:string;unitPrice:number|null;productName:string}[]};
 export async function quoteOrder(payload:CreateOrderPayload,accessToken?:string|null) {
   const response=await appApiClient.request<{data:OrderQuote}>('/orders/quote',{method:'POST',headers:authHeaders(accessToken),body:JSON.stringify(orderBody(payload,'quote_preview'))});
   return response.data;

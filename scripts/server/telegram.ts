@@ -93,6 +93,7 @@ export const formatTelegramOrder = (order: AppOrderDetail) => {
   const header = [
     `${order.order_kind === "reservation" ? "📌" : "🛒"} <b>${order.order_kind === "reservation" ? "Резерв" : "Заказ"} ${escapeHtmlLimited(order.order_number, 150)}</b>`,
     `Статус: <b>${escapeHtmlLimited(ORDER_STATUS_LABELS[order.status as AppOrderStatus] || order.status, 100)}</b>`,
+    order.availability_notice ? escapeHtmlLimited(order.availability_notice, 400) : null,
     "",
     `👤 ${escapeHtmlLimited(order.customer_name, 300)}`,
     `📞 ${escapeHtmlLimited(order.customer_phone, 80)}`,

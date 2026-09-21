@@ -34,6 +34,18 @@ export async function ensureSchema(pool: pg.Pool) {
   await pool.query(schema);
 }
 
+export async function assertProductionSchema(pool: pg.Pool) {
+  const schema = readFileSync(resolve(process.cwd(), 'scripts/db/migrations/20260921-complete-app-schema.sql'), 'utf8');
+  const names = [...schema.matchAll(/CREATE TABLE IF NOT EXISTS (app_\w+)/g)].map(match => match[1]);
+  const missing = await pool.query<{ name: string }>(
+    'SELECT name FROM unnest($1::text[]) AS name WHERE to_regclass(\'public.\' || name) IS NULL', [names]);
+  if (missing.rowCount) throw new Error('Apply the reviewed complete app migration before startup. Missing: ' + missing.rows.map(row => row.name).join(', '));
+  // Existing legacy tables also need additive columns; CREATE IF NOT EXISTS alone is insufficient.
+  await pool.query('SELECT phone_verified_at FROM app_customers LIMIT 0');
+  await pool.query('SELECT request_hash, organization_id, inventory_held, order_kind, project_note, fulfilment_mode FROM app_orders LIMIT 0');
+  await pool.query('SELECT program_document_version, privacy_document_version FROM app_plumber_profiles LIMIT 0');
+}
+
 export async function checkDatabase(pool: pg.Pool) {
   await pool.query("SELECT 1");
   const table = await pool.query(

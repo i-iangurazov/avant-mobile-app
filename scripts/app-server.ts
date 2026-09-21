@@ -18,7 +18,7 @@ import {
   requireSession, refreshSession, revokeSession, normalizePhone
 } from "./server/auth";
 import { rateLimit } from "./server/security";
-import { createPool, ensureSchema } from "./server/db";
+import { createPool, ensureSchema, assertProductionSchema } from "./server/db";
 import { loadEnv } from "./server/env";
 import {
   claimTelegramDeliveries,
@@ -127,6 +127,9 @@ const catalogToken = env.BAZAAR_API_TOKEN || "";
 const databasePool = createPool(databaseUrl);
 // The website and mobile app share DATABASE_URL. Bazaar is explicit legacy-only.
 const catalogSource = env.PRODUCT_CATALOG_SOURCE || "database";
+const fulfilmentMode = env.ORDER_FULFILMENT_MODE || 'inventory';
+if (!['inventory', 'inquiry'].includes(fulfilmentMode) || (fulfilmentMode === 'inquiry' && catalogSource !== 'database')) throw new Error('Invalid ORDER_FULFILMENT_MODE/catalogue combination');
+const orderContext = { organizationId: env.APP_ORGANIZATION_ID || '', deliveryBranchId: env.DELIVERY_BRANCH_ID, catalogSource, fulfilmentMode: fulfilmentMode as 'inventory' | 'inquiry' };
 if (!["database", "bazaar"].includes(catalogSource)) throw new Error("Unknown PRODUCT_CATALOG_SOURCE");
 const catalogConfigured = catalogSource === "database" ? Boolean(databasePool) : Boolean(catalogBaseUrl && catalogToken);
 const catalogGateway = catalogSource === "database" ? createStorefrontCatalogGateway(databasePool) : createCatalogGateway(catalogBaseUrl,catalogToken);
@@ -1118,8 +1121,9 @@ const server = createServer(async (req, res) => {
     if (path === '/orders/quote' && req.method === 'POST') {
       await requireCustomerId(req);
       const payload = parseNewOrder(await readJsonBody(req));
-      const quote = await trustedOrder(pool, payload, {organizationId: env.APP_ORGANIZATION_ID || '', deliveryBranchId: env.DELIVERY_BRANCH_ID,catalogSource}, false);
-      sendJson(req,res,200,{data:{...quote,totalAmount:trustedTotal(quote.items)}}); return;
+      const quote = await trustedOrder(pool, payload, orderContext, false);
+      sendJson(req,res,200,{data:{...quote,totalAmount:trustedTotal(quote.items),fulfilmentMode,
+        availabilityNotice:fulfilmentMode==='inquiry'?'Наличие и доставку менеджер уточнит через WhatsApp. Отправка заявки не резервирует товар.':null}}); return;
     }
     if (path === "/orders" && req.method === "GET") {
       sendJson(req, res, 200, { data: await listAppOrders(pool, await requireCustomerId(req)) });
@@ -1138,7 +1142,7 @@ const server = createServer(async (req, res) => {
           throw Object.assign(new Error("Резерв доступен только для самовывоза."), { statusCode: 400 });
         }
       }
-      const result = await createAppOrder(pool, customerId, orderPayload, {organizationId:env.APP_ORGANIZATION_ID || "",deliveryBranchId:env.DELIVERY_BRANCH_ID,catalogSource});
+      const result = await createAppOrder(pool, customerId, orderPayload, orderContext);
       if (!result.order) {
         throw new Error("Не удалось сохранить заказ.");
       }
@@ -1215,8 +1219,7 @@ const startServer = async () => {
   }
 
   if(env.NODE_ENV==='production') {
-    const required=await databasePool.query("SELECT to_regclass('app_sessions') sessions,to_regclass('app_order_offers') offers,to_regclass('app_public_documents') documents,to_regclass('app_uploaded_media') media,to_regclass('app_account_recovery') recovery");
-    if(Object.values(required.rows[0]).some(value=>!value)) throw new Error('Apply the reviewed 20260918 and 20260921 migrations before starting this backend.');
+    await assertProductionSchema(databasePool);
   } else await ensureSchema(databasePool);
   if (telegramConfigured && webhookUrl) {
     try {

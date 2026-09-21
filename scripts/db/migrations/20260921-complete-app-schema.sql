@@ -1,3 +1,10 @@
+-- Complete additive schema for databases that only have the legacy customer/order tables.
+-- Supersedes the two partial remediation migrations on a legacy installation.
+-- No grants, seeds, balance changes, external jobs, or catalogue/website writes.
+-- Backup + restore rehearsal + maintenance window required before production use.
+BEGIN;
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '60s';
 CREATE TABLE IF NOT EXISTS app_customers (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -78,9 +85,6 @@ CREATE TABLE IF NOT EXISTS app_account_roles (
   PRIMARY KEY (account_id, role)
 );
 
-INSERT INTO app_account_roles (account_id, role)
-SELECT id, 'customer' FROM app_customers
-ON CONFLICT (account_id, role) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS app_plumber_profiles (
   id TEXT PRIMARY KEY,
@@ -144,16 +148,13 @@ CREATE INDEX IF NOT EXISTS app_admin_audit_entity_idx
 
 CREATE TABLE IF NOT EXISTS app_loyalty_config (
   id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  base_rate_bps INTEGER NOT NULL DEFAULT 100 CHECK (base_rate_bps BETWEEN 0 AND 10000),
-  pending_days INTEGER NOT NULL DEFAULT 14 CHECK (pending_days BETWEEN 0 AND 365),
-  rolling_period_days INTEGER NOT NULL DEFAULT 90 CHECK (rolling_period_days BETWEEN 1 AND 730),
+  base_rate_bps INTEGER NOT NULL CHECK (base_rate_bps BETWEEN 0 AND 10000),
+  pending_days INTEGER NOT NULL CHECK (pending_days BETWEEN 0 AND 365),
+  rolling_period_days INTEGER NOT NULL CHECK (rolling_period_days BETWEEN 1 AND 730),
   updated_by TEXT REFERENCES app_customers(id) ON DELETE SET NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-INSERT INTO app_loyalty_config (id, base_rate_bps, pending_days, rolling_period_days)
-VALUES (1, 100, 14, 90)
-ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS app_loyalty_levels (
   id TEXT PRIMARY KEY,
@@ -168,14 +169,6 @@ CREATE TABLE IF NOT EXISTS app_loyalty_levels (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Pilot defaults live in data and are editable through the protected admin API.
--- They must be confirmed with AVANT before production rollout.
-INSERT INTO app_loyalty_levels (id, code, name, sort_order, threshold_minor, bonus_rate_bps, benefits)
-VALUES
-  ('level-pro', 'pro', 'Профи', 1, 0, 100, '["Бонусы за покупки","Доступ к заявкам клиентов"]'::jsonb),
-  ('level-expert', 'expert', 'Эксперт', 2, 10000000, 125, '["Повышенный бонус","Приоритетная подготовка заказа","Ранний доступ к заявкам"]'::jsonb),
-  ('level-master', 'master', 'Мастер', 3, 30000000, 150, '["Максимальный бонус","Бесплатная доставка по условиям программы","Персональный менеджер"]'::jsonb)
-ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS app_loyalty_promotions (
   id TEXT PRIMARY KEY,
@@ -557,3 +550,5 @@ CREATE UNIQUE INDEX IF NOT EXISTS app_account_recovery_pending
 
 -- Inquiry mode is an explicit business workflow; no stock quantity is invented.
 ALTER TABLE app_orders ADD COLUMN IF NOT EXISTS fulfilment_mode TEXT NOT NULL DEFAULT 'inventory' CHECK (fulfilment_mode IN ('inventory','inquiry'));
+
+COMMIT;

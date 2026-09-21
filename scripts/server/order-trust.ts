@@ -1,9 +1,11 @@
 import type pg from 'pg';
 import type { NewOrder } from './orders';
 import { fail } from './security';
-export type OrderContext = { organizationId: string; deliveryBranchId?: string; catalogSource?: string };
+export type OrderContext = { organizationId: string; deliveryBranchId?: string; catalogSource?: string; fulfilmentMode?: 'inventory' | 'inquiry' };
 export async function trustedOrder(client: pg.Pool | pg.PoolClient, payload: NewOrder, context: OrderContext, hold: boolean) {
- if (!context.organizationId) fail('Сервис заказов ещё не подключён к учёту остатков.',503);
+ if (!context.organizationId) fail('Сервис заказов ещё не настроен.',503);
+ const inquiry=context.fulfilmentMode==='inquiry';
+ if(inquiry&&context.catalogSource!=='database')fail('Режим заявок требует действующий каталог сайта.',503);
  const branchId=payload.deliveryMethod==='pickup'?payload.storeId:context.deliveryBranchId;
  if (!branchId) fail('Способ получения временно недоступен.',409);
  const branches=await client.query(`SELECT * FROM app_order_branches WHERE organization_id=$1 AND id=$2 AND is_active AND orders_enabled`,[context.organizationId,branchId]);
@@ -15,12 +17,16 @@ export async function trustedOrder(client: pg.Pool | pg.PoolClient, payload: New
  for(const item of [...payload.items].sort((a,b)=>(a.productId||'').localeCompare(b.productId||''))) {
   if(!item.productId || seen.has(item.productId) || !Number.isSafeInteger(item.quantity) || item.quantity<1 || item.quantity>999) fail('Проверьте товары и количество.');
   seen.add(item.productId);
-  const result=await client.query(`SELECT * FROM app_order_offers WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3 ${hold?'FOR UPDATE':''}`,[context.organizationId,branchId,item.productId]);
-  const offer=result.rows[0];
-  if(!offer || !offer.is_active || new Date(offer.valid_until).getTime()<=Date.now()) fail('Данные товара устарели или товар недоступен. Обновите корзину.',409);
-  if(offer.stock_quantity-offer.reserved_quantity<item.quantity) fail(`Недостаточно товара «${offer.product_name}» в выбранном филиале.`,409);
-  let price=offer.unit_price_minor===null?null:Number(offer.unit_price_minor)/100;
-  let productName=offer.product_name as string;
+  let price:number|null=null;
+  let productName='';
+  if(!inquiry){
+   const result=await client.query(`SELECT * FROM app_order_offers WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3 ${hold?'FOR UPDATE':''}`,[context.organizationId,branchId,item.productId]);
+   const offer=result.rows[0];
+   if(!offer || !offer.is_active || new Date(offer.valid_until).getTime()<=Date.now()) fail('Данные товара устарели или товар недоступен. Обновите корзину.',409);
+   if(offer.stock_quantity-offer.reserved_quantity<item.quantity) fail(`Недостаточно товара «${offer.product_name}» в выбранном филиале.`,409);
+   price=offer.unit_price_minor===null?null:Number(offer.unit_price_minor)/100;
+   productName=offer.product_name as string;
+  }
   if(context.catalogSource==='database'){
    // Catalogue prices and active variants come from the same DB as the website.
    // The branch offer remains the authority for inventory/reservations only.
@@ -39,7 +45,7 @@ export async function trustedOrder(client: pg.Pool | pg.PoolClient, payload: New
    productName=[variant.name,variant.label].filter(Boolean).join(' · ')||productName;
   }
   if(hold && item.unitPrice!==price) fail('Цена изменилась. Обновите расчёт и подтвердите заказ снова.',409);
-  if(hold) await client.query('UPDATE app_order_offers SET reserved_quantity=reserved_quantity+$4 WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3',[context.organizationId,branchId,item.productId,item.quantity]);
+  if(hold&&!inquiry) await client.query('UPDATE app_order_offers SET reserved_quantity=reserved_quantity+$4 WHERE organization_id=$1 AND branch_id=$2 AND product_id=$3',[context.organizationId,branchId,item.productId,item.quantity]);
   items.push({...item,productName,unitPrice:price,unitPriceLabel:price===null?'Уточняется менеджером':null});
  }
  return {...payload,storeId:branch.id as string,storeName:branch.name as string,storeAddress:branch.address as string,items};
