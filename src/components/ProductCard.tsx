@@ -26,8 +26,8 @@ export function ProductCard({
 
   return (
     <View style={styles.card}>
-      <View style={[styles.imageWrap,!hasImage&&{height:64}]}>
-        <Pressable accessibilityRole="button" onPress={onPress} style={styles.imagePressable}>
+      <View style={styles.imageWrap}>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Открыть товар: ${product.name}`} onPress={onPress} style={styles.imagePressable}>
           {hasImage ? (
             <Image source={{ uri: product.image_url! }} style={styles.image} resizeMode="contain" onError={()=>setImageFailed(true)} />
           ) : (
@@ -59,7 +59,8 @@ const styles = StyleSheet.create({
     ...shadows.card
   },
   imageWrap: {
-    height: 150,
+    width: "100%",
+    aspectRatio: 1,
     backgroundColor: colors.surfaceMuted
   },
   imagePressable: {

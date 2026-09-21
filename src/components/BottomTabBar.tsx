@@ -67,9 +67,9 @@ export function BottomTabBar({ state, descriptors, navigation }: BottomTabBarPro
           return (
             <Pressable
               key={route.key}
-              accessibilityRole="button"
+              accessibilityRole="tab"
               aria-selected={focused} accessibilityState={{selected:focused}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
+              accessibilityLabel={options.tabBarAccessibilityLabel || meta.label}
               testID={options.tabBarButtonTestID}
               onPress={onPress}
               style={({ pressed }) => [

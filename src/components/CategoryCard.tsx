@@ -30,6 +30,7 @@ export function CategoryCard({ category, onPress }: CategoryCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={`${category.name}, ${category.product_count ?? 0} ${pluralizeRu(category.product_count ?? 0, "товар", "товара", "товаров")}`}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

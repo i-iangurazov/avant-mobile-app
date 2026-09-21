@@ -50,7 +50,7 @@ export default function CatalogScreen() {
               <Text style={styles.locationText}>Бишкек</Text>
             </View>
           </View>
-          <Pressable accessibilityRole="button" onPress={() => router.push("/image-search")} style={styles.searchButton}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Поиск по фото" onPress={() => router.push("/image-search")} style={styles.searchButton}>
             <Ionicons name="camera-outline" size={21} color={colors.textMuted} />
           </Pressable>
         </View>
@@ -75,7 +75,7 @@ export default function CatalogScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Категории</Text>
               {realCategories.length ? (
-                <Text style={styles.sectionMeta}>{realCategories.length} разделов</Text>
+                <Text style={styles.sectionMeta}>{realCategories.length} {pluralizeRu(realCategories.length, "раздел", "раздела", "разделов")}</Text>
               ) : null}
             </View>
 

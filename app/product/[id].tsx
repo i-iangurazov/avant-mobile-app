@@ -90,7 +90,7 @@ export default function ProductDetailScreen() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 110 + insets.bottom }]} showsVerticalScrollIndicator={false}>
-        <View style={[styles.imageWrap,(!product.data.image_url||imageFailed)&&{height:100}]}>
+        <View style={styles.imageWrap}>
           {currentProduct.image_url && !imageFailed ? (
             <Image source={{ uri: currentProduct.image_url }} style={styles.image} resizeMode="contain" onError={()=>setImageFailed(true)} />
           ) : (
@@ -216,7 +216,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface
   },
   imageWrap: {
-    height: 290,
+    width: "100%",
+    aspectRatio: 1,
     backgroundColor: colors.surfaceMuted
   },
   image: {
