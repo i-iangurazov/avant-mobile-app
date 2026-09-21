@@ -92,7 +92,7 @@ export class BazaarClient {
   constructor({ baseUrl, token = "", fetcher = fetch, timeoutMs = 15_000, usesProxy = false }: BazaarClientConfig) {
     this.baseUrl = trimTrailingSlash(baseUrl);
     this.token = token;
-    this.fetcher = (input, init) => fetcher.call(globalThis, input, init);
+    this.fetcher = fetcher.bind(globalThis);
     this.timeoutMs = timeoutMs;
     this.usesProxy = usesProxy;
   }

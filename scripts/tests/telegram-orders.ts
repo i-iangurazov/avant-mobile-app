@@ -36,7 +36,7 @@ async function start() {
   processHandle = spawn(process.execPath, ['--import', resolve('scripts/tests/telegram-network.mjs'), '--import', 'tsx', 'scripts/app-server.ts'], {
     env: { ...process.env, NODE_ENV: 'test', DATABASE_URL: pool.options.connectionString!, PORT: '8792', APP_SERVER_HOST: '127.0.0.1', AUTH_TOKEN_SECRET: secret,
       TELEGRAM_BOT_TOKEN: 'fixture:token', TELEGRAM_CHAT_ID: '-100200', TELEGRAM_BOT_USERNAME: 'fixture_bot', TELEGRAM_WEBHOOK_URL: 'https://telegram-fixture.invalid/telegram/webhook', TELEGRAM_WEBHOOK_SECRET: 'fixture-webhook-secret', TELEGRAM_TEST_DIR: work,
-      BAZAAR_API_BASE_URL: 'https://catalog.fixture.invalid', BAZAAR_API_TOKEN: 'fixture', APP_ORGANIZATION_ID: organization, DELIVERY_BRANCH_ID: 'branch', RAILWAY_PUBLIC_DOMAIN: '' },
+      PRODUCT_CATALOG_SOURCE: 'bazaar', BAZAAR_API_BASE_URL: 'https://catalog.fixture.invalid', BAZAAR_API_TOKEN: 'fixture', APP_ORGANIZATION_ID: organization, DELIVERY_BRANCH_ID: 'branch', RAILWAY_PUBLIC_DOMAIN: '' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   processHandle.stdout?.on('data', b => appendFileSync(join(work, 'server.log'), b));

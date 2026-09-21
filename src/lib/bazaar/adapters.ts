@@ -1,3 +1,4 @@
+import {productImageUrl} from "../catalog/imageUrl";
 import type {
   AppCategory,
   AppOrder,
@@ -117,7 +118,7 @@ const normalizeArray = (payload: unknown): unknown[] => {
 };
 
 const normalizeImageUrl = (record: UnknownRecord) => {
-  const image=(value:unknown)=>typeof value==='string' && /^(https?:\/\/|\/)/.test(value.trim()) ? value.trim() : null;
+  const image=productImageUrl;
   for(const key of ['imageUrl','image_url','photo','photo_url','picture','picture_url','thumbnail','thumbnail_url','main_image','mainImage']){
     const url=image(record[key]);if(url)return url;
   }
@@ -347,6 +348,8 @@ export function adaptProduct(value: unknown): Product {
 
   return {
     ...product,
+    purchaseOptions: Array.isArray(record.purchaseOptions) ? record.purchaseOptions.filter(isRecord).filter(option=>typeof option.id==='string'&&typeof option.label==='string').map(option=>({id:String(option.id),label:String(option.label),price:normalizePrice(readNumber(option,['price'])),sku:readNullableString(option,['sku'])})) : undefined,
+    parentProductId: readNullableString(record,['parentProductId']),
     category_id: categoryId,
     image_url: imageUrl,
     price_label: priceLabel,

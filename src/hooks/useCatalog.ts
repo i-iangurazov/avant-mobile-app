@@ -1,3 +1,4 @@
+import {selectProductOption} from "../lib/catalog/selectProductOption";
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addLocalCartItem } from "../lib/cart/localCart";
 import { fetchCategories, fetchProduct, fetchProductPage, fetchProducts } from "../lib/api/catalog";
@@ -111,7 +112,7 @@ export function useAddToCart() {
       quantity?: number;
     }) => {
       const cartProduct = product ?? (await fetchProduct(productId));
-      await addLocalCartItem(cartProduct, quantity);
+      await addLocalCartItem(selectProductOption(cartProduct), quantity);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["cart"] });

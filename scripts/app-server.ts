@@ -1,3 +1,4 @@
+import {createStorefrontCatalogGateway} from "./server/catalog/storefront";
 import {requestAccountRecovery,listAccountRecovery,approveAccountRecovery,completeAccountRecovery} from './server/account-recovery';
 import {createCatalogGateway} from "./server/catalog";
 import {mediaProvider,uploadMedia,requireOwnedMedia} from "./server/media";
@@ -123,8 +124,12 @@ const webhookSecret = telegramConfigured
   : "";
 const catalogBaseUrl = (env.BAZAAR_API_BASE_URL || "").replace(/\/+$/, "");
 const catalogToken = env.BAZAAR_API_TOKEN || "";
-const catalogGateway=createCatalogGateway(catalogBaseUrl,catalogToken);
 const databasePool = createPool(databaseUrl);
+// The website and mobile app share DATABASE_URL. Bazaar is explicit legacy-only.
+const catalogSource = env.PRODUCT_CATALOG_SOURCE || "database";
+if (!["database", "bazaar"].includes(catalogSource)) throw new Error("Unknown PRODUCT_CATALOG_SOURCE");
+const catalogConfigured = catalogSource === "database" ? Boolean(databasePool) : Boolean(catalogBaseUrl && catalogToken);
+const catalogGateway = catalogSource === "database" ? createStorefrontCatalogGateway(databasePool) : createCatalogGateway(catalogBaseUrl,catalogToken);
 const shouldLog = env.NODE_ENV !== "production";
 
 const catalogPaths = ["/products", "/categories"];
@@ -569,7 +574,7 @@ const server = createServer(async (req, res) => {
       orderOrganization: env.APP_ORGANIZATION_ID ? "configured" : "missing",
       plumberProgram: "configured",
       adminAccess: "database-role-only",
-      catalog: catalogBaseUrl && catalogToken ? "read-only" : "missing"
+      catalog: catalogConfigured ? `${catalogSource}:read-only` : "missing"
     });
     return;
   }
@@ -1113,7 +1118,7 @@ const server = createServer(async (req, res) => {
     if (path === '/orders/quote' && req.method === 'POST') {
       await requireCustomerId(req);
       const payload = parseNewOrder(await readJsonBody(req));
-      const quote = await trustedOrder(pool, payload, {organizationId: env.APP_ORGANIZATION_ID || '', deliveryBranchId: env.DELIVERY_BRANCH_ID}, false);
+      const quote = await trustedOrder(pool, payload, {organizationId: env.APP_ORGANIZATION_ID || '', deliveryBranchId: env.DELIVERY_BRANCH_ID,catalogSource}, false);
       sendJson(req,res,200,{data:{...quote,totalAmount:trustedTotal(quote.items)}}); return;
     }
     if (path === "/orders" && req.method === "GET") {
@@ -1133,7 +1138,7 @@ const server = createServer(async (req, res) => {
           throw Object.assign(new Error("Резерв доступен только для самовывоза."), { statusCode: 400 });
         }
       }
-      const result = await createAppOrder(pool, customerId, orderPayload, {organizationId:env.APP_ORGANIZATION_ID || "",deliveryBranchId:env.DELIVERY_BRANCH_ID});
+      const result = await createAppOrder(pool, customerId, orderPayload, {organizationId:env.APP_ORGANIZATION_ID || "",deliveryBranchId:env.DELIVERY_BRANCH_ID,catalogSource});
       if (!result.order) {
         throw new Error("Не удалось сохранить заказ.");
       }
@@ -1171,7 +1176,7 @@ const server = createServer(async (req, res) => {
         sendJson(req, res, 405, { error: "The catalog integration is read-only." });
         return;
       }
-      if (!catalogBaseUrl || !catalogToken) {
+      if (!catalogConfigured) {
         sendJson(req, res, 503, { error: "Catalog service is not configured." });
         return;
       }
@@ -1258,7 +1263,7 @@ const startServer = async () => {
     console.log(`Avantehnik app server listening on http://${host}:${port}`);
     console.log(`DATABASE_URL: ${databasePool ? "present" : "missing"}`);
     console.log(`TELEGRAM: ${telegramConfigured ? "configured" : "missing"}`);
-    console.log(`CATALOG: ${catalogBaseUrl && catalogToken ? "read-only" : "missing"}`);
+    console.log(`CATALOG: ${catalogConfigured ? `${catalogSource}:read-only` : "missing"}`);
   });
 };
 

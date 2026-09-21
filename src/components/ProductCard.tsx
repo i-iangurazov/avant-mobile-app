@@ -40,12 +40,12 @@ export function ProductCard({
         <View style={styles.body}>
           <Text style={styles.category}>{product.category?.name ?? product.brand ?? "Товар"}</Text>
           <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
-          <Text style={styles.price}>{formatPrice(product.price, product.price_label ?? "Цена уточняется")}</Text>
+          <Text style={styles.price}>{product.price_label || formatPrice(product.price)}</Text>
           <Text style={styles.stock}>{stockText}</Text>
         </View>
       </Pressable>
       <View style={styles.buttonWrap}>
-        <AppButton title="В корзину" onPress={onAdd} />
+        <AppButton title={(product.purchaseOptions?.length ?? 0) > 1 ? "Выбрать вариант" : "В корзину"} onPress={(product.purchaseOptions?.length ?? 0) > 1 ? onPress : onAdd} />
       </View>
     </View>
   );

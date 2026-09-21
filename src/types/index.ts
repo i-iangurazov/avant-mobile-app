@@ -60,7 +60,11 @@ export type Category = AppCategory & {
   product_count?: number | null;
 };
 
+export type ProductOption = {id: string; label: string; price: number | null; sku?: string | null};
+
 export type Product = AppProduct & {
+  purchaseOptions?: ProductOption[];
+  parentProductId?: string | null;
   category_id?: string | null;
   image_url?: string | null;
   price_label?: string | null;

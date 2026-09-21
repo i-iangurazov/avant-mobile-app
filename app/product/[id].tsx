@@ -1,3 +1,5 @@
+import {SelectField} from "../../src/components/SelectField";
+import {selectProductOption} from "../../src/lib/catalog/selectProductOption";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -29,6 +31,8 @@ export default function ProductDetailScreen() {
   const [imageFailed,setImageFailed]=useState(false);
   useEffect(()=>setImageFailed(false),[product.data?.image_url]);
   const [quantity, setQuantity] = useState(1);
+  const [optionId,setOptionId]=useState("");
+  useEffect(()=>{setOptionId("");setQuantity(1);},[id]);
   const [tab, setTab] = useState<DetailTab>("desc");
 
   const addProduct = async () => {
@@ -37,10 +41,11 @@ export default function ProductDetailScreen() {
     }
 
     try {
-      await addToCart.mutateAsync({ productId: product.data.id, product: product.data, quantity });
+      const selected=selectProductOption(product.data,optionId);
+      await addToCart.mutateAsync({ productId: selected.id, product: selected, quantity });
       showToast({
         title: "Добавлено в корзину",
-        message: `${product.data.name} x ${quantity}`,
+        message: `${selected.name} x ${quantity}`,
         variant: "success"
       });
     } catch (error) {
@@ -65,7 +70,10 @@ export default function ProductDetailScreen() {
   }
 
   const currentProduct = product.data;
-  const priceUnavailable = currentProduct.price === null || currentProduct.price === undefined;
+  const options=currentProduct.purchaseOptions ?? [];
+  const needsOption=options.length>1&&!optionId;
+  const selectedProduct=needsOption?currentProduct:selectProductOption(currentProduct,optionId);
+  const priceUnavailable = selectedProduct.price === null || selectedProduct.price === undefined;
   const askInWhatsApp = async () => {
     try {
       await openWhatsApp(`Здравствуйте! Хочу уточнить наличие товара: ${currentProduct.name}`);
@@ -100,7 +108,8 @@ export default function ProductDetailScreen() {
         </View>
         <View style={styles.info}>
           <Text style={styles.title}>{currentProduct.name}</Text>
-          <Text style={styles.price}>{formatPrice(currentProduct.price, currentProduct.price_label ?? "Цена уточняется")}</Text>
+          <Text style={styles.price}>{selectedProduct.price_label || formatPrice(selectedProduct.price)}</Text>
+          {options.length>1 ? <SelectField label="Вариант товара" searchable={options.length>7} value={optionId} options={options.map(option=>({value:option.id,label:`${option.label} — ${formatPrice(option.price)}`}))} onChange={setOptionId}/> : null}
           <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: "/find-plumber", params: { productId: currentProduct.id } })} style={styles.plumberHelp}><View style={styles.plumberHelpIcon}><Ionicons name="construct-outline" size={22} color={colors.secondary} /></View><View style={styles.plumberHelpCopy}><Text style={styles.plumberHelpTitle}>Нужен сантехник?</Text><Text style={styles.plumberHelpText}>Отправьте заявку проверенному мастеру</Text></View><Ionicons name="chevron-forward" size={19} color={colors.secondary} /></Pressable>
 
           <View style={styles.tabs}>
@@ -179,7 +188,8 @@ export default function ProductDetailScreen() {
         />
         <View style={styles.ctaButton}>
           <AppButton
-            title={priceUnavailable ? "Уточнить в WhatsApp" : "Добавить в корзину"}
+            title={needsOption ? "Выберите вариант" : priceUnavailable ? "Уточнить в WhatsApp" : "Добавить в корзину"}
+            disabled={needsOption}
             onPress={priceUnavailable ? () => void askInWhatsApp() : () => void addProduct()}
             loading={!priceUnavailable && addToCart.isPending}
           />

@@ -40,3 +40,22 @@ export function compareProducts(a: Product, b: Product, sort: ProductSort = 'rec
   }
   return a.name.localeCompare(b.name, 'ru') || a.id.localeCompare(b.id);
 }
+
+// Published, curated assets owned by the same storefront; never applied to other IDs.
+export const FEATURED_IMAGES: Readonly<Record<string, string>> = {
+  "cmq9cf7kn0001kz04lcw9os2s": "https://www.avantehnik.kg/avantech/featured-products/cmq9cf7kn0001kz04lcw9os2s.webp",
+  "cmkqrvnn10021l504ykhd04ji": "https://www.avantehnik.kg/avantech/featured-products/cmkqrvnn10021l504ykhd04ji.jpg",
+  "cmkqqyv6v0001jv04m6smetjh": "https://www.avantehnik.kg/avantech/featured-products/cmkqqyv6v0001jv04m6smetjh.jpg",
+  "cmlqb4w490001le04jtjw1paz": "https://www.avantehnik.kg/avantech/featured-products/cmlqb4w490001le04jtjw1paz.png",
+  "cmlq9r8s50001ju04hmyssg0v": "https://www.avantehnik.kg/avantech/featured-products/cmlq9r8s50001ju04hmyssg0v.jpg",
+  "cmlkfgvjb0001l104wwp4dd9x": "https://www.avantehnik.kg/avantech/featured-products/cmlkfgvjb0001l104wwp4dd9x.webp",
+  "cmozcii2s000ml2045npc84k4": "https://www.avantehnik.kg/avantech/featured-products/cmozcii2s000ml2045npc84k4.jpg",
+  "cmkqsrv140001l704v6xlpryv": "https://www.avantehnik.kg/avantech/featured-products/cmkqsrv140001l704v6xlpryv.webp",
+  "cmmoqxree0006ie045v286zas": "https://www.avantehnik.kg/avantech/featured-products/cmmoqxree0006ie045v286zas.jpg",
+  "cmlj9kzrf0005l504ud6yc3b1": "https://www.avantehnik.kg/avantech/featured-products/cmlj9kzrf0005l504ud6yc3b1.jpg",
+  "cmmk7rj6o000gjv042ff75bv3": "https://www.avantehnik.kg/avantech/featured-products/cmmk7rj6o000gjv042ff75bv3.png",
+  "cmlta82gf000qjx04ak2kt9ii": "https://www.avantehnik.kg/avantech/featured-products/cmlta82gf000qjx04ak2kt9ii.jpg",
+  "cmlt75vy60001jo042acrjnbt": "https://www.avantehnik.kg/avantech/featured-products/cmlt75vy60001jo042acrjnbt.jpg",
+  "cmmbmp4py0001ky043lkqmnrk": "https://www.avantehnik.kg/avantech/featured-products/cmmbmp4py0001ky043lkqmnrk.jpg",
+  "cmlkrf5rp0001jv04rwdnaku9": "https://www.avantehnik.kg/avantech/featured-products/cmlkrf5rp0001jv04rwdnaku9.webp"
+};

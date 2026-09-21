@@ -2,10 +2,9 @@ import type {ProductSort} from '../../src/lib/catalog/merchandising';
 import {adaptProducts,deriveCategoriesFromProducts,productMatchesCategory} from '../../src/lib/bazaar/adapters';
 import {orderedProductPage} from '../../src/lib/bazaar/completeCatalog';
 import {fail} from './security';
-type Row=Record<string,unknown>;
-type Snapshot={items:Row[];store:unknown;currencyCode:unknown;currencyRateKgsPerUnit:unknown};
+export type Row=Record<string,unknown>;
+export type Snapshot={items:Row[];store:unknown;currencyCode:unknown;currencyRateKgsPerUnit:unknown};
 export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof fetch=fetch){
- let cached:{expires:number;promise:Promise<Snapshot>}|null=null;
  const load=async():Promise<Snapshot>=>{
   const loadPage=async(page:number)=>{
    const response=await fetcher(`${baseUrl.replace(/\/$/,'')}/products?page=${page}&pageSize=100`,{headers:{Accept:'application/json',Authorization:`Bearer ${token}`},redirect:'error',signal:AbortSignal.timeout(15000)}).catch(()=>fail('Каталог временно недоступен. Попробуйте позже.',502));
@@ -33,6 +32,13 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
   }
   return {items:[...items.values()],...meta};
  };
+ return createCatalogHandler(async()=>{
+  if(!baseUrl||!token)fail('Каталог ещё не подключён.',503);
+  return load();
+ });
+}
+export function createCatalogHandler(load:()=>Promise<Snapshot>,resolveProduct?:(items:Row[],id:string)=>Row|undefined){
+ let cached:{expires:number;promise:Promise<Snapshot>}|null=null;
  const snapshot=()=>{
   if(!cached||cached.expires<Date.now()){
    const promise=load();cached={promise,expires:Date.now()+60_000};
@@ -41,7 +47,6 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
   return cached.promise;
  };
  return async(path:string,query:URLSearchParams)=>{
-  if(!baseUrl||!token)fail('Каталог ещё не подключён.',503);
   const allowed=new Set(['page','pageSize','search','id','categoryId','sort','inStock','withPrice']);
   for(const key of query.keys())if(!allowed.has(key))fail('Неизвестный параметр каталога.',400);
   if(path!=='/products'&&path!=='/categories')fail('Маршрут каталога не найден.',404);
@@ -55,7 +60,8 @@ export function createCatalogGateway(baseUrl:string,token:string,fetcher:typeof 
   const data=await snapshot();
   if(path==='/categories')return deriveCategoriesFromProducts({items:data.items,total:data.items.length});
   const id=query.get('id'),categoryId=query.get('categoryId');
-  const adapted=adaptProducts({items:data.items});
+  const selected=id&&resolveProduct?resolveProduct(data.items,id):undefined;
+  const adapted=adaptProducts({items:selected?[selected]:data.items});
   // Explicit sort opts into global server ordering. Legacy raw-page consumers
   // retain their existing source order; a mobile screen now needs one page only.
   if(sort){
