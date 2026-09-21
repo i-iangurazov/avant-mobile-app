@@ -13,6 +13,13 @@
     "production": {
       "autoIncrement": true,
       "node": "22.18.0"
+    },
+    "google-play": {
+      "extends": "production",
+      "credentialsSource": "local",
+      "android": {
+        "buildType": "app-bundle"
+      }
     }
   },
   "submit": {

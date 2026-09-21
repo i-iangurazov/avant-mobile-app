@@ -20,3 +20,7 @@ npm-debug.log*
 /node_modules
 
 /artifacts/
+
+# Private Android upload credentials; back up securely outside this repository.
+/.release-secrets/
+/credentials.json

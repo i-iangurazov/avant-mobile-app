@@ -1,5 +1,5 @@
 // EAS invokes this before dependency installation. Local verification is read-only.
-const required=process.argv.includes('--required')||process.env.EAS_BUILD_PROFILE==='production';
+const required=process.argv.includes('--required')||['production','google-play'].includes(process.env.EAS_BUILD_PROFILE);
 if(required){
  const raw=process.env.EXPO_PUBLIC_API_URL;
  if(!raw)throw Error('Release requires explicit EXPO_PUBLIC_API_URL for the approved backend.');
