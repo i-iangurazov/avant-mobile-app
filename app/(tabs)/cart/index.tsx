@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import { Alert, FlatList, Image, Pressable, StyleSheet, View } from "react-native";
 import { AppText as Text } from "../../../src/components/AppText";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../../src/components/AppButton";
 import { EmptyState } from "../../../src/components/EmptyState";
 import { ErrorState } from "../../../src/components/ErrorState";
@@ -16,13 +16,11 @@ import { formatPrice, friendlyError } from "../../../src/lib/formatters";
 import type { CartItemWithProduct } from "../../../src/types";
 
 export default function CartScreen() {
-  const insets = useSafeAreaInsets();
   const cart = useCart();
   const { user } = useAuth();
   const { updateQuantity, removeItem } = useCartMutations();
   const items = cart.data?.items ?? [];
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-  const tabBarOffset = 96 + insets.bottom;
 
   const updateItem = async (itemId: string, quantity: number) => {
     try {
@@ -91,10 +89,10 @@ export default function CartScreen() {
             data={items}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            contentContainerStyle={[styles.listContent, { paddingBottom: 310 + insets.bottom }]}
+            contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
-          <View style={[styles.summary, { bottom: tabBarOffset }]}>
+          <View style={styles.summary}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Товары: {itemCount}</Text>
               <Text style={styles.summaryLabel}>Доставка: уточняется</Text>
@@ -182,9 +180,6 @@ const styles = StyleSheet.create({
     fontWeight: "900"
   },
   summary: {
-    position: "absolute",
-    left: 0,
-    right: 0,
     backgroundColor: colors.surface,
     borderTopWidth: 1,
     borderTopColor: colors.border,

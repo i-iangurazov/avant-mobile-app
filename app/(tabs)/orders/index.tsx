@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: spacing.lg,
-    paddingBottom: 118,
+    paddingBottom: spacing.xl,
     gap: spacing.md
   }
 });

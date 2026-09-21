@@ -1,7 +1,7 @@
 import {stores,TWO_GIS_OPEN_URL} from '../../data/stores';
 import {branchCoordinates} from '../../data/branchCoordinates';
 export const externalMapUrl=(firmId?:string|null)=>firmId?`https://2gis.kg/bishkek/firm/${encodeURIComponent(firmId)}`:TWO_GIS_OPEN_URL;
-export type TwoGisMapProps={firmId?:string|null;storeName?:string;onInteractionChange?:(interacting:boolean)=>void;onSelectFirm?:(firmId:string)=>void};
+export type TwoGisMapProps={height?:number;firmId?:string|null;storeName?:string;onInteractionChange?:(interacting:boolean)=>void;onSelectFirm?:(firmId:string)=>void};
 export const mapFirmIsKnown=(id:unknown):id is string=>typeof id==='string'&&Object.hasOwn(branchCoordinates,id);
 export function buildMapHtml(firmId?:string|null){
  const data=stores.map(store=>({id:store.two_gis_firm_id,name:store.name,address:store.address,point:branchCoordinates[store.two_gis_firm_id||''],url:store.external_2gis_url})).filter(store=>store.point);

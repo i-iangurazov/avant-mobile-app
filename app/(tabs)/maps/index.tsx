@@ -12,6 +12,9 @@ import { useStores } from "../../../src/hooks/useStores";
 
 export default function MapsScreen() {
   const stores = useStores();
+  const [viewportHeight,setViewportHeight]=useState(0);
+  const [mapTop,setMapTop]=useState(0);
+  const mapHeight=viewportHeight?Math.max(220,Math.min(390,viewportHeight-mapTop-12)):260;
   const [selectedStoreId, setSelectedStoreId] = useState("store-1");
   const [mapInteracting, setMapInteracting] = useState(false);
   const selectedStore = useMemo(
@@ -26,6 +29,7 @@ export default function MapsScreen() {
         showsVerticalScrollIndicator={false}
         scrollEnabled={!mapInteracting}
         nestedScrollEnabled
+        onLayout={event=>setViewportHeight(event.nativeEvent.layout.height)}
       >
         <View style={styles.header}>
           <Text style={styles.title}>Магазины</Text>
@@ -39,12 +43,13 @@ export default function MapsScreen() {
           <>
             <View style={{padding:spacing.xl}}><SelectField label="Филиал" value={selectedStore?.id??null} options={(stores.data??[]).map(store=>({value:store.id,label:store.name,description:store.address}))} onChange={setSelectedStoreId} searchable/></View>
 
-            <TwoGisMap
+            <View onLayout={event=>setMapTop(event.nativeEvent.layout.y)}><TwoGisMap
+              height={mapHeight}
               firmId={selectedStore?.two_gis_firm_id}
               storeName={selectedStore?.name ?? "Авантехник"}
               onInteractionChange={setMapInteracting}
               onSelectFirm={firmId=>{const store=stores.data?.find(item=>item.two_gis_firm_id===firmId);if(store)setSelectedStoreId(store.id);}}
-            />
+            /></View>
 
             <View style={styles.cards}>
               {(selectedStore ? [selectedStore] : []).map((store) => (
@@ -64,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background
   },
   content: {
-    paddingBottom: 118
+    paddingBottom: spacing.xl
   },
   header: {
     backgroundColor: colors.surface,

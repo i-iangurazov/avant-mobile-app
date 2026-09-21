@@ -4,8 +4,8 @@ import { AppText as Text } from "../AppText";
 import {AppButton} from '../AppButton';
 import {spacing} from '../../constants/theme';
 import {buildMapHtml,externalMapUrl,mapFirmIsKnown,type TwoGisMapProps} from './mapSource';
-export function TwoGisMap({firmId,storeName='Авантехник',onSelectFirm}:TwoGisMapProps){
- const {height:windowHeight}=useWindowDimensions();const mapHeight=Math.max(260,Math.min(390,windowHeight-310));
+export function TwoGisMap({height,firmId,storeName='Авантехник',onSelectFirm}:TwoGisMapProps){
+ const {height:windowHeight}=useWindowDimensions();const mapHeight=height??Math.max(260,Math.min(390,windowHeight-310));
  const [failed,setFailed]=useState(false),[loaded,setLoaded]=useState(false),[attempt,setAttempt]=useState(0);
  const frame=useRef<HTMLIFrameElement>(null);const html=useMemo(()=>buildMapHtml(firmId),[firmId]);
  useEffect(()=>{setFailed(false);setLoaded(false);},[firmId,attempt]);

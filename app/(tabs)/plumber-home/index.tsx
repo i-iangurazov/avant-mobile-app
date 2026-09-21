@@ -110,7 +110,7 @@ function SectionTitle({ title, action, onPress }: { title: string; action: strin
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: 122 },
+  content: { paddingBottom: spacing.xl },
   header: { backgroundColor: colors.surface, paddingHorizontal: spacing.xl, paddingTop: spacing.md, paddingBottom: spacing.xl, flexDirection: "row", alignItems: "center", gap: spacing.md },
   headerCopy: { flex: 1 },
   eyebrow: { color: colors.secondary, fontSize: typography.tiny, fontWeight: "900", letterSpacing: 1.2 },
