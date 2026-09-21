@@ -26,7 +26,7 @@
     "smoke": "npm run typecheck && npm run lint && npm run check:db && npm run check:orders && npm run check:loyalty",
     "visual:order": "node scripts/order-detail-smoke.mjs",
     "check:remediation": "tsx scripts/tests/security.ts && tsx scripts/tests/orders.ts && tsx scripts/tests/loyalty.ts && tsx scripts/tests/deletion.ts && tsx scripts/tests/media.ts && tsx scripts/tests/catalog.ts && tsx scripts/tests/catalog-gateway.ts && tsx scripts/tests/reward-attempt.ts",
-    "postinstall": "node scripts/build/patch-metro.cjs",
+    "postinstall": "node scripts/build/patch-metro.cjs && node scripts/build/patch-expo-activity.cjs",
     "eas-build-pre-install": "node scripts/build/verify-env.cjs",
     "check:release-env": "node scripts/build/verify-env.cjs --required",
     "check:telegram-orders": "tsx scripts/tests/telegram-orders.ts"

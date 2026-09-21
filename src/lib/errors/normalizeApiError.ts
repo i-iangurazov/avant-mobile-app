@@ -40,6 +40,10 @@ export function normalizeApiError(error: unknown, fallback = UNKNOWN_ERROR) {
     console.warn("[api:error]", error);
   }
 
+  if (lower.includes('exponentimagepicker') || lower.includes('activityresultlauncher')) {
+    return 'Не удалось открыть выбор фото. Вернитесь в приложение и попробуйте ещё раз.';
+  }
+
   if (rawMessage.includes("Недостаточно товаров для корректировки")) {
     return "Недостаточно товара на складе";
   }
