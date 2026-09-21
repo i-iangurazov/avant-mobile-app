@@ -52,7 +52,7 @@ export default function PlumberQrScreen() {
     }
   };
 
-  if (!user) return <SafeAreaView style={styles.safe}><EmptyState title="Войдите в аккаунт" actionTitle="Войти" onAction={() => router.replace("/login")} /></SafeAreaView>;
+  if (!user) return <SafeAreaView style={styles.safe}><EmptyState title="Войдите в аккаунт" actionTitle="Войти" onAction={() => router.replace({ pathname: "/login", params: { returnTo: "/plumber/qr" } })} /></SafeAreaView>;
   if (user.plumber?.applicationStatus !== "approved") {
     return <SafeAreaView style={styles.safe}><ScreenHeader title="Мой QR" onBack={() => safeBack("/profile")} /><EmptyState title="QR пока недоступен" text="Код появится после подтверждения анкеты сантехника." icon="qr-code-outline" actionTitle="Открыть анкету" onAction={() => router.push("/plumber/apply")} /></SafeAreaView>;
   }

@@ -72,7 +72,7 @@ export default function FindPlumberScreen() {
     catch (error) { Alert.alert("Отзыв не отправлен", error instanceof Error ? error.message : "Попробуйте ещё раз."); }
   };
 
-  if (!user) return <SafeAreaView style={styles.safe}><ScreenHeader title="Найти сантехника" onBack={() => safeBack("/catalog")} /><EmptyState title="Сначала войдите" text="Так заявка будет защищена и останется в истории." actionTitle="Войти" onAction={() => router.push("/login")} /></SafeAreaView>;
+  if (!user) return <SafeAreaView style={styles.safe}><ScreenHeader title="Найти сантехника" onBack={() => safeBack("/catalog")} /><EmptyState title="Сначала войдите" text="Так заявка будет защищена и останется в истории." actionTitle="Войти" onAction={() => router.push({ pathname: "/login", params: { returnTo: "/find-plumber" } })} /></SafeAreaView>;
   if (requests.isLoading) return <SafeAreaView style={styles.safe}><LoadingState text="Загружаем заявки..." /></SafeAreaView>;
   if (requests.isError) return <SafeAreaView style={styles.safe}><ErrorState message={requests.error.message} onRetry={() => void requests.refetch()} /></SafeAreaView>;
 

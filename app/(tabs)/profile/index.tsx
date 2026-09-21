@@ -61,7 +61,7 @@ export default function ProfileScreen() {
             text="Профиль будет доступен после входа в аккаунт Авантехник."
             icon="person-circle-outline"
             actionTitle="Войти"
-            onAction={() => router.push("/login")}
+            onAction={() => router.push({ pathname: "/login", params: { returnTo: "/profile" } })}
           />
           <View style={styles.supportWrap}>
             <LegalLinks />

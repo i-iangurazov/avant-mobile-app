@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
 import { AppInput } from "../../src/components/AppInput";
 import { ErrorState } from "../../src/components/ErrorState";
+import { EmptyState } from "../../src/components/EmptyState";
 import { LoadingState } from "../../src/components/LoadingState";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { colors, radius, spacing, typography } from "../../src/constants/theme";
@@ -26,7 +27,7 @@ type FieldErrors = Partial<Record<"name" | "phone" | "address" | "store", string
 
 export default function CheckoutScreen() {
   const params = useLocalSearchParams<{ mode?: string }>();
-  const {session,user} = useAuth();
+  const {session,user,isLoading:authLoading} = useAuth();
   const [quote,setQuote] = useState<OrderQuote | null>(null);
   const [pending,setPending] = useState(false);
   const [quoting,setQuoting] = useState(false);
@@ -129,7 +130,15 @@ export default function CheckoutScreen() {
     } finally { setQuoting(false); }
   };
 
-  if (profile.isLoading || stores.isLoading || cart.isLoading) {
+  if (!authLoading && !user) {
+    return <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
+      <ScreenHeader title="Оформление заказа" onBack={() => safeBack("/cart")} />
+      <EmptyState title="Войдите для оформления" text="Товары останутся в корзине. После входа вы вернётесь к заказу."
+        actionTitle="Войти" onAction={() => router.push({ pathname: "/login", params: { returnTo: isReservation ? "/checkout?mode=reservation" : "/checkout" } })} />
+    </SafeAreaView>;
+  }
+
+  if (authLoading || profile.isLoading || stores.isLoading || cart.isLoading) {
     return (
       <SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
         <LoadingState text="Готовим оформление..." />

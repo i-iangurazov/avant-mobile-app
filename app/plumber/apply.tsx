@@ -58,7 +58,7 @@ export default function PlumberApplicationScreen() {
   }, [application.data]);
 
   if (!user) {
-    return <SafeAreaView style={styles.safe}><EmptyState title="Войдите в аккаунт" text="Для анкеты используется существующий аккаунт — второй создавать не нужно." actionTitle="Войти" onAction={() => router.push("/login")} /></SafeAreaView>;
+    return <SafeAreaView style={styles.safe}><EmptyState title="Войдите в аккаунт" text="Для анкеты используется существующий аккаунт — второй создавать не нужно." actionTitle="Войти" onAction={() => router.push({ pathname: "/login", params: { returnTo: "/plumber/apply" } })} /></SafeAreaView>;
   }
   if (application.isLoading) return <SafeAreaView style={styles.safe}><LoadingState text="Проверяем анкету..." /></SafeAreaView>;
   if (application.isError) return <SafeAreaView style={styles.safe}><ErrorState message={application.error.message} onRetry={() => void application.refetch()} /></SafeAreaView>;

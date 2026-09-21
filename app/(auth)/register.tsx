@@ -1,7 +1,8 @@
 import {LegalLinks} from "../../src/components/LegalLinks";
 import {useDocuments} from "../../src/hooks/useDocuments";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams, type Href } from "expo-router";
+import { authReturnTo } from "../../src/lib/navigation/authDestination";
 import { useEffect, useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { AppText as Text } from "../../src/components/AppText";
@@ -29,6 +30,8 @@ type FieldErrors = Partial<Record<
 const toList = (value: string) => [...new Set(value.split(",").map((item) => item.trim()).filter(Boolean))];
 
 export default function RegisterScreen() {
+  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const returnTo = authReturnTo(params.returnTo);
   const { signUp } = useAuth();
   const [accountType, setAccountType] = useState<AccountType>("customer");
   const [name, setName] = useState("");
@@ -95,14 +98,14 @@ export default function RegisterScreen() {
       });
       if (result.needsLogin) {
         Alert.alert("Аккаунт создан", "Теперь войдите с телефоном и паролем.");
-        router.replace("/login");
+        router.replace({ pathname: "/login", params: { returnTo } });
         return;
       }
       if (plumber) {
         Alert.alert("Заявка отправлена", "Аккаунт создан. После проверки откроются QR-код, бонусы и заявки клиентов.");
-        router.replace("/profile");
+        router.replace((returnTo ?? "/profile") as Href);
       } else {
-        router.replace("/catalog");
+        router.replace((returnTo ?? "/catalog") as Href);
       }
     } catch (error) {
       Alert.alert("Не удалось зарегистрироваться", friendlyError(error instanceof Error ? error.message : undefined));
@@ -209,7 +212,7 @@ export default function RegisterScreen() {
           <AppButton title={accountType === "plumber" ? "Создать аккаунт и отправить анкету" : "Создать аккаунт"} onPress={() => void submit()} loading={loading} />
           <View style={styles.inline}>
             <Text style={styles.inlineText}>Уже есть аккаунт?</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push("/login")}>
+            <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: "/login", params: { returnTo } })}>
               <Text style={styles.link}>Войти</Text>
             </Pressable>
           </View>

@@ -34,7 +34,7 @@ export default function OrdersScreen() {
           text="История заказов доступна после входа в аккаунт."
           icon="person-circle-outline"
           actionTitle="Войти"
-          onAction={() => router.push("/login")}
+          onAction={() => router.push({ pathname: "/login", params: { returnTo: "/orders" } })}
         />
       ) : null}
       {user && orders.isLoading ? <LoadingState text="Загружаем заказы..." /> : null}

@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams, type Href } from "expo-router";
 import { useState } from "react";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { AppText as Text } from "../../src/components/AppText";
@@ -16,9 +16,12 @@ import {
   phoneValidationMessage
 } from "../../src/lib/formatters";
 import { safeBack } from "../../src/lib/navigation/safeBack";
+import { authDestination, authReturnTo } from "../../src/lib/navigation/authDestination";
 
 
 export default function LoginScreen() {
+  const params = useLocalSearchParams<{ returnTo?: string }>();
+  const returnTo = authReturnTo(params.returnTo);
   const { signIn } = useAuth();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -40,7 +43,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       const account = await signIn(normalizedPhone, password);
-      router.replace(account.plumber?.applicationStatus === "approved" ? "/plumber-home" : "/catalog");
+      router.replace(authDestination(returnTo, account.plumber?.applicationStatus === "approved") as Href);
     } catch (error) {
       Alert.alert("Не удалось войти", friendlyError(error instanceof Error ? error.message : undefined));
     } finally {
@@ -81,7 +84,7 @@ export default function LoginScreen() {
           <AppButton title="Войти" onPress={() => void submit()} loading={loading} />
           <View style={styles.inline}>
             <Text style={styles.inlineText}>Нет аккаунта?</Text>
-            <Pressable accessibilityRole="button" onPress={() => router.push("/register")}>
+            <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: "/register", params: { returnTo } })}>
               <Text style={styles.link}>Зарегистрироваться</Text>
             </Pressable>
           </View>
