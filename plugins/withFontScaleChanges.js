@@ -25,7 +25,7 @@ module.exports = function withFontScaleChanges(config) {
   override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
     com.facebook.react.uimanager.DisplayMetricsHolder.initDisplayMetrics(this)
     super.onConfigurationChanged(newConfig)
-    window.decorView.requestLayout()
+    findViewById<android.view.ViewGroup>(android.R.id.content)?.getChildAt(0)?.requestLayout()
   }
 
 `;
