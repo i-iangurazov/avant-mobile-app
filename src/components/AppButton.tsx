@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, spacing, typography } from "../constants/theme";
 
 type AppButtonProps = {

@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, spacing, typography } from "../constants/theme";
 import { statusLabels } from "../lib/formatters";
 import type { Availability, OrderStatus } from "../types";

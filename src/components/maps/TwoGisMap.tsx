@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
-import {ActivityIndicator,Alert,Linking,Text,View,useWindowDimensions} from 'react-native';
+import {ActivityIndicator,Alert,Linking,View,useWindowDimensions} from "react-native";
+import { AppText as Text } from "../AppText";
 import {WebView} from 'react-native-webview';
 import {AppButton} from '../AppButton';
 import {colors,spacing} from '../../constants/theme';

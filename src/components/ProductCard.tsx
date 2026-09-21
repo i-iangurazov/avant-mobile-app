@@ -1,5 +1,6 @@
 import {useState} from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
 import { formatPrice } from "../lib/formatters";
 import type { Product } from "../types";

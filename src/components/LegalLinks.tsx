@@ -1,5 +1,6 @@
 import {router} from 'expo-router';
-import {Pressable,Text,View} from 'react-native';
+import {Pressable,View} from "react-native";
+import { AppText as Text } from "./AppText";
 import {colors,spacing} from '../constants/theme';
 export function LegalLinks(){return <View style={{gap:spacing.sm}}>{[
  ['privacy','Политика конфиденциальности'],['terms','Условия использования'],['loyalty','Правила программы лояльности'],['deletion','Удаление аккаунта и данных']

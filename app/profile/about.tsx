@@ -1,6 +1,7 @@
 import {LegalLinks} from "../../src/components/LegalLinks";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, ScrollView, StyleSheet, View } from "react-native";
+import { AppText as Text } from "../../src/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
 import { ScreenHeader } from "../../src/components/ScreenHeader";

@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, spacing, typography } from "../constants/theme";
 import { friendlyError } from "../lib/formatters";
 import { AppButton } from "./AppButton";

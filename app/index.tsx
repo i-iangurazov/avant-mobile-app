@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useCallback, useRef } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
+import { AppText as Text } from "../src/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../src/components/AppButton";
 import { assets } from "../src/constants/assets";

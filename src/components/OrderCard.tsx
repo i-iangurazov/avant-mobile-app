@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
 import { formatDate, formatPrice, pluralizeRu } from "../lib/formatters";
 import type { OrderListItem } from "../types";

@@ -1,4 +1,5 @@
-import { StyleSheet, Text, TextInput, type TextInputProps, type TextStyle, View } from "react-native";
+import { StyleSheet, TextInput, type TextInputProps, type TextStyle, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, spacing, typography } from "../constants/theme";
 
 type AppInputProps = TextInputProps & {

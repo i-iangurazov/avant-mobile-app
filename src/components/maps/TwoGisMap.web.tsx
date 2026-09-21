@@ -1,5 +1,6 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {Linking,Text,View,useWindowDimensions} from 'react-native';
+import {Linking,View,useWindowDimensions} from "react-native";
+import { AppText as Text } from "../AppText";
 import {AppButton} from '../AppButton';
 import {spacing} from '../../constants/theme';
 import {buildMapHtml,externalMapUrl,mapFirmIsKnown,type TwoGisMapProps} from './mapSource';

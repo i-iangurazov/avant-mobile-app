@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react';
-import {ScrollView,Text} from 'react-native';
+import {ScrollView} from "react-native";
+import { AppText as Text } from "../src/components/AppText";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {router,useLocalSearchParams} from 'expo-router';
 import {AppInput} from '../src/components/AppInput';

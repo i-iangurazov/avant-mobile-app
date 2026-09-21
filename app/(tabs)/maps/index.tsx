@@ -1,5 +1,6 @@
 import {SelectField} from "../../../src/components/SelectField";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { AppText as Text } from "../../../src/components/AppText";
 import { useMemo, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ErrorState } from "../../../src/components/ErrorState";

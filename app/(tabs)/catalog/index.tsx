@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { AppText as Text } from "../../../src/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryCard } from "../../../src/components/CategoryCard";
 import { ErrorState } from "../../../src/components/ErrorState";

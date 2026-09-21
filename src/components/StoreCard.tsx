@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, StyleSheet, View } from "react-native";
+import { AppText as Text } from "./AppText";
 import { colors, radius, shadows, spacing, typography } from "../constants/theme";
 import { whatsAppBusinessPhone } from "../lib/config/env";
 import { openWhatsApp } from "../lib/whatsapp";

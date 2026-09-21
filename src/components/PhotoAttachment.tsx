@@ -1,5 +1,6 @@
 import {useState} from 'react';
-import {Image,Text,View} from 'react-native';
+import {Image,View} from "react-native";
+import { AppText as Text } from "./AppText";
 import * as ImagePicker from 'expo-image-picker';
 import {AppButton} from './AppButton';
 import {useAuth} from '../hooks/useAuth';

@@ -1,5 +1,6 @@
 import {router,useLocalSearchParams} from 'expo-router';
-import {ScrollView,Text} from 'react-native';
+import {ScrollView} from "react-native";
+import { AppText as Text } from "../../src/components/AppText";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScreenHeader} from '../../src/components/ScreenHeader';
 import {AppButton} from '../../src/components/AppButton';

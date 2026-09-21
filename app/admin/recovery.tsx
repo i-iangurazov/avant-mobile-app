@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react';
-import {ScrollView,Text,View} from 'react-native';
+import {ScrollView,View} from "react-native";
+import { AppText as Text } from "../../src/components/AppText";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppInput} from '../../src/components/AppInput';
 import {AppButton} from '../../src/components/AppButton';

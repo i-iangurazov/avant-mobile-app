@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useMemo,useState} from 'react';
-import {FlatList,KeyboardAvoidingView,Modal,Platform,Pressable,StyleSheet,Text,View} from 'react-native';
+import {FlatList,KeyboardAvoidingView,Modal,Platform,Pressable,StyleSheet,View} from "react-native";
+import { AppText as Text } from "./AppText";
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {AppInput} from './AppInput';
 import {colors,radius,spacing} from '../constants/theme';
