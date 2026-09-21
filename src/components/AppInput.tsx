@@ -1,5 +1,5 @@
-import { StyleSheet, TextInput, type TextInputProps, type TextStyle, View } from "react-native";
-import { AppText as Text } from "./AppText";
+import { Platform, StyleSheet, TextInput, type TextInputProps, type TextStyle, View } from "react-native";
+import { AppText as Text, useSystemTextStyle } from "./AppText";
 import { colors, radius, spacing, typography } from "../constants/theme";
 
 type AppInputProps = TextInputProps & {
@@ -8,6 +8,7 @@ type AppInputProps = TextInputProps & {
 };
 
 export function AppInput({ label, error, style, ...props }: AppInputProps) {
+  const inputStyle = useSystemTextStyle([styles.input, webInputReset, error && styles.inputError, style], props.allowFontScaling, props.maxFontSizeMultiplier);
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -15,8 +16,9 @@ export function AppInput({ label, error, style, ...props }: AppInputProps) {
         accessibilityLabel={props.accessibilityLabel || label}
         placeholderTextColor={colors.textSubtle}
         selectionColor={colors.primary}
-        style={[styles.input, webInputReset, error && styles.inputError, style]}
+        style={inputStyle}
         {...props}
+        allowFontScaling={Platform.OS === "android" ? false : props.allowFontScaling}
       />
       {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
     </View>
