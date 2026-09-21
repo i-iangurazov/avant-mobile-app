@@ -59,7 +59,9 @@ export const getLoyaltyTransactions = (
   if (filters.cursor) query.set("cursor", filters.cursor);
   if (filters.status) query.set("status", filters.status);
   if (filters.type) query.set("type", filters.type);
-  return request<LoyaltyTransaction[]>(`/plumber/loyalty/transactions${query.size ? `?${query}` : ""}`, accessToken);
+  // limit is always present. Older native URLSearchParams implementations do
+  // not expose .size; relying on it silently drops filters and the cursor.
+  return request<LoyaltyTransaction[]>(`/plumber/loyalty/transactions?${query.toString()}`, accessToken);
 };
 
 export const getRewards = (accessToken?: string | null) =>
