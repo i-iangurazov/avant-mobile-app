@@ -138,14 +138,21 @@ export async function sendTelegramText(config: TelegramConfig, chatId: string, t
 }
 
 export async function editTelegramOrder(config: TelegramConfig, order: AppOrderDetail, messageId: number) {
-  return telegramRequest<TelegramMessage | true>(config, "editMessageText", {
+  try {
+    return await telegramRequest<TelegramMessage | true>(config, "editMessageText", {
     chat_id: config.chatId,
     message_id: messageId,
     text: formatTelegramOrder(order),
     parse_mode: "HTML",
     disable_web_page_preview: true,
     reply_markup: { inline_keyboard: statusButtons(order) }
-  });
+    });
+  } catch (error) {
+    // A repeated callback may already have committed the status and edited
+    // this message. Telegram reports an unchanged edit as an error.
+    if (error instanceof Error && /message is not modified/i.test(error.message)) return true;
+    throw error;
+  }
 }
 
 export async function answerTelegramCallback(

@@ -28,7 +28,8 @@
     "check:remediation": "tsx scripts/tests/security.ts && tsx scripts/tests/orders.ts && tsx scripts/tests/loyalty.ts && tsx scripts/tests/deletion.ts && tsx scripts/tests/media.ts && tsx scripts/tests/catalog.ts && tsx scripts/tests/catalog-gateway.ts && tsx scripts/tests/reward-attempt.ts",
     "postinstall": "node scripts/build/patch-metro.cjs",
     "eas-build-pre-install": "node scripts/build/verify-env.cjs",
-    "check:release-env": "node scripts/build/verify-env.cjs --required"
+    "check:release-env": "node scripts/build/verify-env.cjs --required",
+    "check:telegram-orders": "tsx scripts/tests/telegram-orders.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

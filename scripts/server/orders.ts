@@ -391,11 +391,12 @@ export async function markTelegramFailed(pool: pg.Pool, orderId: string) {
   );
 }
 
-export async function claimTelegramDeliveries(pool: pg.Pool, limit = 10) {
+export async function claimTelegramDeliveries(pool: pg.Pool, organizationId: string, limit = 10) {
+  if (!organizationId) throw new Error('Telegram delivery requires a configured order organization.');
   const result = await pool.query<{ id: string }>(
     `WITH due AS (
        SELECT id FROM app_orders
-       WHERE telegram_message_id IS NULL
+       WHERE organization_id = $2 AND telegram_message_id IS NULL
          AND (
            telegram_notification_status IN ('pending', 'failed')
            OR (
@@ -417,7 +418,7 @@ export async function claimTelegramDeliveries(pool: pg.Pool, limit = 10) {
      FROM due
      WHERE orders.id = due.id
      RETURNING orders.id`,
-    [limit]
+    [limit, organizationId]
   );
   return result.rows.map((row) => row.id);
 }

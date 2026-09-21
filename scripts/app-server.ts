@@ -112,6 +112,7 @@ const telegramConfig = {
   chatId: env.TELEGRAM_CHAT_ID || ""
 };
 const telegramConfigured = Boolean(telegramConfig.botToken && telegramConfig.chatId);
+let telegramWebhookReady = false;
 const telegramBotUsername = (env.TELEGRAM_BOT_USERNAME || "").replace(/^@/, "").trim();
 const adminPhoneNumbers = (env.ADMIN_PHONE_NUMBERS || "").split(",").map((phone) => phone.trim()).filter(Boolean);
 const webhookUrl = resolveTelegramWebhookUrl(env.TELEGRAM_WEBHOOK_URL || "", env.RAILWAY_PUBLIC_DOMAIN || "");
@@ -413,10 +414,10 @@ const deliverTelegramOrder = async (orderId: string) => {
 };
 
 const deliverPendingTelegramOrders = async () => {
-  if (!databasePool || !telegramConfigured) {
+  if (!databasePool || !telegramConfigured || !env.APP_ORGANIZATION_ID) {
     return;
   }
-  const orderIds = await claimTelegramDeliveries(databasePool);
+  const orderIds = await claimTelegramDeliveries(databasePool, env.APP_ORGANIZATION_ID);
   for (const orderId of orderIds) {
     await deliverTelegramOrder(orderId);
   }
@@ -501,6 +502,12 @@ const handleTelegramWebhook = async (
 
   try {
     const pool = requireDatabase();
+    const scope = await pool.query('SELECT 1 FROM app_orders WHERE id=$1 AND organization_id=$2', [parsed.orderId, env.APP_ORGANIZATION_ID || '']);
+    const originalOrder = await getAppOrder(pool, parsed.orderId);
+    if (!scope.rowCount || !originalOrder || originalOrder.telegram.chat_id !== chatId ||
+        originalOrder.telegram.message_id !== Number(message?.message_id)) {
+      throw Object.assign(new Error("Кнопка не относится к актуальному сообщению заказа."), { statusCode: 409 });
+    }
     const result = await updateAppOrderStatus(pool, parsed.orderId, parsed.status);
     const order = await getAppOrder(pool, parsed.orderId);
     if (!order) {
@@ -549,14 +556,15 @@ const server = createServer(async (req, res) => {
   if (path === "/health" && req.method === "GET") {
     let reachable=false;
     if(databasePool) try { await databasePool.query('SELECT 1'); reachable=true; } catch { /* Health must report the failed dependency. */ }
-    const ready = Boolean(reachable && configuredAuthSecret && telegramConfigured && webhookUrl);
+    const ready = Boolean(reachable && configuredAuthSecret && telegramConfigured && telegramWebhookReady && env.APP_ORGANIZATION_ID);
     sendJson(req, res, ready ? 200 : 503, {
       ok: ready,
       database: reachable ? "reachable" : databasePool ? "unreachable" : "missing",
       authTokenSecret: configuredAuthSecret ? "present" : "missing",
       telegramBotToken: telegramConfig.botToken ? "present" : "missing",
       telegramChatId: telegramConfig.chatId ? "present" : "missing",
-      telegramWebhook: webhookUrl ? "configured" : "missing",
+      telegramWebhook: telegramWebhookReady ? "registered" : webhookUrl ? "registration_failed" : "missing",
+      orderOrganization: env.APP_ORGANIZATION_ID ? "configured" : "missing",
       plumberProgram: "configured",
       adminAccess: "database-role-only",
       catalog: catalogBaseUrl && catalogToken ? "read-only" : "missing"
@@ -1118,6 +1126,11 @@ const server = createServer(async (req, res) => {
         data: order ? toPublicOrder(order) : null,
         telegram_notification: delivered ? "sent" : "pending"
       });
+      // Wake the durable, atomically claimed queue immediately after commit.
+      // The order response must not wait for Telegram's network round trip.
+      void deliverPendingTelegramOrders().catch((error) => {
+        console.error("[telegram:order-created]", error instanceof Error ? error.message : error);
+      });
       return;
     }
 
@@ -1175,14 +1188,18 @@ const startServer = async () => {
   if (env.NODE_ENV === "production" && (!telegramConfigured || !webhookUrl)) {
     throw new Error("TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, and a public Telegram webhook URL are required in production.");
   }
+  if (env.NODE_ENV === "production" && !env.APP_ORGANIZATION_ID) {
+    throw new Error("APP_ORGANIZATION_ID must match the reviewed order inventory/branch configuration.");
+  }
 
   if(env.NODE_ENV==='production') {
-    const required=await databasePool.query("SELECT to_regclass('app_sessions') sessions,to_regclass('app_order_offers') offers,to_regclass('app_public_documents') documents,to_regclass('app_uploaded_media') media");
-    if(Object.values(required.rows[0]).some(value=>!value)) throw new Error('Apply the reviewed 20260918 migration before starting this backend.');
+    const required=await databasePool.query("SELECT to_regclass('app_sessions') sessions,to_regclass('app_order_offers') offers,to_regclass('app_public_documents') documents,to_regclass('app_uploaded_media') media,to_regclass('app_account_recovery') recovery");
+    if(Object.values(required.rows[0]).some(value=>!value)) throw new Error('Apply the reviewed 20260918 and 20260921 migrations before starting this backend.');
   } else await ensureSchema(databasePool);
   if (telegramConfigured && webhookUrl) {
     try {
-      await registerTelegramWebhook(telegramConfig, webhookUrl, webhookSecret);
+      telegramWebhookReady = await registerTelegramWebhook(telegramConfig, webhookUrl, webhookSecret);
+      if (!telegramWebhookReady) throw new Error("Telegram did not confirm webhook registration.");
       console.log("Telegram webhook registered.");
     } catch (error) {
       console.error("[telegram:webhook]", error instanceof Error ? error.message : error);

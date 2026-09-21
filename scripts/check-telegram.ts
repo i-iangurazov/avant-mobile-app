@@ -1,4 +1,5 @@
 import { loadEnv } from "./server/env";
+import { resolveTelegramWebhookUrl } from "./server/telegram";
 
 type TelegramResponse<T> = { ok: boolean; result?: T; description?: string };
 
@@ -6,7 +7,8 @@ const callTelegram = async <T>(token: string, method: string, payload: unknown) 
   const response = await fetch(`https://api.telegram.org/bot${token}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(10_000)
   });
   const data = await response.json() as TelegramResponse<T>;
   if (!response.ok || !data.ok || data.result === undefined) {
@@ -42,6 +44,15 @@ async function main() {
   }
   console.log(`Bot: reachable (${bot.id})`);
   console.log(`Admin chat: reachable (${chat.type}, bot ${membership.status})`);
+  const expectedWebhook = resolveTelegramWebhookUrl(env.TELEGRAM_WEBHOOK_URL || "", env.RAILWAY_PUBLIC_DOMAIN || "");
+  const webhook = await callTelegram<{ url: string; pending_update_count: number; last_error_message?: string }>(botToken, "getWebhookInfo", {});
+  console.log(`Webhook: ${webhook.url ? "registered" : "missing"}; pending updates: ${webhook.pending_update_count}`);
+  if (!expectedWebhook) throw new Error("Configure the reviewed HTTPS backend URL in TELEGRAM_WEBHOOK_URL or RAILWAY_PUBLIC_DOMAIN.");
+  if (webhook.url !== expectedWebhook) throw new Error("Telegram webhook is missing or points to a different backend. No settings were changed.");
+  if (chat.type !== "private" && !["administrator", "creator"].includes(membership.status)) {
+    throw new Error("The bot must be a group administrator to reliably verify order-status operators.");
+  }
+  if (webhook.last_error_message) console.log(`Last Telegram delivery error: ${webhook.last_error_message}`);
   console.log("Telegram configuration check passed without sending a message.");
 }
 
