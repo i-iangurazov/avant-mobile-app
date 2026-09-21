@@ -4,13 +4,13 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleShee
 import { AppText as Text } from "../../src/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
+import { PhoneInput } from "../../src/components/PhoneInput";
 import { AppInput } from "../../src/components/AppInput";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { colors, spacing, typography } from "../../src/constants/theme";
 import { useAuth } from "../../src/hooks/useAuth";
 import {
   friendlyError,
-  handleKyrgyzPhoneInput,
   isValidKyrgyzPhone,
   normalizePhone,
   phoneValidationMessage
@@ -56,12 +56,12 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <ScreenHeader title="Вход в аккаунт" subtitle="Введите телефон и пароль" onBack={() => safeBack("/welcome")} />
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <AppInput
+          <PhoneInput
             label="Телефон"
             placeholder="+996 700 000 000"
             keyboardType="phone-pad"
             value={phone}
-            onChangeText={(value) => setPhone(handleKyrgyzPhoneInput(value))}
+            onChangeText={setPhone}
             error={errors.phone}
             textContentType="telephoneNumber"
             autoComplete="tel"

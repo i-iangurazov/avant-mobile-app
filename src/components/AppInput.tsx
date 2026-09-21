@@ -5,21 +5,26 @@ import { colors, radius, spacing, typography } from "../constants/theme";
 type AppInputProps = TextInputProps & {
   label: string;
   error?: string;
+  prefix?: string;
 };
 
-export function AppInput({ label, error, style, ...props }: AppInputProps) {
-  const inputStyle = useSystemTextStyle([styles.input, webInputReset, error && styles.inputError, style], props.allowFontScaling, props.maxFontSizeMultiplier);
+export function AppInput({ label, error, prefix, style, ...props }: AppInputProps) {
+  const inputStyle = useSystemTextStyle([styles.input, webInputReset, error && styles.inputError, prefix && styles.prefixedInput, style], props.allowFontScaling, props.maxFontSizeMultiplier);
+  const input = <TextInput
+    accessibilityLabel={props.accessibilityLabel || label}
+    placeholderTextColor={colors.textSubtle}
+    selectionColor={colors.primary}
+    style={inputStyle}
+    {...props}
+    allowFontScaling={Platform.OS === "android" ? false : props.allowFontScaling}
+  />;
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        accessibilityLabel={props.accessibilityLabel || label}
-        placeholderTextColor={colors.textSubtle}
-        selectionColor={colors.primary}
-        style={inputStyle}
-        {...props}
-        allowFontScaling={Platform.OS === "android" ? false : props.allowFontScaling}
-      />
+      {prefix ? <View style={[styles.prefixRow, error && styles.inputError]}>
+        <Text accessible={false} style={styles.prefix}>{prefix}</Text>
+        {input}
+      </View> : input}
       {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
     </View>
   );
@@ -28,6 +33,13 @@ export function AppInput({ label, error, style, ...props }: AppInputProps) {
 const webInputReset = { outlineStyle: "none" } as unknown as TextStyle;
 
 const styles = StyleSheet.create({
+  prefixRow: {
+    flexDirection: "row", alignItems: "center", gap: spacing.sm,
+    borderRadius: radius.md, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted, paddingLeft: spacing.lg
+  },
+  prefix: { color: colors.text, fontSize: typography.body, fontWeight: "600" },
+  prefixedInput: { flex: 1, width: undefined, minWidth: 0, borderWidth: 0, backgroundColor: "transparent", paddingLeft: 0 },
   field: {
     width: "100%",
     alignSelf: "stretch",

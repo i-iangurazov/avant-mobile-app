@@ -8,13 +8,13 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleShee
 import { AppText as Text } from "../../src/components/AppText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppButton } from "../../src/components/AppButton";
+import { PhoneInput } from "../../src/components/PhoneInput";
 import { AppInput } from "../../src/components/AppInput";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { colors, radius, spacing, typography } from "../../src/constants/theme";
 import { useAuth } from "../../src/hooks/useAuth";
 import {
   friendlyError,
-  handleKyrgyzPhoneInput,
   isValidKyrgyzPhone,
   normalizePhone,
   phoneValidationMessage
@@ -146,12 +146,12 @@ export default function RegisterScreen() {
           </View>
 
           <AppInput label="Имя и фамилия" placeholder="Как к вам обращаться" value={name} onChangeText={setName} error={errors.name} autoComplete="name" />
-          <AppInput
+          <PhoneInput
             label="Телефон"
             placeholder="+996 700 000 000"
             keyboardType="phone-pad"
             value={phone}
-            onChangeText={(value) => setPhone(handleKyrgyzPhoneInput(value))}
+            onChangeText={setPhone}
             error={errors.phone}
             textContentType="telephoneNumber"
             autoComplete="tel"

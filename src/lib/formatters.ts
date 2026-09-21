@@ -95,6 +95,16 @@ export const phoneValidationMessage = "Введите телефон в форм
 
 export const handleKyrgyzPhoneInput = (value: string) => formatKyrgyzPhoneInput(value);
 
+// The country prefix is a separate, non-editable part of PhoneInput. Keep a
+// pasted foreign code invalid instead of silently assigning it to Kyrgyzstan.
+export const nationalPhoneToAccount = (value: string) => {
+  const compact = value.replace(/[^\d+]/g, "");
+  if (!compact) return "";
+  if (compact.startsWith("+")) return compact;
+  if (compact.startsWith("996") && compact.length > 9) return `+${compact}`;
+  return `+996${compact.startsWith("0") ? compact.slice(1) : compact}`;
+};
+
 export const friendlyError = (message?: string) => {
   return normalizeApiError(message);
 };

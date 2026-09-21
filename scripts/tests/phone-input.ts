@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {formatKyrgyzPhoneInput as format, normalizePhone, isValidKyrgyzPhone} from '../../src/lib/formatters';
+import {formatKyrgyzPhoneInput as format, normalizePhone, isValidKyrgyzPhone, nationalPhoneToAccount} from '../../src/lib/formatters';
 
 // Reproduce controlled TextInput keystrokes, not only whole-string paste.
 for (const input of ['+996700123456', '996700123456', '0700123456', '700123456']) {
@@ -24,3 +24,25 @@ while (value) {
   value = next;
 }
 console.log('PASS phone input: four typed/pasted formats, partial country prefix, deletion, excess digits and foreign country');
+
+// Fixed +996 prefix: local typing, national/full-number paste, clearing and
+// foreign/excess digits must preserve the actual account number.
+for (const input of ['700123456', '0700123456', '+996700123456', '996700123456']) {
+  assert.equal(nationalPhoneToAccount(input), '+996700123456');
+}
+let national = '';
+for (const char of '700123456') {
+  const phone = nationalPhoneToAccount(national + char);
+  national = format(phone).slice(4).trimStart();
+}
+assert.equal(normalizePhone(nationalPhoneToAccount(national)), '+996700123456');
+while (national) {
+  const next = nationalPhoneToAccount(national.slice(0, -1));
+  const display = next ? format(next).slice(4).trimStart() : '';
+  assert.ok(display.length < national.length);
+  national = display;
+}
+assert.equal(nationalPhoneToAccount(''), '');
+assert.equal(isValidKyrgyzPhone(nationalPhoneToAccount('+77001234567')), false);
+assert.equal(isValidKyrgyzPhone(nationalPhoneToAccount('7001234569')), false);
+console.log('PASS fixed +996 prefix: typed/pasted number, complete deletion, foreign code and excess digit rejection');
